@@ -810,3 +810,63 @@ body {
 .section-title { font-size: 1.1rem; margin-bottom: 15px; font-weight: 800; border-left: 4px solid var(--accent); padding-left: 10px; }
 .detail-block { padding: 20px; margin-bottom: 20px; }
 .section-label { color: var(--accent); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; font-weight: 800; }
+
+/* =========================================
+  18. RELATION CARDS & BADGES (From Reference)
+   ========================================= */
+.relation-scroller {
+    display: flex;
+    overflow-x: auto;
+    gap: 15px;
+    padding-bottom: 10px;
+    scrollbar-width: none;
+}
+.relation-scroller::-webkit-scrollbar { display: none; }
+
+.relation-card {
+    flex: 0 0 140px;
+    cursor: pointer;
+}
+
+.relation-card img {
+    width: 140px;
+    height: 200px;
+    border-radius: 18px;
+    object-fit: cover;
+    margin-bottom: 10px;
+    border: 1px solid var(--glass-border);
+}
+
+.relation-name {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 8px;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* The Pill Badge Style */
+.relation-badge {
+    background: #fff; /* White background as per image */
+    color: #000;      /* Black text */
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.65rem;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.relation-badge i { font-size: 0.55rem; }
+
+/* Characters grid fix */
+.char-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
