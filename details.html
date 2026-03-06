@@ -18,26 +18,22 @@
         </button>
     </div>
 
-    <div class="container" style="margin-top: -120px; position: relative; z-index: 10; max-width: 900px;">
-        
+    <div class="container" style="margin-top: -120px; position: relative; z-index: 10; max-width: 800px;">
         <div style="display: flex; gap: 25px; align-items: flex-end; margin-bottom: 35px; flex-wrap: wrap;">
             <img id="det-cover" class="glass-card" style="width: 160px; height: 230px; border-radius: 20px; object-fit: cover; box-shadow: 0 20px 50px rgba(0,0,0,0.8); border: 2px solid var(--glass-border);">
             <div style="flex: 1; min-width: 280px; padding-bottom: 10px;">
-                <h1 id="det-title" style="font-size: 2.2rem; font-weight: 800; line-height: 1.1; letter-spacing: -1px; margin-bottom: 15px;">Loading...</h1>
+                <h1 id="det-title" style="font-size: 2rem; font-weight: 800; line-height: 1.1; letter-spacing: -1px; margin-bottom: 15px;">Loading...</h1>
                 <div id="det-meta" style="display: flex; gap: 15px; font-weight: 700; font-size: 0.85rem; color: var(--accent);"></div>
             </div>
         </div>
 
         <div class="main-col">
-            <div class="section-group" style="margin-bottom: 30px;">
-                <div class="row-header" style="margin-bottom: 15px;">
-                    <h3>Statistics</h3>
-                    <i class="fas fa-chart-bar" style="color: var(--accent);"></i>
-                </div>
+            <div class="section-group">
+                <div class="row-header" style="margin-bottom: 15px;"><h3>Statistics</h3><i class="fas fa-chart-bar"></i></div>
                 <div id="det-stats-grid" class="stats-grid-container"></div>
             </div>
 
-            <div class="glass-card" style="padding: 25px; margin-bottom: 30px;">
+            <div class="glass-card" style="padding: 25px; margin: 30px 0;">
                 <h3 class="section-label">Synopsis</h3>
                 <p id="det-desc" style="font-size: 0.95rem; line-height: 1.8; color: var(--text-dim);"></p>
             </div>
@@ -50,13 +46,11 @@
             </div>
 
             <div id="trailer-container" class="section-group"></div>
-
             <div id="relations-section" class="section-group"></div>
-
             <div id="characters-section" class="section-group"></div>
 
             <div class="section-group">
-                <div class="row-header"><h3>Recommended</h3></div>
+                <h3 class="section-title">Recommended</h3>
                 <div class="scroller" id="recommendations-scroll"></div>
             </div>
         </div>
