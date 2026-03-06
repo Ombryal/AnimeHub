@@ -1,5 +1,5 @@
 /**
- * details.js - Advanced Media Information Page
+ * details.js - Optimized for Condensed Manga Stats & Relation Badges
  */
 
 async function initDetails() {
@@ -14,12 +14,15 @@ async function initDetails() {
       Media (id: $id, type: $type) {
         id title { romaji english native }
         synonyms coverImage { extraLarge } bannerImage
-        description format status episodes chapters duration averageScore
-        season seasonYear genres trailer { id site }
+        description format status episodes chapters averageScore
+        season seasonYear genres popularity
+        trailer { id site }
         studios(isMain: true) { nodes { name } }
-        popularity
         relations {
-          edges { relationType node { id title { romaji } type coverImage { medium } } }
+          edges { 
+            relationType 
+            node { id title { romaji } type coverImage { large } } 
+          }
         }
         characters(sort: [ROLE, RELEVANCE], perPage: 6) {
           edges {
@@ -39,25 +42,30 @@ async function initDetails() {
 }
 
 function renderDetails(m) {
-    // 1. Header & Backdrop
     const banner = m.bannerImage || m.coverImage.extraLarge;
     document.getElementById('det-banner').style.backgroundImage = `url('${banner}')`;
     document.getElementById('det-cover').src = m.coverImage.extraLarge;
     document.getElementById('det-title').innerText = m.title.english || m.title.romaji;
 
-    // 2. Grid Statistics (Based on your image)
-    const stats = [
+    // --- 1. Condensed Statistics Logic ---
+    let stats = [
         { icon: 'fa-play-circle', label: 'Type', val: m.type },
         { icon: 'fa-star', label: 'Rating', val: m.averageScore ? (m.averageScore/10).toFixed(1)+'/10' : '??' },
-        { icon: 'fa-tv', label: 'Format', val: m.format },
+        { icon: 'fa-file-alt', label: 'Format', val: m.format },
         { icon: 'fa-info-circle', label: 'Status', val: m.status },
-        { icon: 'fa-chart-line', label: 'Popularity', val: m.popularity.toLocaleString() },
-        { icon: 'fa-film', label: m.type === 'ANIME' ? 'Episodes' : 'Chapters', val: m.type === 'ANIME' ? m.episodes : m.chapters },
-        { icon: 'fa-calendar-alt', label: 'Season', val: m.season || 'N/A' },
-        { icon: 'fa-clock', label: 'Duration', val: m.duration ? m.duration + 'm' : 'N/A' },
-        { icon: 'fa-calendar-check', label: 'Premiered', val: m.season ? `${m.season} ${m.seasonYear}` : 'N/A' },
-        { icon: 'fa-building', label: 'Studio', val: m.studios.nodes[0]?.name || 'N/A' }
+        { icon: 'fa-chart-line', label: 'Popularity', val: m.popularity.toLocaleString() }
     ];
+
+    // If Anime, add the extra 5 options from the image
+    if (m.type === 'ANIME') {
+        stats.push(
+            { icon: 'fa-film', label: 'Episodes', val: m.episodes || '??' },
+            { icon: 'fa-calendar-alt', label: 'Season', val: m.season || 'N/A' },
+            { icon: 'fa-clock', label: 'Duration', val: '24m' }, // Standard placeholder or fetch duration
+            { icon: 'fa-calendar-check', label: 'Premiered', val: m.season ? `${m.season} ${m.seasonYear}` : 'N/A' },
+            { icon: 'fa-building', label: 'Studio', val: m.studios.nodes[0]?.name || 'N/A' }
+        );
+    }
 
     document.getElementById('det-stats-grid').innerHTML = stats.map(s => `
         <div class="stat-card">
@@ -65,29 +73,37 @@ function renderDetails(m) {
             <div class="stat-value">${s.val || 'N/A'}</div>
         </div>`).join('');
 
-    // 3. Synopsis & Titles
+    // --- 2. Synopsis & Titles ---
     document.getElementById('det-desc').innerHTML = m.description;
     document.getElementById('romaji-title').innerText = m.title.romaji;
-    document.getElementById('synonyms-list').innerText = m.synonyms.join(', ') || 'None';
+    document.getElementById('synonyms-list').innerText = m.synonyms.length > 0 ? m.synonyms.join(', ') : 'None';
 
-    // 4. Trailer
+    // --- 3. Trailer ---
     const trailerDiv = document.getElementById('trailer-container');
     if (m.trailer && m.trailer.site === 'youtube') {
         trailerDiv.innerHTML = `<h3 class="section-title">Trailer</h3>
-        <iframe width="100%" height="315" src="https://www.youtube.com/embed/${m.trailer.id}" frameborder="0" allowfullscreen></iframe>`;
+        <iframe width="100%" height="200" src="https://www.youtube.com/embed/${m.trailer.id}" frameborder="0" allowfullscreen style="border-radius:15px;"></iframe>`;
     }
 
-    // 5. Relations (Sequels/Prequels)
+    // --- 4. Relations (Updated with Badges) ---
     if (m.relations.edges.length > 0) {
-        document.getElementById('relations-section').innerHTML = `<h3 class="section-title">Relations</h3>
-        <div class="scroller">${m.relations.edges.map(e => `
-            <div class="media-item" onclick="window.location.href='details.html?id=${e.node.id}&type=${e.node.type}'">
-                <div class="img-box"><img src="${e.node.coverImage.medium}"></div>
-                <div class="media-title">(${e.relationType}) ${e.node.title.romaji}</div>
-            </div>`).join('')}</div>`;
+        document.getElementById('relations-section').innerHTML = `
+        <h3 class="section-title">Relations</h3>
+        <div class="relation-scroller">
+            ${m.relations.edges.map(e => `
+                <div class="relation-card" onclick="window.location.href='details.html?id=${e.node.id}&type=${e.node.type}'">
+                    <img src="${e.node.coverImage.large}">
+                    <div class="relation-info">
+                        <div class="relation-name">${e.node.title.romaji}</div>
+                        <div class="relation-badge">
+                            <i class="fas fa-play"></i> ${e.relationType.replace(/_/g, ' ')}
+                        </div>
+                    </div>
+                </div>`).join('')}
+        </div>`;
     }
 
-    // 6. Characters & VAs (Anime Only)
+    // --- 5. Characters & Cast ---
     if (m.type === 'ANIME' && m.characters.edges.length > 0) {
         document.getElementById('characters-section').innerHTML = `<h3 class="section-title">Characters & Cast</h3>
         <div class="char-grid">${m.characters.edges.map(e => `
@@ -104,9 +120,8 @@ function renderDetails(m) {
             </div>`).join('')}</div>`;
     }
 
-    // 7. Recommendations
+    // --- 6. Recommendations ---
     renderScrollerItems('recommendations-scroll', m.recommendations.nodes.map(n => n.mediaRecommendation), m.type);
-    
     hideLoader();
 }
 
