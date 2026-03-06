@@ -1,5 +1,5 @@
 /**
-  auth.js - The Production Engine (Updated with Stats & Search)
+  auth.js - The Production Engine (Final Account Sync & Multi-Search)
  */
 
 const CONFIG = {
@@ -45,7 +45,7 @@ async function apiFetch(query, variables = {}) {
     }
 }
 
-// --- NEW: Global UI Logic ---
+// --- GLOBAL UI & ACCOUNT SYNC ---
 
 async function initGlobalUI() {
     const openSearch = document.getElementById('open-search');
@@ -59,6 +59,7 @@ async function initGlobalUI() {
         closeSearch.onclick = () => searchSheet.classList.remove('active');
     }
 
+    // AUTHENTICATED FETCH: Profile + Lists
     if (document.getElementById('username-display')) {
         const query = `query { 
             Viewer { 
@@ -68,7 +69,15 @@ async function initGlobalUI() {
                     anime { episodesWatched } 
                     manga { chaptersRead } 
                 } 
-            } 
+            }
+            # Fetch User's Current Anime List
+            watching: MediaListCollection(status: CURRENT, type: ANIME) {
+                lists { entries { media { id title { romaji } coverImage { large } meanScore } } }
+            }
+            # Fetch User's Current Manga List
+            reading: MediaListCollection(status: CURRENT, type: MANGA) {
+                lists { entries { media { id title { romaji } coverImage { large } meanScore } } }
+            }
         }`;
         
         const data = await apiFetch(query);
@@ -78,13 +87,22 @@ async function initGlobalUI() {
             if(document.getElementById('header-avatar')) document.getElementById('header-avatar').src = v.avatar.large;
             if(document.getElementById('ep-stat')) document.getElementById('ep-stat').innerText = v.statistics.anime.episodesWatched;
             if(document.getElementById('ch-stat')) document.getElementById('ch-stat').innerText = v.statistics.manga.chaptersRead;
+
+            // Render Real Account Progress
+            if(data.watching.lists[0]) renderScrollerItems('anime-scroll', data.watching.lists[0].entries, 'ANIME');
+            if(data.reading.lists[0]) renderScrollerItems('manga-scroll', data.reading.lists[0].entries, 'MANGA');
+            
+            hideLoader();
         }
     }
 }
 
 function renderScrollerItems(containerId, items, type) {
     const container = document.getElementById(containerId);
-    if (!container || !items) return;
+    if (!container || !items || items.length === 0) {
+        if(container) container.innerHTML = `<p style="color:var(--text-dim); padding:20px; font-size:0.8rem;">Nothing here yet...</p>`;
+        return;
+    }
     container.innerHTML = items.map(m => {
         const media = m.media || m;
         const score = media.meanScore ? (media.meanScore / 10).toFixed(1) : "??";
@@ -107,82 +125,89 @@ function hideLoader() {
     }
 }
 
-document.addEventListener('DOMContentLoaded', initGlobalUI);
+// --- MULTI-TYPE SEARCH LOGIC ---
 
-// --- SEARCH ENGINE LOGIC ---
+let currentSearchType = 'ANIME'; // Default
 
-async function handleSearch(inputElement, resultContainerId, mediaType = 'ANIME') {
+async function handleSearch(inputElement, resultContainerId) {
     const queryStr = inputElement.value.trim();
     const container = document.getElementById(resultContainerId);
     
     if (queryStr.length < 3) {
-        container.classList.remove('active');
         container.innerHTML = '';
         return;
     }
 
-    // Show "Searching..." status while waiting for API
-    container.classList.add('active');
     container.innerHTML = `<div style="padding:20px; text-align:center; color:var(--accent); font-size:0.8rem; font-weight:700;">
-        <i class="fas fa-circle-notch fa-spin"></i> SEARCHING...
+        <i class="fas fa-circle-notch fa-spin"></i> SEARCHING ${currentSearchType}...
     </div>`;
 
-    const searchQuery = `
-    query ($search: String, $type: MediaType) {
-        Page(perPage: 15) {
-            media(search: $search, type: $type) {
-                id title { romaji } coverImage { large } meanScore format
-            }
-        }
-    }`;
+    let query = '';
+    let variables = { search: queryStr };
 
-    const data = await apiFetch(searchQuery, { search: queryStr, type: mediaType });
-    if (data && data.Page.media) {
-        renderFloatingResults(resultContainerId, data.Page.media, mediaType);
+    // Branch query based on filter
+    if (currentSearchType === 'CHARACTER') {
+        query = `query ($search: String) { Page(perPage: 15) { characters(search: $search) { id name { full } image { large } } } }`;
+    } else if (currentSearchType === 'USER') {
+        query = `query ($search: String) { Page(perPage: 15) { users(search: $search) { id name avatar { large } } } }`;
+    } else {
+        query = `query ($search: String, $type: MediaType) { Page(perPage: 15) { media(search: $search, type: $type) { id title { romaji } coverImage { large } meanScore format } } }`;
+        variables.type = currentSearchType;
     }
+
+    const data = await apiFetch(query, variables);
+    renderAdvancedResults(resultContainerId, data);
 }
 
-function renderFloatingResults(containerId, items, type) {
+function renderAdvancedResults(containerId, data) {
     const container = document.getElementById(containerId);
-    if (!container) return;
+    if (!data) return;
+
+    let items = data.Page.media || data.Page.characters || data.Page.users || [];
 
     if (items.length === 0) {
-        container.innerHTML = `<p style="padding:20px; text-align:center; color:var(--text-dim); font-size:0.85rem;">No results found.</p>`;
+        container.innerHTML = `<p style="padding:20px; text-align:center; color:var(--text-dim);">No results.</p>`;
         return;
     }
 
-    container.innerHTML = items.map(media => {
-        const score = media.meanScore ? (media.meanScore / 10).toFixed(1) : "??";
+    container.innerHTML = items.map(item => {
+        const title = item.title?.romaji || item.name?.full || item.name;
+        const img = item.coverImage?.large || item.image?.large || item.avatar?.large;
+        const sub = item.format || (item.name ? 'Result' : currentSearchType);
+        
+        // Link logic: characters and users can have different detail pages or just no-op for now
+        let onClick = `window.location.href='details.html?id=${item.id}&type=${currentSearchType}'`;
+        if(currentSearchType === 'USER' || currentSearchType === 'CHARACTER') onClick = `console.log('Detail for ${currentSearchType} not yet implemented')`;
+
         return `
-            <div class="search-item-row" onclick="window.location.href='details.html?id=${media.id}&type=${type}'" 
-                 style="display: flex; align-items: center; gap: 12px; padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer;">
-                <img src="${media.coverImage.large}" style="width: 40px; height: 55px; border-radius: 6px; object-fit: cover; flex-shrink: 0;">
-                <div style="flex: 1; overflow: hidden;">
-                    <h4 style="font-size: 0.85rem; margin: 0; color: white; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">${media.title.romaji}</h4>
-                    <p style="font-size: 0.7rem; margin: 4px 0 0; color: var(--accent); font-weight: 600;">
-                        <i class="fas fa-star" style="font-size: 0.6rem;"></i> ${score} 
-                        <span style="color: var(--text-dim); font-weight: 400; margin-left: 5px;">• ${media.format || type}</span>
-                    </p>
+            <div class="search-item-row" onclick="${onClick}" style="display:flex; align-items:center; gap:12px; padding:10px; border-bottom:1px solid rgba(255,255,255,0.05); cursor:pointer;">
+                <img src="${img}" style="width:40px; height:55px; border-radius:6px; object-fit:cover;">
+                <div>
+                    <h4 style="font-size:0.85rem; margin:0; color:white;">${title}</h4>
+                    <p style="font-size:0.7rem; margin:4px 0 0; color:var(--accent); font-weight:600;">${sub}</p>
                 </div>
             </div>`;
     }).join('');
 }
 
-document.addEventListener('click', (e) => {
-    if (!e.target.closest('.inline-search-box') && !e.target.closest('.search-bar')) {
-        document.querySelectorAll('.search-results-floating').forEach(el => {
-            el.classList.remove('active');
-        });
-    }
-});
-
 document.addEventListener('DOMContentLoaded', () => {
-    const aInput = document.getElementById('anime-search-input');
-    if (aInput) aInput.addEventListener('input', () => handleSearch(aInput, 'anime-search-results', 'ANIME'));
+    initGlobalUI();
 
-    const mInput = document.getElementById('manga-search-input');
-    if (mInput) mInput.addEventListener('input', () => handleSearch(mInput, 'manga-search-results', 'MANGA'));
-    
     const gInput = document.getElementById('global-search-input');
-    if (gInput) gInput.addEventListener('input', () => handleSearch(gInput, 'search-results', 'ANIME'));
+    const chips = document.querySelectorAll('.chip');
+
+    // Handle Chip Clicks
+    chips.forEach(chip => {
+        chip.addEventListener('click', () => {
+            chips.forEach(c => c.classList.remove('active'));
+            chip.classList.add('active');
+            currentSearchType = chip.innerText.toUpperCase(); // ANIME, MANGA, USERS...
+            if(currentSearchType === 'USERS') currentSearchType = 'USER';
+            if(currentSearchType === 'CHARACTERS') currentSearchType = 'CHARACTER';
+            
+            if(gInput.value.length >= 3) handleSearch(gInput, 'search-results');
+        });
+    });
+
+    if (gInput) gInput.addEventListener('input', () => handleSearch(gInput, 'search-results'));
 });
