@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AniStats | Anime</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div id="loading-overlay"><div class="spinner"></div></div>
+    <div class="bg-glow"></div>
+
+    <div class="container">
+        <header style="margin-bottom: 25px;">
+            <h1 style="font-size: 1.8rem; font-weight: 800;">Anime</h1>
+            <p style="color: var(--accent); font-size: 0.8rem; font-weight: 700;">EXPLORE TRENDS</p>
+        </header>
+
+        <div class="section-group">
+            <div class="row-header"><h3>Trending</h3></div>
+            <div class="scroller" id="trending-scroll"></div>
+        </div>
+
+        <div class="section-group">
+            <div class="row-header"><h3>Top Rated</h3></div>
+            <div class="scroller" id="top-scroll"></div>
+        </div>
+
+        <div class="section-group">
+            <div class="row-header"><h3>Movies</h3></div>
+            <div class="scroller" id="popular-scroll"></div>
+        </div>
+
+        <div class="section-group" style="margin-top: 10px;">
+            <div class="row-header">
+                <h3>Most Popular All-Time</h3>
+            </div>
+            <div id="popular-vertical-list"></div>
+        </div>
+    </div>
+
+    <nav class="dock">
+        <a href="anime.html" class="nav-link active"><div class="pill-btn">ANIME</div></a>
+        <a href="index.html" class="nav-link"><i class="fas fa-home"></i></a>
+        <a href="manga.html" class="nav-link"><i class="fas fa-book-open"></i></a>
+    </nav>
+
+    <script src="auth.js"></script>
+    <script src="anime.js"></script>
+</body>
+</html>
