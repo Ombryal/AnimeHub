@@ -1,5 +1,5 @@
 /**
-  auth.js - The Production Engine (Final Account Sync & Multi-Search)
+  auth.js - The Production Engine (FIXED Account Sync)
  */
 
 const CONFIG = {
@@ -16,8 +16,6 @@ if (token) {
     if (window.location.hash) {
         history.replaceState(null, "", window.location.pathname + window.location.search);
     }
-} else if (!localStorage.getItem('anilist_token')) {
-    window.location.href = `https://anilist.co/api/v2/oauth/authorize?client_id=${CONFIG.CLIENT_ID}&response_type=token`;
 }
 
 async function apiFetch(query, variables = {}) {
@@ -45,66 +43,62 @@ async function apiFetch(query, variables = {}) {
     }
 }
 
-// --- GLOBAL UI & ACCOUNT SYNC ---
+// --- GLOBAL UI & ACCOUNT SYNC (FIXED) ---
 
 async function initGlobalUI() {
     const openSearch = document.getElementById('open-search');
     const closeSearch = document.getElementById('close-search');
     const searchSheet = document.getElementById('search-sheet');
 
-    if (openSearch && searchSheet) {
-        openSearch.onclick = () => searchSheet.classList.add('active');
-    }
-    if (closeSearch && searchSheet) {
-        closeSearch.onclick = () => searchSheet.classList.remove('active');
-    }
+    if (openSearch) openSearch.onclick = () => searchSheet.classList.add('active');
+    if (closeSearch) closeSearch.onclick = () => searchSheet.classList.remove('active');
 
-    // AUTHENTICATED FETCH: Profile + Lists
     if (document.getElementById('username-display')) {
-        const query = `query { 
-            Viewer { 
-                name 
-                avatar { large } 
-                statistics { 
-                    anime { episodesWatched } 
-                    manga { chaptersRead } 
-                } 
-            }
-            # Fetch User's Current Anime List
-            watching: MediaListCollection(status: CURRENT, type: ANIME) {
-                lists { entries { media { id title { romaji } coverImage { large } meanScore } } }
-            }
-            # Fetch User's Current Manga List
-            reading: MediaListCollection(status: CURRENT, type: MANGA) {
-                lists { entries { media { id title { romaji } coverImage { large } meanScore } } }
-            }
-        }`;
+        // Step 1: Get Viewer Profile
+        const userQuery = `query { Viewer { id name avatar { large } statistics { anime { episodesWatched } manga { chaptersRead } } } }`;
+        const userData = await apiFetch(userQuery);
         
-        const data = await apiFetch(query);
-        if (data && data.Viewer) {
-            const v = data.Viewer;
+        if (userData && userData.Viewer) {
+            const v = userData.Viewer;
             document.getElementById('username-display').innerText = v.name;
             if(document.getElementById('header-avatar')) document.getElementById('header-avatar').src = v.avatar.large;
             if(document.getElementById('ep-stat')) document.getElementById('ep-stat').innerText = v.statistics.anime.episodesWatched;
             if(document.getElementById('ch-stat')) document.getElementById('ch-stat').innerText = v.statistics.manga.chaptersRead;
 
-            // Render Real Account Progress
-            if(data.watching.lists[0]) renderScrollerItems('anime-scroll', data.watching.lists[0].entries, 'ANIME');
-            if(data.reading.lists[0]) renderScrollerItems('manga-scroll', data.reading.lists[0].entries, 'MANGA');
-            
+            // Step 2: Get Personal Lists explicitly for this User ID
+            const listQuery = `query ($userId: Int) {
+                watching: MediaListCollection(userId: $userId, status: CURRENT, type: ANIME) {
+                    lists { entries { media { id title { romaji } coverImage { large } meanScore } } }
+                }
+                reading: MediaListCollection(userId: $userId, status: CURRENT, type: MANGA) {
+                    lists { entries { media { id title { romaji } coverImage { large } meanScore } } }
+                }
+            }`;
+
+            const listData = await apiFetch(listQuery, { userId: v.id });
+            if (listData) {
+                // AniList returns lists in an array; we take the first matching list
+                const watchEntries = listData.watching.lists.flatMap(l => l.entries);
+                const readEntries = listData.reading.lists.flatMap(l => l.entries);
+                
+                renderScrollerItems('anime-scroll', watchEntries, 'ANIME');
+                renderScrollerItems('manga-scroll', readEntries, 'MANGA');
+            }
             hideLoader();
         }
     }
 }
 
-function renderScrollerItems(containerId, items, type) {
+function renderScrollerItems(containerId, entries, type) {
     const container = document.getElementById(containerId);
-    if (!container || !items || items.length === 0) {
-        if(container) container.innerHTML = `<p style="color:var(--text-dim); padding:20px; font-size:0.8rem;">Nothing here yet...</p>`;
+    if (!container) return;
+    if (!entries || entries.length === 0) {
+        container.innerHTML = `<p style="color:var(--text-dim); padding:20px; font-size:0.8rem;">No active ${type.toLowerCase()} found.</p>`;
         return;
     }
-    container.innerHTML = items.map(m => {
-        const media = m.media || m;
+
+    container.innerHTML = entries.map(entry => {
+        const media = entry.media || entry;
         const score = media.meanScore ? (media.meanScore / 10).toFixed(1) : "??";
         return `
             <div class="media-item" onclick="window.location.href='details.html?id=${media.id}&type=${type}'">
@@ -125,27 +119,20 @@ function hideLoader() {
     }
 }
 
-// --- MULTI-TYPE SEARCH LOGIC ---
+// --- MULTI-TYPE SEARCH ENGINE ---
 
-let currentSearchType = 'ANIME'; // Default
+let currentSearchType = 'ANIME';
 
 async function handleSearch(inputElement, resultContainerId) {
     const queryStr = inputElement.value.trim();
     const container = document.getElementById(resultContainerId);
-    
-    if (queryStr.length < 3) {
-        container.innerHTML = '';
-        return;
-    }
+    if (queryStr.length < 3) { container.innerHTML = ''; return; }
 
-    container.innerHTML = `<div style="padding:20px; text-align:center; color:var(--accent); font-size:0.8rem; font-weight:700;">
-        <i class="fas fa-circle-notch fa-spin"></i> SEARCHING ${currentSearchType}...
-    </div>`;
+    container.innerHTML = `<div style="padding:20px; text-align:center; color:var(--accent); font-size:0.8rem;"><i class="fas fa-circle-notch fa-spin"></i></div>`;
 
     let query = '';
     let variables = { search: queryStr };
 
-    // Branch query based on filter
     if (currentSearchType === 'CHARACTER') {
         query = `query ($search: String) { Page(perPage: 15) { characters(search: $search) { id name { full } image { large } } } }`;
     } else if (currentSearchType === 'USER') {
@@ -162,25 +149,15 @@ async function handleSearch(inputElement, resultContainerId) {
 function renderAdvancedResults(containerId, data) {
     const container = document.getElementById(containerId);
     if (!data) return;
-
-    let items = data.Page.media || data.Page.characters || data.Page.users || [];
-
-    if (items.length === 0) {
-        container.innerHTML = `<p style="padding:20px; text-align:center; color:var(--text-dim);">No results.</p>`;
-        return;
-    }
+    const items = data.Page.media || data.Page.characters || data.Page.users || [];
+    if (items.length === 0) { container.innerHTML = `<p style="padding:20px; text-align:center; color:var(--text-dim);">No results.</p>`; return; }
 
     container.innerHTML = items.map(item => {
         const title = item.title?.romaji || item.name?.full || item.name;
         const img = item.coverImage?.large || item.image?.large || item.avatar?.large;
-        const sub = item.format || (item.name ? 'Result' : currentSearchType);
-        
-        // Link logic: characters and users can have different detail pages or just no-op for now
-        let onClick = `window.location.href='details.html?id=${item.id}&type=${currentSearchType}'`;
-        if(currentSearchType === 'USER' || currentSearchType === 'CHARACTER') onClick = `console.log('Detail for ${currentSearchType} not yet implemented')`;
-
+        const sub = item.format || currentSearchType;
         return `
-            <div class="search-item-row" onclick="${onClick}" style="display:flex; align-items:center; gap:12px; padding:10px; border-bottom:1px solid rgba(255,255,255,0.05); cursor:pointer;">
+            <div class="search-item-row" onclick="window.location.href='details.html?id=${item.id}&type=${currentSearchType}'" style="display:flex; align-items:center; gap:12px; padding:10px; border-bottom:1px solid rgba(255,255,255,0.05); cursor:pointer;">
                 <img src="${img}" style="width:40px; height:55px; border-radius:6px; object-fit:cover;">
                 <div>
                     <h4 style="font-size:0.85rem; margin:0; color:white;">${title}</h4>
@@ -192,19 +169,15 @@ function renderAdvancedResults(containerId, data) {
 
 document.addEventListener('DOMContentLoaded', () => {
     initGlobalUI();
-
     const gInput = document.getElementById('global-search-input');
     const chips = document.querySelectorAll('.chip');
 
-    // Handle Chip Clicks
     chips.forEach(chip => {
         chip.addEventListener('click', () => {
             chips.forEach(c => c.classList.remove('active'));
             chip.classList.add('active');
-            currentSearchType = chip.innerText.toUpperCase(); // ANIME, MANGA, USERS...
-            if(currentSearchType === 'USERS') currentSearchType = 'USER';
-            if(currentSearchType === 'CHARACTERS') currentSearchType = 'CHARACTER';
-            
+            let type = chip.innerText.toUpperCase();
+            currentSearchType = type === 'USERS' ? 'USER' : type === 'CHARACTERS' ? 'CHARACTER' : type;
             if(gInput.value.length >= 3) handleSearch(gInput, 'search-results');
         });
     });
