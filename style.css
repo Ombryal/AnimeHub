@@ -275,59 +275,155 @@ body {
     100% { opacity: 1; }
 }
 
-/* Landscape Card Styles */
+/* =========================================
+   10. HERO CAROUSEL STYLES (Top of page)
+   ========================================= */
+.hero-wrapper {
+    position: relative;
+    margin-bottom: 30px;
+    padding: 10px 0;
+}
+
+.hero-carousel {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    gap: 20px;
+    scrollbar-width: none;
+    padding-bottom: 10px;
+}
+.hero-carousel::-webkit-scrollbar { display: none; }
+
+.hero-card {
+    min-width: 85%;
+    height: 450px;
+    position: relative;
+    border-radius: 32px;
+    overflow: hidden;
+    scroll-snap-align: center;
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    cursor: pointer;
+}
+
+.hero-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Floating Glass Info Pill */
+.hero-info-pill {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 85%;
+    background: rgba(15, 23, 42, 0.75);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid var(--glass-highlight);
+    border-radius: 20px;
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.play-btn {
+    width: 45px;
+    height: 45px;
+    background: #fda4af; /* Soft pink/coral from your image */
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #881337;
+    font-size: 1.2rem;
+}
+
+.hero-text {
+    color: #fff;
+}
+
+.hero-text h2 {
+    font-size: 1rem;
+    font-weight: 800;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.hero-meta {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.8);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+}
+
+/* =========================================
+   2. LANDSCAPE CARD STYLES (Bottom of page)
+   ========================================= */
 .landscape-card {
     position: relative;
     width: 100%;
-    height: 140px;
-    border-radius: 20px;
+    height: 110px;
+    border-radius: 18px;
     overflow: hidden;
-    margin-bottom: 15px;
+    margin-bottom: 12px;
     cursor: pointer;
+    background: var(--bg-base);
     border: 1px solid var(--glass-border);
     transition: var(--transition-smooth);
 }
 
-.landscape-card:active { transform: scale(0.98); }
+.landscape-card:active { transform: scale(0.97); }
 
 .card-banner {
     position: absolute;
     inset: 0;
     background-size: cover;
     background-position: center;
-    transition: transform 0.8s ease;
+    filter: brightness(0.4) blur(2px); /* Creates the blurred background look */
+    transition: transform 0.6s ease;
 }
 
 .landscape-card:hover .card-banner { transform: scale(1.1); }
 
-.card-overlay {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(90deg, rgba(2,6,23,0.9) 30%, rgba(2,6,23,0.4) 100%);
-}
-
 .card-content {
     position: relative;
-    z-index: 2;
+    z-index: 5;
     display: flex;
     align-items: center;
+    padding: 12px;
     gap: 15px;
-    padding: 15px;
     height: 100%;
+    background: linear-gradient(90deg, rgba(2,6,23,0.8) 0%, transparent 100%);
 }
 
 .mini-poster {
-    width: 80px;
-    height: 110px;
-    border-radius: 12px;
+    width: 65px;
+    height: 85px;
+    border-radius: 10px;
     object-fit: cover;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+    border: 1px solid var(--glass-border);
+}
+
+.card-info {
+    flex: 1;
 }
 
 .card-info h4 {
-    font-size: 1rem;
+    font-size: 0.95rem;
     font-weight: 700;
     margin-bottom: 4px;
+    color: #ffffff;
     display: -webkit-box;
     -webkit-line-clamp: 1;
     -webkit-box-orient: vertical;
@@ -335,6 +431,7 @@ body {
 }
 
 .card-info p {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     color: var(--text-dim);
+    font-weight: 600;
 }
