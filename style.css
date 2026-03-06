@@ -522,13 +522,13 @@ body {
 }
 
 /* =========================================
-   13. LIST NAVIGATION CARDS
+   13. LIST NAVIGATION CARDS (Home Only)
    ========================================= */
 .list-nav-cards {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 15px;
-    margin-bottom: 10px;
+    margin-bottom: 25px;
 }
 
 .nav-card {
@@ -547,16 +547,14 @@ body {
     transition: var(--transition-smooth);
 }
 
-.nav-card:active {
-    transform: scale(0.96);
-}
+.nav-card:active { transform: scale(0.96); }
 
 .anime-card {
-    background-image: linear-gradient(rgba(2, 6, 23, 0.6), rgba(2, 6, 23, 0.6)), url('https://s4.anilist.co/file/anilistcdn/media/anime/banner/151802-799EqB76Y79t.jpg');
+    background-image: linear-gradient(rgba(2, 6, 23, 0.65), rgba(2, 6, 23, 0.65)), url('https://s4.anilist.co/file/anilistcdn/media/anime/banner/151802-799EqB76Y79t.jpg');
 }
 
 .manga-card {
-    background-image: linear-gradient(rgba(2, 6, 23, 0.6), rgba(2, 6, 23, 0.6)), url('https://s4.anilist.co/file/anilistcdn/media/manga/banner/30002-39u7vHInoV9n.jpg');
+    background-image: linear-gradient(rgba(2, 6, 23, 0.65), rgba(2, 6, 23, 0.65)), url('https://s4.anilist.co/file/anilistcdn/media/manga/banner/30002-39u7vHInoV9n.jpg');
 }
 
 .nav-card span {
@@ -577,7 +575,7 @@ body {
 }
 
 /* =========================================
-   14. SEARCH BOTTOM SHEET
+   14. SEARCH BOTTOM SHEET (Home Only)
    ========================================= */
 .bottom-sheet {
     position: fixed;
@@ -595,16 +593,14 @@ body {
 .sheet-overlay {
     position: absolute;
     inset: 0;
-    background: rgba(2, 6, 23, 0.8);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    background: rgba(2, 6, 23, 0.85);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     opacity: 0;
     transition: opacity 0.4s ease;
 }
 
-.bottom-sheet.active .sheet-overlay {
-    opacity: 1;
-}
+.bottom-sheet.active .sheet-overlay { opacity: 1; }
 
 .sheet-content {
     position: absolute;
@@ -616,13 +612,10 @@ body {
     padding: 20px 24px 40px;
     transform: translateY(100%);
     transition: transform 0.5s cubic-bezier(0.32, 0.72, 0, 1);
-    max-height: 90vh;
-    overflow-y: auto;
+    max-height: 85vh;
 }
 
-.bottom-sheet.active .sheet-content {
-    transform: translateY(0);
-}
+.bottom-sheet.active .sheet-content { transform: translateY(0); }
 
 .sheet-handle {
     width: 40px;
@@ -632,6 +625,44 @@ body {
     margin: 0 auto 25px;
 }
 
+/* =========================================
+   15. DEDICATED SEARCH & HEADERS (Anime/Manga)
+   ========================================= */
+.discovery-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.page-title { font-size: 1.8rem; font-weight: 800; letter-spacing: -1px; margin: 0; }
+.page-subtitle { color: var(--accent); font-size: 0.8rem; font-weight: 700; letter-spacing: 1px; margin: 0; }
+
+.inline-search-box {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 30px;
+    backdrop-filter: blur(10px);
+}
+
+.inline-search-box input {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: white;
+    width: 100%;
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.inline-search-box i { color: var(--accent); font-size: 1.1rem; }
+
+/* Shared Search Elements */
 .search-bar {
     background: var(--glass-bg);
     border: 1px solid var(--glass-border);
@@ -643,16 +674,12 @@ body {
     margin-bottom: 20px;
 }
 
-.search-bar i { color: var(--accent); }
-
 .search-bar input {
     background: transparent;
     border: none;
     outline: none;
     color: white;
     width: 100%;
-    font-size: 0.95rem;
-    font-weight: 500;
 }
 
 .filter-row {
@@ -673,11 +700,9 @@ body {
     white-space: nowrap;
     font-size: 0.8rem;
     font-weight: 700;
-    transition: var(--transition-smooth);
 }
 
 .chip.active {
     background: var(--accent);
     color: var(--bg-base);
-    border-color: var(--accent);
 }
