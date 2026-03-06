@@ -812,61 +812,102 @@ body {
 .section-label { color: var(--accent); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; font-weight: 800; }
 
 /* =========================================
-  18. RELATION CARDS & BADGES (From Reference)
+   STATS GRID (Reference 1)
+   ========================================= */
+.stats-grid-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+.stat-card {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--glass-border);
+    border-radius: 15px;
+    padding: 12px 15px;
+}
+
+.stat-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-dim);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+.stat-header i { color: var(--accent); width: 14px; }
+.stat-value { font-weight: 800; font-size: 1rem; color: #fff; text-transform: uppercase; }
+
+/* =========================================
+   RELATION CARDS & BADGES (Reference 2)
    ========================================= */
 .relation-scroller {
     display: flex;
     overflow-x: auto;
     gap: 15px;
-    padding-bottom: 10px;
+    padding-bottom: 15px;
     scrollbar-width: none;
 }
 .relation-scroller::-webkit-scrollbar { display: none; }
 
 .relation-card {
-    flex: 0 0 140px;
+    flex: 0 0 150px;
     cursor: pointer;
 }
 
 .relation-card img {
-    width: 140px;
-    height: 200px;
-    border-radius: 18px;
+    width: 150px;
+    height: 210px;
+    border-radius: 20px;
     object-fit: cover;
     margin-bottom: 10px;
     border: 1px solid var(--glass-border);
+    transition: transform 0.2s ease;
 }
+
+.relation-card:active img { transform: scale(0.96); }
 
 .relation-name {
     font-size: 0.85rem;
     font-weight: 700;
     color: #fff;
     margin-bottom: 8px;
-    display: -webkit-box;
-    -webkit-line-clamp: 1;
-    -webkit-box-orient: vertical;
+    white-space: nowrap;
     overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-/* The Pill Badge Style */
 .relation-badge {
-    background: #fff; /* White background as per image */
-    color: #000;      /* Black text */
+    background: #fff; 
+    color: #000;      
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 0.65rem;
+    padding: 5px 12px;
+    border-radius: 25px;
+    font-size: 0.6rem;
     font-weight: 900;
     text-transform: uppercase;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
 }
 
-.relation-badge i { font-size: 0.55rem; }
+.relation-badge i { font-size: 0.5rem; }
 
-/* Characters grid fix */
+/* =========================================
+   CHARACTERS & CAST
+   ========================================= */
 .char-grid {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 12px;
+}
+
+.section-title {
+    font-size: 1.2rem;
+    font-weight: 800;
+    margin-bottom: 20px;
+    color: #fff;
 }
