@@ -276,7 +276,7 @@ body {
 }
 
 /* =========================================
-   10. HERO CAROUSEL (Updated for Peeking Cards)
+   10. HERO CAROUSEL (Updated for Depth & Fading)
    ========================================= */
 .hero-wrapper {
     position: relative;
@@ -291,23 +291,37 @@ body {
     scroll-snap-type: x mandatory;
     gap: 12px;
     scrollbar-width: none;
-    /* This padding is the secret to the side-card "embedded" look */
-    padding: 0 35px; 
+    padding: 10px 35px; /* Creates room for peeking side cards */
 }
 .hero-carousel::-webkit-scrollbar { display: none; }
 
 .hero-card {
-    /* Adjusted width so next/prev cards are visible on the edges */
     min-width: calc(100% - 15px); 
     height: 420px;
     position: relative;
     border-radius: 32px;
     overflow: hidden;
     scroll-snap-align: center;
-    border: 1px solid var(--glass-border);
-    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    border: 1px solid rgba(255, 255, 255, 0.05);
     flex-shrink: 0;
     cursor: pointer;
+
+    /* DEPTH STARTING STATE: Side cards are faded and small */
+    opacity: 0.5;
+    filter: brightness(0.4) grayscale(0.3);
+    transform: scale(0.9);
+    transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+    z-index: 1;
+}
+
+/* THE POPPED-UP CENTER CARD */
+.hero-card.active-depth {
+    opacity: 1;
+    filter: brightness(1) grayscale(0);
+    transform: scale(1.02);
+    z-index: 10;
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.6);
 }
 
 .hero-img {
