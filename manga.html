@@ -16,10 +16,42 @@
     <div class="bg-glow"></div>
 
     <div class="container">
-        <header style="margin-bottom: 20px;">
-            <h1 style="font-size: 1.8rem; font-weight: 800; letter-spacing: -1px;">Manga</h1>
-            <p style="color: var(--accent); font-size: 0.8rem; font-weight: 700; letter-spacing: 1px;">READ THE BEST</p>
-        </header>
+        <div class="user-dashboard">
+            <div class="profile-top">
+                <div class="user-pfp-container">
+                    <img src="" id="header-avatar" alt="pfp">
+                    <div class="user-text">
+                        <p class="greeting">Keep it chill,</p>
+                        <h1 id="username-display">Guest</h1>
+                    </div>
+                </div>
+                <button class="search-trigger" id="open-search">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+
+            <div class="stats-row">
+                <div class="stat-item">
+                    <span class="stat-label">Episodes Watched</span>
+                    <span class="stat-val" id="ep-stat">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Chapters Read</span>
+                    <span class="stat-val" id="ch-stat">0</span>
+                </div>
+            </div>
+
+            <div class="list-nav-cards">
+                <div class="nav-card anime-card">
+                    <span>ANIME LIST</span>
+                    <div class="underline"></div>
+                </div>
+                <div class="nav-card manga-card">
+                    <span>MANGA LIST</span>
+                    <div class="underline"></div>
+                </div>
+            </div>
+        </div>
 
         <div class="hero-wrapper">
             <div class="hero-carousel" id="hero-carousel"></div>
@@ -61,6 +93,27 @@
         <a href="index.html" class="nav-link"><i class="fas fa-home"></i></a>
         <a href="anime.html" class="nav-link"><i class="fas fa-tv"></i></a>
     </nav>
+
+    <div id="search-sheet" class="bottom-sheet">
+        <div class="sheet-overlay" id="close-search"></div>
+        <div class="sheet-content">
+            <div class="sheet-handle"></div>
+            <h2 style="margin-bottom: 15px;">Search</h2>
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" id="global-search-input" placeholder="Search anime, manga, users...">
+            </div>
+            <div class="filter-row">
+                <button class="chip active">Anime</button>
+                <button class="chip">Manga</button>
+                <button class="chip">Users</button>
+                <button class="chip">Characters</button>
+                <button class="chip">Staff</button>
+                <button class="chip">Studios</button>
+            </div>
+            <div id="search-results" class="results-container"></div>
+        </div>
+    </div>
 
     <script src="auth.js"></script>
     <script src="manga.js"></script>
