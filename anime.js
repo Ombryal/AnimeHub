@@ -1,3 +1,7 @@
+/**
+ * anime.js - Final Depth Version
+ */
+
 async function initAnimeDiscovery() {
     try {
         let attempts = 0;
@@ -31,7 +35,7 @@ async function initAnimeDiscovery() {
             renderScrollerItems('movies-scroll', data.Movies?.media, 'ANIME');
             renderVerticalPopularList('popular-vertical-list', data.AllTimePopular?.media);
             
-            // Start the Auto-Scroll
+            // Start Auto-Scroll and Depth Logic
             startHeroAutoScroll();
         }
     } catch (error) {
@@ -67,6 +71,12 @@ function renderHero(items) {
             </div>
         `;
     }).join('');
+
+    // Initial check for depth
+    updateActiveDepth(container);
+    
+    // Listen for manual swipes to update depth
+    container.addEventListener('scroll', () => updateActiveDepth(container));
 }
 
 function startHeroAutoScroll() {
@@ -77,14 +87,34 @@ function startHeroAutoScroll() {
         const firstCard = slider.querySelector('.hero-card');
         if (!firstCard) return;
         
-        const scrollAmount = firstCard.offsetWidth + 12; // Card width + gap
+        const scrollAmount = firstCard.offsetWidth + 12; 
         
-        if (slider.scrollLeft + slider.offsetWidth >= slider.scrollWidth - 10) {
+        if (slider.scrollLeft + slider.offsetWidth >= slider.scrollWidth - 20) {
             slider.scrollTo({ left: 0, behavior: 'smooth' });
         } else {
             slider.scrollBy({ left: scrollAmount, behavior: 'smooth' });
         }
-    }, 4000); // 4 Seconds
+    }, 4000); 
+}
+
+/**
+ * Depth Engine: Makes the middle card pop and fades side cards
+ */
+function updateActiveDepth(slider) {
+    const cards = slider.querySelectorAll('.hero-card');
+    const sliderCenter = slider.scrollLeft + (slider.offsetWidth / 2);
+
+    cards.forEach(card => {
+        const cardCenter = card.offsetLeft + (card.offsetWidth / 2);
+        const distance = Math.abs(sliderCenter - cardCenter);
+        
+        // If card is within the center focus area
+        if (distance < card.offsetWidth / 2) {
+            card.classList.add('active-depth');
+        } else {
+            card.classList.remove('active-depth');
+        }
+    });
 }
 
 function renderVerticalPopularList(containerId, items) {
