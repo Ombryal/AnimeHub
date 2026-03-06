@@ -4,19 +4,16 @@
    1. CORE TOKENS & VARIABLES
    ========================================= */
 :root {
-    /* Color Palette */
-    --bg-base: #020617; /* Ultra dark slate */
-    --accent: #38bdf8;  /* Electric Blue */
-    --primary: #a855f7; /* Neon Purple */
+    --bg-base: #020617;
+    --accent: #38bdf8;  
+    --primary: #a855f7; 
     --text-main: #f8fafc;
     --text-dim: #94a3b8;
     
-    /* Glassmorphism Settings */
     --glass-bg: rgba(15, 23, 42, 0.65);
     --glass-border: rgba(255, 255, 255, 0.08);
     --glass-highlight: rgba(255, 255, 255, 0.15);
     
-    /* Animation & Layout */
     --transition-smooth: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
     --card-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.5);
 }
@@ -29,7 +26,7 @@
     margin: 0;
     padding: 0;
     font-family: 'Plus Jakarta Sans', sans-serif;
-    -webkit-tap-highlight-color: transparent; /* Removes blue tap highlight on mobile */
+    -webkit-tap-highlight-color: transparent;
 }
 
 body {
@@ -38,12 +35,8 @@ body {
     overflow-x: hidden;
     line-height: 1.5;
     min-height: 100vh;
-    scroll-behavior: smooth;
 }
 
-/* =========================================
-   3. BACKGROUND & LAYOUT CONTAINERS
-   ========================================= */
 .bg-glow {
     position: fixed;
     inset: 0;
@@ -51,70 +44,33 @@ body {
     background: 
         radial-gradient(circle at 85% 0%, #1e1b4b 0%, transparent 45%),
         radial-gradient(circle at 10% 100%, #0c4a6e 0%, transparent 45%);
-    animation: pulseGlow 15s infinite alternate ease-in-out;
 }
 
 .container {
-    padding: 25px 20px 120px 20px; /* 120px bottom padding clears the dock */
+    padding: 25px 20px 120px 20px;
     max-width: 550px;
     margin: 0 auto;
     animation: fadeUp 0.6s ease-out forwards;
 }
 
 /* =========================================
-   4. GLASSMORPHISM COMPONENTS
+   3. MEDIA SCROLLERS & CARDS (Home)
    ========================================= */
-.glass-card {
-    background: var(--glass-bg);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid var(--glass-border);
-    border-radius: 24px;
-    box-shadow: var(--card-shadow);
-    transition: var(--transition-smooth);
-}
-
-/* =========================================
-   5. MEDIA SCROLLERS & CARDS
-   ========================================= */
-.section-group {
-    margin-bottom: 30px;
-}
-
-.row-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-}
-
-.row-header h3 {
-    font-size: 1.15rem;
-    font-weight: 800;
-    letter-spacing: -0.5px;
-    text-shadow: 0 2px 10px rgba(0,0,0,0.5);
-}
-
 .scroller {
     display: flex;
     overflow-x: auto;
     gap: 16px;
     padding: 5px 0 15px 0;
-    scroll-snap-type: x mandatory;
-    scrollbar-width: none; /* Firefox */
+    scrollbar-width: none;
 }
-.scroller::-webkit-scrollbar { display: none; } /* Chrome/Safari */
+.scroller::-webkit-scrollbar { display: none; }
 
 .media-item {
     min-width: 130px;
     max-width: 130px;
-    scroll-snap-align: start;
     cursor: pointer;
     transition: var(--transition-smooth);
 }
-
-.media-item:active { transform: scale(0.95); }
-.media-item:hover { transform: translateY(-5px); }
 
 .img-box {
     position: relative;
@@ -123,17 +79,13 @@ body {
     border-radius: 18px;
     overflow: hidden;
     border: 1px solid var(--glass-border);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
 }
 
 .img-box img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.6s ease;
 }
-
-.media-item:hover .img-box img { transform: scale(1.08); }
 
 .purple-badge {
     position: absolute;
@@ -145,8 +97,6 @@ body {
     border-radius: 12px;
     font-size: 0.75rem;
     font-weight: 800;
-    box-shadow: 0 4px 15px rgba(168, 85, 247, 0.5);
-    backdrop-filter: blur(5px);
 }
 
 .media-title {
@@ -162,7 +112,7 @@ body {
 }
 
 /* =========================================
-   6. BOTTOM NAVIGATION DOCK
+   4. NAVIGATION DOCK
    ========================================= */
 .dock {
     position: fixed;
@@ -173,14 +123,12 @@ body {
     height: 70px;
     background: rgba(15, 23, 42, 0.85);
     backdrop-filter: blur(30px);
-    -webkit-backdrop-filter: blur(30px);
     border: 1px solid var(--glass-highlight);
     border-radius: 35px;
     display: flex;
     justify-content: space-around;
     align-items: center;
     z-index: 1000;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.6);
 }
 
 .nav-link {
@@ -188,583 +136,26 @@ body {
     font-size: 1.5rem;
     text-decoration: none;
     transition: var(--transition-smooth);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 10px;
 }
 
-.nav-link:hover { color: var(--text-dim); }
 .nav-link.active { color: var(--accent); }
 
-.pill-btn {
-    background: linear-gradient(135deg, var(--accent), #0284c7);
-    color: var(--bg-base);
-    padding: 10px 20px;
-    border-radius: 25px;
-    font-size: 0.8rem;
-    font-weight: 800;
-    box-shadow: 0 4px 15px rgba(56, 189, 248, 0.4);
-}
-
 /* =========================================
-   7. DETAILS PAGE SPECIFICS
+   5. DETAILS PAGE (Stats, Relations, Characters)
    ========================================= */
-.main-col {
-    width: 100%;
-    animation: fadeUp 0.8s ease-out;
-}
-
-#det-desc {
-    font-size: 0.95rem;
-    line-height: 1.8;
-    color: var(--text-dim);
-}
-
-/* Genre Badges (If you decide to keep them in JS/HTML) */
-.genre-badge {
-    background: var(--glass-highlight);
-    border: 1px solid var(--glass-border);
-    color: var(--accent);
-    padding: 6px 14px;
-    border-radius: 12px;
-    font-size: 0.75rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-/* =========================================
-   8. SYSTEM & LOADERS
-   ========================================= */
-#loading-overlay {
-    position: fixed;
-    inset: 0;
-    background: var(--bg-base);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    z-index: 9999;
-    transition: opacity 0.5s ease, visibility 0.5s;
-}
-
-.spinner {
-    width: 50px;
-    height: 50px;
-    border: 4px solid rgba(56, 189, 248, 0.1);
-    border-top: 4px solid var(--accent);
-    border-radius: 50%;
-    animation: spin 1s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-}
-
-/* =========================================
-   9. KEYFRAME ANIMATIONS
-   ========================================= */
-@keyframes spin { 
-    to { transform: rotate(360deg); } 
-}
-
-@keyframes fadeUp { 
-    from { opacity: 0; transform: translateY(20px); } 
-    to { opacity: 1; transform: translateY(0); } 
-}
-
-@keyframes pulseGlow {
-    0% { opacity: 0.7; }
-    100% { opacity: 1; }
-}
-
-/* =========================================
-   10. HERO CAROUSEL (Updated for Depth & Fading)
-   ========================================= */
-.hero-wrapper {
-    position: relative;
-    margin-bottom: 30px;
-    padding: 10px 0;
-    overflow: hidden;
-}
-
-.hero-carousel {
-    display: flex;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    gap: 12px;
-    scrollbar-width: none;
-    padding: 10px 35px; /* Creates room for peeking side cards */
-}
-.hero-carousel::-webkit-scrollbar { display: none; }
-
-.hero-card {
-    min-width: calc(100% - 15px); 
-    height: 420px;
-    position: relative;
-    border-radius: 32px;
-    overflow: hidden;
-    scroll-snap-align: center;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    flex-shrink: 0;
-    cursor: pointer;
-
-    /* DEPTH STARTING STATE: Side cards are faded and small */
-    opacity: 0.5;
-    filter: brightness(0.4) grayscale(0.3);
-    transform: scale(0.9);
-    transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1);
-    z-index: 1;
-}
-
-/* THE POPPED-UP CENTER CARD */
-.hero-card.active-depth {
-    opacity: 1;
-    filter: brightness(1) grayscale(0);
-    transform: scale(1.02);
-    z-index: 10;
-    border: 1px solid var(--glass-border);
-    box-shadow: 0 20px 40px rgba(0,0,0,0.6);
-}
-
-.hero-img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.hero-info-pill {
-    position: absolute;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 88%;
-    background: rgba(15, 23, 42, 0.75);
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 22px;
-    padding: 14px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.play-btn {
-    width: 44px;
-    height: 44px;
-    background: #fda4af;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #881337;
-    flex-shrink: 0;
-}
-
-.hero-text h2 {
-    font-size: 0.95rem;
-    font-weight: 800;
-    color: #fff;
-    text-transform: uppercase;
-    display: -webkit-box;
-    -webkit-line-clamp: 1;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
-
-.hero-meta {
-    font-size: 0.75rem;
-    color: rgba(255,255,255,0.7);
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-/* =========================================
-   11. LANDSCAPE CARD STYLES (Bottom Section)
-   ========================================= */
-.landscape-card {
-    position: relative;
-    width: 100%;
-    height: 110px;
-    border-radius: 18px;
-    overflow: hidden;
-    margin-bottom: 12px;
-    cursor: pointer;
-    background: #0f172a;
-    border: 1px solid rgba(255,255,255,0.05);
-}
-
-.card-banner {
-    position: absolute;
-    inset: 0;
-    background-size: cover;
-    background-position: center;
-    filter: brightness(0.4) blur(3px);
-}
-
-.card-content {
-    position: relative;
-    z-index: 2;
-    display: flex;
-    align-items: center;
-    padding: 12px;
-    gap: 15px;
-    height: 100%;
-}
-
-.mini-poster {
-    width: 65px;
-    height: 85px;
-    border-radius: 10px;
-    object-fit: cover;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.4);
-}
-
-.card-info h4 {
-    font-size: 0.95rem;
-    font-weight: 700;
-    color: #fff;
-    margin-bottom: 4px;
-    display: -webkit-box;
-    -webkit-line-clamp: 1;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
-
-.card-info p {
-    font-size: 0.7rem;
-    color: rgba(255,255,255,0.5);
-}
-
-/* =========================================
-   12. USER DASHBOARD & STATS
-   ========================================= */
-.user-dashboard {
-    padding: 10px 0 20px;
-    animation: fadeUp 0.6s ease-out;
-}
-
-.profile-top {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-}
-
-.user-pfp-container {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-#header-avatar {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    border: 2px solid var(--glass-border);
-    object-fit: cover;
-    background: var(--glass-bg);
-}
-
-.user-text .greeting {
-    font-size: 0.75rem;
-    color: var(--text-dim);
-    font-weight: 600;
-    margin: 0;
-}
-
-#username-display {
-    font-size: 1.2rem;
-    font-weight: 800;
-    letter-spacing: -0.5px;
-    margin: 0;
-    color: var(--text-main);
-}
-
-.search-trigger {
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
-    width: 42px;
-    height: 42px;
-    border-radius: 50%;
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: var(--transition-smooth);
-}
-
-.search-trigger:active {
-    transform: scale(0.9);
-}
-
-.stats-row {
-    display: flex;
-    gap: 20px;
-    margin-bottom: 25px;
-}
-
-.stat-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 0.8rem;
-    font-weight: 700;
-}
-
-.stat-label {
-    color: var(--text-dim);
-}
-
-.stat-val {
-    color: var(--accent);
-    text-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
-}
-
-/* =========================================
-   13. LIST NAVIGATION CARDS (Home Only)
-   ========================================= */
-.list-nav-cards {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-    margin-bottom: 25px;
-}
-
-.nav-card {
-    height: 95px;
-    border-radius: 24px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+#det-banner {
+    height: 250px;
     background-size: cover;
     background-position: center;
     position: relative;
-    border: 1px solid var(--glass-border);
-    cursor: pointer;
-    overflow: hidden;
-    transition: var(--transition-smooth);
+    border-radius: 0 0 30px 30px;
 }
 
-.nav-card:active { transform: scale(0.96); }
-
-.anime-card {
-    background-image: linear-gradient(rgba(2, 6, 23, 0.65), rgba(2, 6, 23, 0.65)), url('https://s4.anilist.co/file/anilistcdn/media/anime/banner/151802-799EqB76Y79t.jpg');
-}
-
-.manga-card {
-    background-image: linear-gradient(rgba(2, 6, 23, 0.65), rgba(2, 6, 23, 0.65)), url('https://s4.anilist.co/file/anilistcdn/media/manga/banner/30002-39u7vHInoV9n.jpg');
-}
-
-.nav-card span {
-    font-weight: 800;
-    font-size: 0.85rem;
-    letter-spacing: 1.5px;
-    color: white;
-    z-index: 2;
-}
-
-.nav-card .underline {
-    width: 30px;
-    height: 3px;
-    background: var(--accent);
-    margin-top: 6px;
-    border-radius: 10px;
-    z-index: 2;
-}
-
-/* =========================================
-   14. SEARCH BOTTOM SHEET (Home Only)
-   ========================================= */
-.bottom-sheet {
-    position: fixed;
-    inset: 0;
-    z-index: 2000;
-    visibility: hidden;
-    pointer-events: none;
-}
-
-.bottom-sheet.active {
-    visibility: visible;
-    pointer-events: auto;
-}
-
-.sheet-overlay {
-    position: absolute;
-    inset: 0;
-    background: rgba(2, 6, 23, 0.85);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    opacity: 0;
-    transition: opacity 0.4s ease;
-}
-
-.bottom-sheet.active .sheet-overlay { opacity: 1; }
-
-.sheet-content {
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    background: var(--bg-base);
-    border-radius: 32px 32px 0 0;
-    border-top: 1px solid var(--glass-border);
-    padding: 20px 24px 40px;
-    transform: translateY(100%);
-    transition: transform 0.5s cubic-bezier(0.32, 0.72, 0, 1);
-    max-height: 85vh;
-}
-
-.bottom-sheet.active .sheet-content { transform: translateY(0); }
-
-.sheet-handle {
-    width: 40px;
-    height: 5px;
-    background: var(--glass-border);
-    border-radius: 10px;
-    margin: 0 auto 25px;
-}
-
-/* =========================================
-   15. DEDICATED SEARCH & FLOATING RESULTS
-   ========================================= */
-.discovery-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-}
-
-.page-title { font-size: 1.8rem; font-weight: 800; letter-spacing: -1px; margin: 0; }
-.page-subtitle { color: var(--accent); font-size: 0.8rem; font-weight: 700; letter-spacing: 1px; margin: 0; }
-
-/* The Anchor for the dropdown */
-.inline-search-box, .search-bar {
-    position: relative; /* REQUIRED for absolute children */
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
-    border-radius: 20px;
-    padding: 14px 20px;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    margin-bottom: 30px;
-    backdrop-filter: blur(10px);
-}
-
-.inline-search-box input, .search-bar input {
-    background: transparent;
-    border: none;
-    outline: none;
-    color: white;
-    width: 100%;
-    font-size: 0.95rem;
-    font-weight: 600;
-}
-
-/* THE FLOATING WINDOW FIX */
-.search-results-floating {
-    position: absolute;
-    top: calc(100% + 10px); /* Forces it BELOW the bar */
-    left: 0;
-    width: 100%; /* Matches parent width */
-    background: rgba(13, 20, 38, 0.98);
-    backdrop-filter: blur(25px);
-    -webkit-backdrop-filter: blur(25px);
-    border: 1px solid var(--glass-border);
-    border-radius: 20px;
-    max-height: 380px;
-    overflow-y: auto;
-    z-index: 9999;
-    display: none; 
-    box-shadow: 0 15px 40px rgba(0,0,0,0.7);
-    padding: 10px;
-}
-
-.search-results-floating.active {
-    display: block;
-    animation: quickFadeIn 0.2s ease-out;
-}
-
-@keyframes quickFadeIn {
-    from { opacity: 0; transform: translateY(-5px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-/* Shared UI Elements */
-.filter-row {
-    display: flex;
-    overflow-x: auto;
-    gap: 10px;
-    padding-bottom: 15px;
-    scrollbar-width: none;
-}
-
-.chip {
-    padding: 8px 18px;
-    border-radius: 20px;
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
-    color: var(--text-dim);
-    white-space: nowrap;
-    font-size: 0.8rem;
-    font-weight: 700;
-}
-
-.chip.active {
-    background: var(--accent);
-    color: var(--bg-base);
-}
-
-/* =========================================
-  16. Z-INDEX LAYER FIX
-   ========================================= */
-
-.inline-search-box, .search-bar {
-    position: relative; 
-    /* This ensures the search bar and its children sit above the carousel */
-    z-index: 9999 !important; 
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
-    border-radius: 20px;
-    padding: 14px 20px;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    margin-bottom: 30px;
-    backdrop-filter: blur(10px);
-}
-
-.search-results-floating {
-    position: absolute;
-    top: calc(100% + 8px); 
-    left: 0;
-    width: 100%;
-    background: rgba(13, 20, 38, 0.98); /* Solid-ish background to block the carousel */
-    backdrop-filter: blur(25px);
-    -webkit-backdrop-filter: blur(25px);
-    border: 1px solid var(--glass-border);
-    border-radius: 20px;
-    max-height: 380px;
-    overflow-y: auto;
-    /* Extra high z-index just to be safe */
-    z-index: 10000; 
-    display: none; 
-    box-shadow: 0 20px 50px rgba(0,0,0,0.8);
-    padding: 10px;
-}
-
-/* Ensure the Hero Carousel is pushed behind */
-.hero-wrapper {
-    position: relative;
-    z-index: 1; /* Keep the hero at a low layer */
-}
-
-/* 17. Stats Grid Styling */
 .stats-grid-container {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 12px;
+    margin-bottom: 25px;
 }
 
 .stat-card {
@@ -785,65 +176,10 @@ body {
     margin-bottom: 5px;
 }
 
-.stat-header i { color: var(--accent); width: 15px; }
+.stat-header i { color: var(--accent); }
 .stat-value { font-weight: 800; font-size: 1rem; color: #fff; }
 
-/* Character & VA Grid */
-.char-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
-.char-card {
-    background: var(--glass-bg);
-    border-radius: 12px;
-    display: flex;
-    justify-content: space-between;
-    overflow: hidden;
-    height: 70px;
-    border: 1px solid var(--glass-border);
-}
-
-.char-side, .va-side { display: flex; align-items: center; gap: 10px; width: 48%; }
-.va-side { justify-content: flex-end; text-align: right; }
-.char-side img, .va-side img { width: 50px; height: 100%; object-fit: cover; }
-
-.char-info span, .va-info span { font-size: 0.8rem; font-weight: 700; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.char-info small, .va-info small { font-size: 0.65rem; color: var(--text-dim); }
-
-.section-title { font-size: 1.1rem; margin-bottom: 15px; font-weight: 800; border-left: 4px solid var(--accent); padding-left: 10px; }
-.detail-block { padding: 20px; margin-bottom: 20px; }
-.section-label { color: var(--accent); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; font-weight: 800; }
-
-/* =========================================
-   STATS GRID (Reference 1)
-   ========================================= */
-.stats-grid-container {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-}
-
-.stat-card {
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid var(--glass-border);
-    border-radius: 15px;
-    padding: 12px 15px;
-}
-
-.stat-header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: var(--text-dim);
-    font-size: 0.7rem;
-    text-transform: uppercase;
-    font-weight: 700;
-    margin-bottom: 5px;
-}
-
-.stat-header i { color: var(--accent); width: 14px; }
-.stat-value { font-weight: 800; font-size: 1rem; color: #fff; text-transform: uppercase; }
-
-/* =========================================
-   RELATION CARDS & BADGES (Reference 2)
-   ========================================= */
+/* --- HIGH CLASS RELATIONS FIX --- */
 .relation-scroller {
     display: flex;
     overflow-x: auto;
@@ -854,60 +190,146 @@ body {
 .relation-scroller::-webkit-scrollbar { display: none; }
 
 .relation-card {
-    flex: 0 0 150px;
+    flex: 0 0 135px !important; /* Forces fixed width */
+    width: 135px;
     cursor: pointer;
 }
 
 .relation-card img {
-    width: 150px;
-    height: 210px;
-    border-radius: 20px;
+    width: 100%;
+    height: 190px;
+    border-radius: 18px;
     object-fit: cover;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
     border: 1px solid var(--glass-border);
-    transition: transform 0.2s ease;
 }
 
-.relation-card:active img { transform: scale(0.96); }
-
 .relation-name {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     font-weight: 700;
     color: #fff;
-    margin-bottom: 8px;
-    white-space: nowrap;
+    margin-bottom: 6px;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* Limit to 2 lines */
+    -webkit-box-orient: vertical;
     overflow: hidden;
-    text-overflow: ellipsis;
+    height: 2.6em; /* Consistency */
+    white-space: normal;
 }
 
 .relation-badge {
-    background: #fff; 
-    color: #000;      
+    background: #fff;
+    color: #000;
     display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 5px 12px;
-    border-radius: 25px;
+    padding: 4px 10px;
+    border-radius: 12px;
     font-size: 0.6rem;
     font-weight: 900;
     text-transform: uppercase;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
 }
 
-.relation-badge i { font-size: 0.5rem; }
+/* --- CHARACTERS --- */
+.char-grid { display: flex; flex-direction: column; gap: 10px; }
+.char-card {
+    background: var(--glass-bg);
+    border-radius: 12px;
+    display: flex;
+    justify-content: space-between;
+    height: 70px;
+    border: 1px solid var(--glass-border);
+    overflow: hidden;
+}
+
+.char-side, .va-side { display: flex; align-items: center; gap: 10px; width: 48%; }
+.char-side img, .va-side img { width: 50px; height: 100%; object-fit: cover; }
+.va-side { justify-content: flex-end; text-align: right; }
 
 /* =========================================
-   CHARACTERS & CAST
+   6. SEARCH SYSTEM (Universal)
    ========================================= */
-.char-grid {
+.inline-search-box, .search-bar {
+    position: relative;
+    z-index: 10000 !important; /* Stays above everything */
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 14px 20px;
     display: flex;
-    flex-direction: column;
-    gap: 12px;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 30px;
+    backdrop-filter: blur(10px);
 }
 
-.section-title {
-    font-size: 1.2rem;
-    font-weight: 800;
-    margin-bottom: 20px;
-    color: #fff;
+.inline-search-box input {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: white;
+    width: 100%;
+    font-weight: 600;
 }
+
+.search-results-floating {
+    position: absolute;
+    top: calc(100% + 10px);
+    left: 0;
+    width: 100%;
+    background: rgba(13, 20, 38, 0.98);
+    backdrop-filter: blur(25px);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    max-height: 380px;
+    overflow-y: auto;
+    z-index: 10001;
+    display: none; 
+    padding: 10px;
+}
+
+.search-results-floating.active { display: block; }
+
+.chip {
+    padding: 8px 18px;
+    border-radius: 20px;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    color: var(--text-dim);
+    white-space: nowrap;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.chip.active { background: var(--accent); color: var(--bg-base); }
+
+/* =========================================
+   7. ANIMATIONS & LOADERS
+   ========================================= */
+#loading-overlay {
+    position: fixed;
+    inset: 0;
+    background: var(--bg-base);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.spinner {
+    width: 45px;
+    height: 45px;
+    border: 4px solid rgba(56, 189, 248, 0.1);
+    border-top: 4px solid var(--accent);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes fadeUp { 
+    from { opacity: 0; transform: translateY(20px); } 
+    to { opacity: 1; transform: translateY(0); } 
+}
+
+/* Sections */
+.section-title { font-size: 1.1rem; margin-bottom: 15px; font-weight: 800; border-left: 4px solid var(--accent); padding-left: 10px; }
