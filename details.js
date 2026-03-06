@@ -1,5 +1,5 @@
 /**
- * details.js - Optimized for Condensed Manga Stats & Relation Badges
+ * details.js - Production Engine for Media Details
  */
 
 async function initDetails() {
@@ -47,7 +47,7 @@ function renderDetails(m) {
     document.getElementById('det-cover').src = m.coverImage.extraLarge;
     document.getElementById('det-title').innerText = m.title.english || m.title.romaji;
 
-    // --- 1. Condensed Statistics Logic ---
+    // --- 1. Statistics Grid Logic ---
     let stats = [
         { icon: 'fa-play-circle', label: 'Type', val: m.type },
         { icon: 'fa-star', label: 'Rating', val: m.averageScore ? (m.averageScore/10).toFixed(1)+'/10' : '??' },
@@ -56,12 +56,15 @@ function renderDetails(m) {
         { icon: 'fa-chart-line', label: 'Popularity', val: m.popularity.toLocaleString() }
     ];
 
-    // If Anime, add the extra 5 options from the image
-    if (m.type === 'ANIME') {
+    if (m.type === 'MANGA') {
+        // Stats for Manga (6 items total)
+        stats.push({ icon: 'fa-book-open', label: 'Chapters', val: m.chapters || '??' });
+    } else {
+        // Stats for Anime (10 items total)
         stats.push(
             { icon: 'fa-film', label: 'Episodes', val: m.episodes || '??' },
             { icon: 'fa-calendar-alt', label: 'Season', val: m.season || 'N/A' },
-            { icon: 'fa-clock', label: 'Duration', val: '24m' }, // Standard placeholder or fetch duration
+            { icon: 'fa-clock', label: 'Duration', val: '24m' }, 
             { icon: 'fa-calendar-check', label: 'Premiered', val: m.season ? `${m.season} ${m.seasonYear}` : 'N/A' },
             { icon: 'fa-building', label: 'Studio', val: m.studios.nodes[0]?.name || 'N/A' }
         );
@@ -82,10 +85,10 @@ function renderDetails(m) {
     const trailerDiv = document.getElementById('trailer-container');
     if (m.trailer && m.trailer.site === 'youtube') {
         trailerDiv.innerHTML = `<h3 class="section-title">Trailer</h3>
-        <iframe width="100%" height="200" src="https://www.youtube.com/embed/${m.trailer.id}" frameborder="0" allowfullscreen style="border-radius:15px;"></iframe>`;
+        <iframe width="100%" height="220" src="https://www.youtube.com/embed/${m.trailer.id}" frameborder="0" allowfullscreen style="border-radius:15px; border: 1px solid var(--glass-border);"></iframe>`;
     }
 
-    // --- 4. Relations (Updated with Badges) ---
+    // --- 4. Relations (White Pill Badges) ---
     if (m.relations.edges.length > 0) {
         document.getElementById('relations-section').innerHTML = `
         <h3 class="section-title">Relations</h3>
@@ -103,7 +106,7 @@ function renderDetails(m) {
         </div>`;
     }
 
-    // --- 5. Characters & Cast ---
+    // --- 5. Characters & Cast (Anime Only) ---
     if (m.type === 'ANIME' && m.characters.edges.length > 0) {
         document.getElementById('characters-section').innerHTML = `<h3 class="section-title">Characters & Cast</h3>
         <div class="char-grid">${m.characters.edges.map(e => `
