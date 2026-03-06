@@ -48,28 +48,7 @@ async function apiFetch(query, variables = {}) {
 // --- NEW: Global UI Logic ---
 
 async function initGlobalUI() {
-    const query = `query { 
-        Viewer { 
-            name 
-            avatar { large } 
-            statistics { 
-                anime { episodesWatched } 
-                manga { chaptersRead } 
-            } 
-        } 
-    }`;
-    
-    const data = await apiFetch(query);
-    if (data && data.Viewer) {
-        const v = data.Viewer;
-        // Update Header
-        if(document.getElementById('username-display')) document.getElementById('username-display').innerText = v.name;
-        if(document.getElementById('header-avatar')) document.getElementById('header-avatar').src = v.avatar.large;
-        if(document.getElementById('ep-stat')) document.getElementById('ep-stat').innerText = v.statistics.anime.episodesWatched;
-        if(document.getElementById('ch-stat')) document.getElementById('ch-stat').innerText = v.statistics.manga.chaptersRead;
-    }
-
-    // Search Sheet Toggle
+    // 1. Search Sheet Toggle (Only applies if the sheet exists, like on index.html)
     const openSearch = document.getElementById('open-search');
     const closeSearch = document.getElementById('close-search');
     const searchSheet = document.getElementById('search-sheet');
@@ -79,6 +58,29 @@ async function initGlobalUI() {
     }
     if (closeSearch && searchSheet) {
         closeSearch.onclick = () => searchSheet.classList.remove('active');
+    }
+
+    // 2. Stats Loader Logic (DEFENSIVE: Only fetch data if dashboard elements exist!)
+    if (document.getElementById('username-display')) {
+        const query = `query { 
+            Viewer { 
+                name 
+                avatar { large } 
+                statistics { 
+                    anime { episodesWatched } 
+                    manga { chaptersRead } 
+                } 
+            } 
+        }`;
+        
+        const data = await apiFetch(query);
+        if (data && data.Viewer) {
+            const v = data.Viewer;
+            document.getElementById('username-display').innerText = v.name;
+            if(document.getElementById('header-avatar')) document.getElementById('header-avatar').src = v.avatar.large;
+            if(document.getElementById('ep-stat')) document.getElementById('ep-stat').innerText = v.statistics.anime.episodesWatched;
+            if(document.getElementById('ch-stat')) document.getElementById('ch-stat').innerText = v.statistics.manga.chaptersRead;
+        }
     }
 }
 
