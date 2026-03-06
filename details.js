@@ -1,5 +1,5 @@
 /**
- * details.js - Production Engine for Media Details
+ * details.js - Strict Media Engine
  */
 
 async function initDetails() {
@@ -12,7 +12,7 @@ async function initDetails() {
     const query = `
     query ($id: Int, $type: MediaType) {
       Media (id: $id, type: $type) {
-        id title { romaji english native }
+        id type title { romaji english native }
         synonyms coverImage { extraLarge } bannerImage
         description format status episodes chapters averageScore
         season seasonYear genres popularity
@@ -47,52 +47,49 @@ function renderDetails(m) {
     document.getElementById('det-cover').src = m.coverImage.extraLarge;
     document.getElementById('det-title').innerText = m.title.english || m.title.romaji;
 
-    // --- 1. Statistics Grid Logic (FIXED FOR MANGA) ---
-    let stats = [];
-
-    // Base stats shared by both
-    const baseStats = [
-        { icon: 'fa-play-circle', label: 'Type', val: m.type },
-        { icon: 'fa-star', label: 'Rating', val: m.averageScore ? (m.averageScore/10).toFixed(1)+'/10' : '??' },
-        { icon: 'fa-file-alt', label: 'Format', val: m.format },
-        { icon: 'fa-info-circle', label: 'Status', val: m.status },
-        { icon: 'fa-chart-line', label: 'Popularity', val: m.popularity.toLocaleString() }
-    ];
+    // --- 1. THE STATS FIX: STRICT OVERWRITE ---
+    const statsGrid = document.getElementById('det-stats-grid');
+    const rating = m.averageScore ? (m.averageScore/10).toFixed(1)+'/10' : '??';
 
     if (m.type === 'MANGA') {
-        // Stats for Manga (6 items total - strictly filtered)
-        stats = [...baseStats, { icon: 'fa-book-open', label: 'Chapters', val: m.chapters || '??' }];
+        // High-Class Fix: Hardcoded 6-item layout for Manga
+        statsGrid.innerHTML = `
+            ${renderStat('fa-play-circle', 'Type', m.type)}
+            ${renderStat('fa-star', 'Rating', rating)}
+            ${renderStat('fa-file-alt', 'Format', m.format)}
+            ${renderStat('fa-info-circle', 'Status', m.status)}
+            ${renderStat('fa-chart-line', 'Popularity', m.popularity.toLocaleString())}
+            ${renderStat('fa-book-open', 'Chapters', m.chapters || '??')}
+        `;
     } else {
-        // Stats for Anime (10 items total)
-        stats = [
-            ...baseStats,
-            { icon: 'fa-film', label: 'Episodes', val: m.episodes || '??' },
-            { icon: 'fa-calendar-alt', label: 'Season', val: m.season || 'N/A' },
-            { icon: 'fa-clock', label: 'Duration', val: '24m' }, 
-            { icon: 'fa-calendar-check', label: 'Premiered', val: m.season ? `${m.season} ${m.seasonYear}` : 'N/A' },
-            { icon: 'fa-building', label: 'Studio', val: m.studios.nodes[0]?.name || 'N/A' }
-        ];
+        // High-Class Fix: Hardcoded 10-item layout for Anime
+        statsGrid.innerHTML = `
+            ${renderStat('fa-play-circle', 'Type', m.type)}
+            ${renderStat('fa-star', 'Rating', rating)}
+            ${renderStat('fa-tv', 'Format', m.format)}
+            ${renderStat('fa-info-circle', 'Status', m.status)}
+            ${renderStat('fa-chart-line', 'Popularity', m.popularity.toLocaleString())}
+            ${renderStat('fa-film', 'Episodes', m.episodes || '??')}
+            ${renderStat('fa-calendar-alt', 'Season', m.season || 'N/A')}
+            ${renderStat('fa-clock', 'Duration', '24m')}
+            ${renderStat('fa-calendar-check', 'Premiered', m.season ? `${m.season} ${m.seasonYear}` : 'N/A')}
+            ${renderStat('fa-building', 'Studio', m.studios.nodes[0]?.name || 'N/A')}
+        `;
     }
 
-    document.getElementById('det-stats-grid').innerHTML = stats.map(s => `
-        <div class="stat-card">
-            <div class="stat-header"><i class="fas ${s.icon}"></i> <span>${s.label}</span></div>
-            <div class="stat-value">${s.val || 'N/A'}</div>
-        </div>`).join('');
-
-    // --- 2. Synopsis & Titles ---
+    // --- 2. Content Sections ---
     document.getElementById('det-desc').innerHTML = m.description;
     document.getElementById('romaji-title').innerText = m.title.romaji;
     document.getElementById('synonyms-list').innerText = m.synonyms.length > 0 ? m.synonyms.join(', ') : 'None';
 
-    // --- 3. Trailer ---
+    // Trailer
     const trailerDiv = document.getElementById('trailer-container');
     if (m.trailer && m.trailer.site === 'youtube') {
         trailerDiv.innerHTML = `<h3 class="section-title">Trailer</h3>
         <iframe width="100%" height="220" src="https://www.youtube.com/embed/${m.trailer.id}" frameborder="0" allowfullscreen style="border-radius:15px; border: 1px solid var(--glass-border);"></iframe>`;
     }
 
-    // --- 4. Relations ---
+    // Relations (White Badge Pill)
     if (m.relations.edges.length > 0) {
         document.getElementById('relations-section').innerHTML = `
         <h3 class="section-title">Relations</h3>
@@ -102,15 +99,13 @@ function renderDetails(m) {
                     <img src="${e.node.coverImage.large}">
                     <div class="relation-info">
                         <div class="relation-name">${e.node.title.romaji}</div>
-                        <div class="relation-badge">
-                            <i class="fas fa-play"></i> ${e.relationType.replace(/_/g, ' ')}
-                        </div>
+                        <div class="relation-badge"><i class="fas fa-play"></i> ${e.relationType.replace(/_/g, ' ')}</div>
                     </div>
                 </div>`).join('')}
         </div>`;
     }
 
-    // --- 5. Characters & Cast ---
+    // Characters (Anime only)
     if (m.type === 'ANIME' && m.characters.edges.length > 0) {
         document.getElementById('characters-section').innerHTML = `<h3 class="section-title">Characters & Cast</h3>
         <div class="char-grid">${m.characters.edges.map(e => `
@@ -119,8 +114,7 @@ function renderDetails(m) {
                     <img src="${e.node.image.large}">
                     <div class="char-info"><span>${e.node.name.full}</span><small>${e.role}</small></div>
                 </div>
-                ${e.voiceActors[0] ? `
-                <div class="va-side">
+                ${e.voiceActors[0] ? `<div class="va-side">
                     <div class="va-info"><span>${e.voiceActors[0].name.full}</span><small>JP</small></div>
                     <img src="${e.voiceActors[0].image.large}">
                 </div>` : ''}
@@ -129,6 +123,13 @@ function renderDetails(m) {
 
     renderScrollerItems('recommendations-scroll', m.recommendations.nodes.map(n => n.mediaRecommendation), m.type);
     hideLoader();
+}
+
+function renderStat(icon, label, val) {
+    return `<div class="stat-card">
+        <div class="stat-header"><i class="fas ${icon}"></i> <span>${label}</span></div>
+        <div class="stat-value">${val || 'N/A'}</div>
+    </div>`;
 }
 
 document.addEventListener('DOMContentLoaded', initDetails);
