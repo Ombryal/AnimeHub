@@ -1,5 +1,5 @@
 /**
- * details.js - Strict Media Engine
+ * details.js
  */
 
 async function initDetails() {
@@ -15,7 +15,7 @@ async function initDetails() {
         id type title { romaji english native }
         synonyms coverImage { extraLarge } bannerImage
         description format status episodes chapters averageScore
-        season seasonYear genres popularity
+        season seasonYear genres popularity duration
         trailer { id site }
         studios(isMain: true) { nodes { name } }
         relations {
@@ -47,12 +47,23 @@ function renderDetails(m) {
     document.getElementById('det-cover').src = m.coverImage.extraLarge;
     document.getElementById('det-title').innerText = m.title.english || m.title.romaji;
 
-    // --- 1. THE STATS FIX: STRICT OVERWRITE ---
+    // DURATION LOGIC FIX
+    let displayDuration = "N/A";
+    if (m.duration) {
+        if (m.format === 'MOVIE') {
+            const hrs = Math.floor(m.duration / 60);
+            const mins = m.duration % 60;
+            displayDuration = hrs > 0 ? `${hrs}h ${mins}m` : `${mins}m`;
+        } else {
+            displayDuration = `${m.duration}m`;
+        }
+    }
+
+    // THE STATS FIX
     const statsGrid = document.getElementById('det-stats-grid');
     const rating = m.averageScore ? (m.averageScore/10).toFixed(1)+'/10' : '??';
 
     if (m.type === 'MANGA') {
-        // High-Class Fix: Hardcoded 6-item layout for Manga
         statsGrid.innerHTML = `
             ${renderStat('fa-play-circle', 'Type', m.type)}
             ${renderStat('fa-star', 'Rating', rating)}
@@ -62,7 +73,6 @@ function renderDetails(m) {
             ${renderStat('fa-book-open', 'Chapters', m.chapters || '??')}
         `;
     } else {
-        // High-Class Fix: Hardcoded 10-item layout for Anime
         statsGrid.innerHTML = `
             ${renderStat('fa-play-circle', 'Type', m.type)}
             ${renderStat('fa-star', 'Rating', rating)}
@@ -71,13 +81,13 @@ function renderDetails(m) {
             ${renderStat('fa-chart-line', 'Popularity', m.popularity.toLocaleString())}
             ${renderStat('fa-film', 'Episodes', m.episodes || '??')}
             ${renderStat('fa-calendar-alt', 'Season', m.season || 'N/A')}
-            ${renderStat('fa-clock', 'Duration', '24m')}
+            ${renderStat('fa-clock', 'Duration', displayDuration)}
             ${renderStat('fa-calendar-check', 'Premiered', m.season ? `${m.season} ${m.seasonYear}` : 'N/A')}
             ${renderStat('fa-building', 'Studio', m.studios.nodes[0]?.name || 'N/A')}
         `;
     }
 
-    // --- 2. Content Sections ---
+    // Content Sections
     document.getElementById('det-desc').innerHTML = m.description;
     document.getElementById('romaji-title').innerText = m.title.romaji;
     document.getElementById('synonyms-list').innerText = m.synonyms.length > 0 ? m.synonyms.join(', ') : 'None';
@@ -89,7 +99,7 @@ function renderDetails(m) {
         <iframe width="100%" height="220" src="https://www.youtube.com/embed/${m.trailer.id}" frameborder="0" allowfullscreen style="border-radius:15px; border: 1px solid var(--glass-border);"></iframe>`;
     }
 
-    // Relations (White Badge Pill)
+    // Relations
     if (m.relations.edges.length > 0) {
         document.getElementById('relations-section').innerHTML = `
         <h3 class="section-title">Relations</h3>
@@ -105,7 +115,7 @@ function renderDetails(m) {
         </div>`;
     }
 
-    // Characters (Anime only)
+    // Characters
     if (m.type === 'ANIME' && m.characters.edges.length > 0) {
         document.getElementById('characters-section').innerHTML = `<h3 class="section-title">Characters & Cast</h3>
         <div class="char-grid">${m.characters.edges.map(e => `
