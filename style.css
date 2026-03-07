@@ -843,3 +843,53 @@ body {
     box-shadow: 0 4px 10px rgba(0,0,0,0.3);
 }
 .relation-badge i { font-size: 0.5rem; }
+
+/* =========================================
+   19. RELATIONS & LONG TITLE ALIGNMENT
+   ========================================= */
+.relation-scroller {
+    display: flex;
+    overflow-x: auto;
+    gap: 15px;
+    padding-bottom: 15px;
+    scrollbar-width: none;
+}
+.relation-scroller::-webkit-scrollbar { display: none; }
+
+.relation-card {
+    flex: 0 0 135px !important; /* Forces cards to stay the same width */
+    width: 135px;
+}
+
+.relation-card img {
+    width: 100%;
+    height: 190px;
+    border-radius: 18px;
+    object-fit: cover;
+    margin-bottom: 8px;
+    border: 1px solid var(--glass-border);
+}
+
+.relation-name {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* Shows only 2 lines */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    height: 2.6em; /* Fixed height ensures next row of text is aligned */
+    white-space: normal;
+}
+
+.relation-badge {
+    background: #fff;
+    color: #000;
+    display: inline-flex;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.6rem;
+    font-weight: 900;
+    text-transform: uppercase;
+}
