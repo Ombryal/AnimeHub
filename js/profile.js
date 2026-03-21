@@ -108,48 +108,66 @@ function updateProfileUI(user) {
         aboutDiv.innerHTML = '<p>No bio yet.</p>';
     }
     
+    // Helper to create a media item (anime/manga/character)
+    function createMediaItem(item, type) {
+        let title = '';
+        let img = '';
+        let score = '';
+        let detailPage = '';
+        
+        if (type === 'ANIME') {
+            title = item.title.userPreferred;
+            img = item.coverImage?.large;
+            score = item.averageScore ? (item.averageScore / 10).toFixed(1) + '★' : '??';
+            detailPage = `anime-detail.html?id=${item.id}`;
+        } else if (type === 'MANGA') {
+            title = item.title.userPreferred;
+            img = item.coverImage?.large;
+            score = item.averageScore ? (item.averageScore / 10).toFixed(1) + '★' : '??';
+            detailPage = `manga-detail.html?id=${item.id}`;
+        } else if (type === 'CHARACTER') {
+            title = item.name.userPreferred;
+            img = item.image?.large;
+            score = ''; // no score for characters
+            detailPage = `character-detail.html?id=${item.id}`;
+        }
+        
+        return `
+            <div class="media-item" onclick="window.location.href='${detailPage}'">
+                <div class="img-box">
+                    <img src="${img || 'placeholder.jpg'}" loading="lazy">
+                    ${score ? `<div class="purple-badge">${score}</div>` : ''}
+                </div>
+                <div class="media-title">${title}</div>
+            </div>
+        `;
+    }
+    
     // Favourite Anime
     const favAnime = user.favourites.anime.nodes;
     const animeContainer = document.getElementById('favourite-anime');
     if (favAnime.length) {
-        animeContainer.innerHTML = favAnime.map(anime => `
-            <div class="favourite-item" onclick="window.location.href='anime-detail.html?id=${anime.id}'">
-                <img src="${anime.coverImage?.large || 'placeholder.jpg'}" alt="${anime.title.userPreferred}">
-                <div class="title">${anime.title.userPreferred}</div>
-                <div class="score">${anime.averageScore ? (anime.averageScore / 10).toFixed(1) + '★' : 'N/A'}</div>
-            </div>
-        `).join('');
+        animeContainer.innerHTML = favAnime.map(item => createMediaItem(item, 'ANIME')).join('');
     } else {
-        animeContainer.innerHTML = '<p>No favourite anime added yet.</p>';
+        animeContainer.innerHTML = '<p class="empty-message">No favourite anime added yet.</p>';
     }
     
     // Favourite Manga
     const favManga = user.favourites.manga.nodes;
     const mangaContainer = document.getElementById('favourite-manga');
     if (favManga.length) {
-        mangaContainer.innerHTML = favManga.map(manga => `
-            <div class="favourite-item" onclick="window.location.href='manga-detail.html?id=${manga.id}'">
-                <img src="${manga.coverImage?.large || 'placeholder.jpg'}" alt="${manga.title.userPreferred}">
-                <div class="title">${manga.title.userPreferred}</div>
-                <div class="score">${manga.averageScore ? (manga.averageScore / 10).toFixed(1) + '★' : 'N/A'}</div>
-            </div>
-        `).join('');
+        mangaContainer.innerHTML = favManga.map(item => createMediaItem(item, 'MANGA')).join('');
     } else {
-        mangaContainer.innerHTML = '<p>No favourite manga added yet.</p>';
+        mangaContainer.innerHTML = '<p class="empty-message">No favourite manga added yet.</p>';
     }
     
     // Favourite Characters
     const favChars = user.favourites.characters.nodes;
     const charContainer = document.getElementById('favourite-characters');
     if (favChars.length) {
-        charContainer.innerHTML = favChars.map(char => `
-            <div class="favourite-item" onclick="window.location.href='character-detail.html?id=${char.id}'">
-                <img src="${char.image?.large || 'placeholder.jpg'}" alt="${char.name.userPreferred}">
-                <div class="title">${char.name.userPreferred}</div>
-            </div>
-        `).join('');
+        charContainer.innerHTML = favChars.map(item => createMediaItem(item, 'CHARACTER')).join('');
     } else {
-        charContainer.innerHTML = '<p>No favourite characters added yet.</p>';
+        charContainer.innerHTML = '<p class="empty-message">No favourite characters added yet.</p>';
     }
 }
 
