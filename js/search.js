@@ -118,18 +118,19 @@ async function performSearch(query) {
 
     // Render results
     if (current.mediaType) {
-        // Use media-item style for anime/manga
-        resultsContainer.innerHTML = items.map(item => `
-            <div class="media-item" onclick="window.location.href='details.html?id=${item.id}&type=${current.queryType}'">
-                <div class="img-box">
-                    <img src="${item.coverImage?.large || 'placeholder.jpg'}" loading="lazy">
-                    <div class="purple-badge">${item.meanScore ? (item.meanScore/10).toFixed(1)+'★' : '??'}</div>
+        resultsContainer.innerHTML = items.map(item => {
+            const detailPage = current.queryType === 'ANIME' ? 'anime-detail.html' : 'manga-detail.html';
+            return `
+                <div class="media-item" onclick="window.location.href='${detailPage}?id=${item.id}'">
+                    <div class="img-box">
+                        <img src="${item.coverImage?.large || 'placeholder.jpg'}" loading="lazy">
+                        <div class="purple-badge">${item.meanScore ? (item.meanScore/10).toFixed(1)+'★' : '??'}</div>
+                    </div>
+                    <div class="media-title">${item.title.romaji}</div>
                 </div>
-                <div class="media-title">${item.title.romaji}</div>
-            </div>
-        `).join('');
+            `;
+        }).join('');
     } else {
-        // For users, characters, staff, studios
         resultsContainer.innerHTML = items.map(item => {
             let title = '';
             let img = '';
@@ -140,22 +141,22 @@ async function performSearch(query) {
                 title = item.name;
                 img = item.avatar?.large;
                 sub = 'User';
-                link = `details.html?id=${item.id}&type=USER`;
+                link = `user-detail.html?id=${item.id}`;
             } else if (current.queryType === 'CHARACTER') {
                 title = item.name.full;
                 img = item.image?.large;
                 sub = 'Character';
-                link = `details.html?id=${item.id}&type=CHARACTER`;
+                link = `character-detail.html?id=${item.id}`;
             } else if (current.queryType === 'STAFF') {
                 title = item.name.full;
                 img = item.image?.large;
                 sub = 'Staff';
-                link = `details.html?id=${item.id}&type=STAFF`;
+                link = `staff-detail.html?id=${item.id}`;
             } else if (current.queryType === 'STUDIO') {
                 title = item.name;
                 img = null;
                 sub = 'Studio';
-                link = `details.html?id=${item.id}&type=STUDIO`;
+                link = `studio-detail.html?id=${item.id}`;
             }
 
             return `
