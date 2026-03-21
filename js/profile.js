@@ -1,6 +1,5 @@
 // profile.js - Fetch and display user profile data
 
-// Use the same token as auth.js
 const accessToken = localStorage.getItem('anilist_token');
 
 async function fetchUserProfile() {
@@ -9,13 +8,9 @@ async function fetchUserProfile() {
         Viewer {
             id
             name
-            avatar {
-                large
-            }
+            avatar { large }
             bannerImage
             about
-            followerCount
-            followingCount
             statistics {
                 anime {
                     count
@@ -34,38 +29,32 @@ async function fetchUserProfile() {
                 anime(perPage: 6) {
                     nodes {
                         id
-                        title {
-                            userPreferred
-                        }
-                        coverImage {
-                            large
-                        }
+                        title { userPreferred }
+                        coverImage { large }
                         averageScore
                     }
                 }
                 manga(perPage: 6) {
                     nodes {
                         id
-                        title {
-                            userPreferred
-                        }
-                        coverImage {
-                            large
-                        }
+                        title { userPreferred }
+                        coverImage { large }
                         averageScore
                     }
                 }
                 characters(perPage: 6) {
                     nodes {
                         id
-                        name {
-                            userPreferred
-                        }
-                        image {
-                            large
-                        }
+                        name { userPreferred }
+                        image { large }
                     }
                 }
+            }
+            followers(page: 1, perPage: 1) {
+                pageInfo { total }
+            }
+            following(page: 1, perPage: 1) {
+                pageInfo { total }
             }
         }
     }`;
@@ -106,8 +95,12 @@ function updateProfileUI(user) {
     const mangaStats = user.statistics.manga;
     const daysWatched = Math.floor(animeStats.minutesWatched / (60 * 24));
     
-    document.getElementById('followers').textContent = user.followerCount || 0;
-    document.getElementById('following').textContent = user.followingCount || 0;
+    // Followers/following counts from connections
+    const followersCount = user.followers?.pageInfo?.total || 0;
+    const followingCount = user.following?.pageInfo?.total || 0;
+    
+    document.getElementById('followers').textContent = followersCount;
+    document.getElementById('following').textContent = followingCount;
     document.getElementById('anime-count').textContent = animeStats.count || 0;
     document.getElementById('manga-count').textContent = mangaStats.count || 0;
     document.getElementById('episodes-watched').textContent = animeStats.episodesWatched || 0;
