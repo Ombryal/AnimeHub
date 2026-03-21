@@ -7,7 +7,10 @@ async function initDetails() {
     const id = params.get('id');
     const type = params.get('type') || 'ANIME';
 
-    if (!id) { window.location.href = 'index.html'; return; }
+    if (!id) {
+        window.location.href = 'index.html';
+        return;
+    }
 
     let query = '';
     let variables = { id: parseInt(id) };
@@ -157,24 +160,111 @@ async function initDetails() {
     }
 }
 
-// --- Media Details (unchanged, keep your existing function) ---
+// ========== MEDIA DETAILS (original working version) ==========
 function renderMediaDetails(m, type) {
-    // ... (your existing renderMediaDetails function)
-    // Ensure it uses the same element IDs and hides unnecessary sections for media.
-    // We'll assume you have it.
+    const banner = m.bannerImage || m.coverImage.extraLarge;
+    document.getElementById('det-banner').style.backgroundImage = `url('${banner}')`;
+    document.getElementById('det-cover').src = m.coverImage.extraLarge;
+    document.getElementById('det-title').innerText = m.title.english || m.title.romaji;
+
+    // Duration logic
+    let displayDuration = "N/A";
+    if (m.duration) {
+        if (m.format === 'MOVIE') {
+            const hrs = Math.floor(m.duration / 60);
+            const mins = m.duration % 60;
+            displayDuration = hrs > 0 ? `${hrs}h ${mins}m` : `${mins}m`;
+        } else {
+            displayDuration = `${m.duration}m`;
+        }
+    }
+
+    const statsGrid = document.getElementById('det-stats-grid');
+    const rating = m.averageScore ? (m.averageScore/10).toFixed(1)+'/10' : '??';
+
+    if (m.type === 'MANGA') {
+        statsGrid.innerHTML = `
+            ${renderStat('fa-play-circle', 'Type', m.type)}
+            ${renderStat('fa-star', 'Rating', rating)}
+            ${renderStat('fa-file-alt', 'Format', m.format)}
+            ${renderStat('fa-info-circle', 'Status', m.status)}
+            ${renderStat('fa-chart-line', 'Popularity', m.popularity.toLocaleString())}
+            ${renderStat('fa-book-open', 'Chapters', m.chapters || '??')}
+        `;
+    } else {
+        statsGrid.innerHTML = `
+            ${renderStat('fa-play-circle', 'Type', m.type)}
+            ${renderStat('fa-star', 'Rating', rating)}
+            ${renderStat('fa-tv', 'Format', m.format)}
+            ${renderStat('fa-info-circle', 'Status', m.status)}
+            ${renderStat('fa-chart-line', 'Popularity', m.popularity.toLocaleString())}
+            ${renderStat('fa-film', 'Episodes', m.episodes || '??')}
+            ${renderStat('fa-calendar-alt', 'Season', m.season || 'N/A')}
+            ${renderStat('fa-clock', 'Duration', displayDuration)}
+            ${renderStat('fa-calendar-check', 'Premiered', m.season ? `${m.season} ${m.seasonYear}` : 'N/A')}
+            ${renderStat('fa-building', 'Studio', m.studios.nodes[0]?.name || 'N/A')}
+        `;
+    }
+
+    // Content Sections
+    document.getElementById('det-desc').innerHTML = m.description;
+    document.getElementById('romaji-title').innerText = m.title.romaji;
+    document.getElementById('synonyms-list').innerText = m.synonyms.length > 0 ? m.synonyms.join(', ') : 'None';
+
+    // Trailer
+    const trailerDiv = document.getElementById('trailer-container');
+    if (m.trailer && m.trailer.site === 'youtube') {
+        trailerDiv.innerHTML = `<h3 class="section-title">Trailer</h3>
+        <iframe width="100%" height="220" src="https://www.youtube.com/embed/${m.trailer.id}" frameborder="0" allowfullscreen style="border-radius:15px; border: 1px solid var(--glass-border);"></iframe>`;
+    }
+
+    // Relations
+    if (m.relations.edges.length > 0) {
+        document.getElementById('relations-section').innerHTML = `
+        <h3 class="section-title">Relations</h3>
+        <div class="relation-scroller">
+            ${m.relations.edges.map(e => `
+                <div class="relation-card" onclick="window.location.href='details.html?id=${e.node.id}&type=${e.node.type}'">
+                    <img src="${e.node.coverImage.large}">
+                    <div class="relation-info">
+                        <div class="relation-name">${e.node.title.romaji}</div>
+                        <div class="relation-badge"><i class="fas fa-play"></i> ${e.relationType.replace(/_/g, ' ')}</div>
+                    </div>
+                </div>`).join('')}
+        </div>`;
+    }
+
+    // Characters
+    if (m.type === 'ANIME' && m.characters.edges.length > 0) {
+        document.getElementById('characters-section').innerHTML = `<h3 class="section-title">Characters & Cast</h3>
+        <div class="char-grid">${m.characters.edges.map(e => `
+            <div class="char-card">
+                <div class="char-side">
+                    <img src="${e.node.image.large}">
+                    <div class="char-info"><span>${e.node.name.full}</span><small>${e.role}</small></div>
+                </div>
+                ${e.voiceActors[0] ? `<div class="va-side">
+                    <div class="va-info"><span>${e.voiceActors[0].name.full}</span><small>JP</small></div>
+                    <img src="${e.voiceActors[0].image.large}">
+                </div>` : ''}
+            </div>`).join('')}</div>`;
+    }
+
+    renderScrollerItems('recommendations-scroll', m.recommendations.nodes.map(n => n.mediaRecommendation), m.type);
+    hideLoader();
 }
 
-// --- Character Details (enhanced) ---
+// ========== CHARACTER DETAILS ==========
 function renderCharacterDetails(char) {
-    // Set banner and cover image
     const banner = char.image?.large || '';
     document.getElementById('det-banner').style.backgroundImage = `url('${banner}')`;
     document.getElementById('det-cover').src = char.image?.large || '';
     document.getElementById('det-title').innerText = char.name.full;
     
-    // Repurpose synopsis for character description
+    // Change synopsis label to "Character Details"
+    const synopsisLabel = document.querySelector('#det-desc').closest('.glass-card')?.querySelector('.section-label');
+    if (synopsisLabel) synopsisLabel.innerText = 'Character Details';
     document.getElementById('det-desc').innerHTML = char.description || 'No description available.';
-    document.querySelector('#det-desc').closest('.glass-card').querySelector('.section-label').innerText = 'Character Details';
     
     // Hide media‑specific sections
     const romajiDiv = document.getElementById('romaji-title').closest('.glass-card');
@@ -198,8 +288,8 @@ function renderCharacterDetails(char) {
         ${renderStat('fa-tv', 'Appearances', char.media?.edges?.length || 0)}
     `;
 
-    // Voice actors: collect unique from all edges (Japanese and English)
-    const vaMap = new Map(); // key: id, value: { name, image, languages }
+    // Voice actors: collect unique from all edges
+    const vaMap = new Map();
     if (char.media?.edges) {
         char.media.edges.forEach(edge => {
             // Japanese
@@ -255,20 +345,13 @@ function renderCharacterDetails(char) {
         </div>
     ` : '';
 
-    // Insert voice actors and roles into the page
-    const relationsDiv = document.getElementById('relations-section');
-    relationsDiv.innerHTML = voiceActorsHtml + rolesHtml;
-
-    // Clear any leftover content in trailer container
-    const trailerDiv = document.getElementById('trailer-container');
-    if (trailerDiv) trailerDiv.innerHTML = '';
-
+    document.getElementById('relations-section').innerHTML = voiceActorsHtml + rolesHtml;
+    document.getElementById('trailer-container').innerHTML = '';
     hideLoader();
 }
 
-// --- User Details (enhanced) ---
+// ========== USER DETAILS ==========
 function renderUserDetails(user) {
-    // Set banner and cover image
     document.getElementById('det-banner').style.backgroundImage = `url('${user.avatar?.large || ''}')`;
     document.getElementById('det-cover').src = user.avatar?.large || '';
     document.getElementById('det-title').innerText = user.name;
@@ -278,7 +361,7 @@ function renderUserDetails(user) {
     if (synopsisLabel) synopsisLabel.innerText = 'About me';
     document.getElementById('det-desc').innerHTML = user.about || 'No bio available.';
     
-    // Hide media‑specific sections (Romaji Title and Synonyms)
+    // Hide media‑specific sections
     const romajiDiv = document.getElementById('romaji-title').closest('.glass-card');
     const synonymsDiv = document.getElementById('synonyms-list').closest('.glass-card');
     if (romajiDiv) romajiDiv.style.display = 'none';
@@ -295,7 +378,7 @@ function renderUserDetails(user) {
         ${renderStat('fa-book-open', 'Chapters Read', mangaStats?.chaptersRead || 0)}
     `;
 
-    // Favourites (using same layout as profile page)
+    // Favourites
     const favAnime = user.favourites?.anime?.nodes || [];
     const favManga = user.favourites?.manga?.nodes || [];
     const favChars = user.favourites?.characters?.nodes || [];
@@ -351,12 +434,8 @@ function renderUserDetails(user) {
         favouritesHtml += `</div>`;
     }
 
-    const relationsDiv = document.getElementById('relations-section');
-    relationsDiv.innerHTML = favouritesHtml;
-
-    // External link to AniList
-    const externalDiv = document.getElementById('trailer-container');
-    externalDiv.innerHTML = `
+    document.getElementById('relations-section').innerHTML = favouritesHtml;
+    document.getElementById('trailer-container').innerHTML = `
         <div style="text-align: center; margin-top: 20px;">
             <a href="https://anilist.co/user/${user.name}" target="_blank" class="glass-card" style="display: inline-block; padding: 12px 24px; border-radius: 25px; color: var(--accent); text-decoration: none;">
                 View full profile on AniList <i class="fas fa-external-link-alt"></i>
@@ -366,14 +445,76 @@ function renderUserDetails(user) {
     hideLoader();
 }
 
-// --- Staff Details (unchanged) ---
+// ========== STAFF DETAILS ==========
 function renderStaffDetails(staff) {
-    // ... (your existing renderStaffDetails)
+    document.getElementById('det-banner').style.backgroundImage = `url('${staff.image?.large || ''}')`;
+    document.getElementById('det-cover').src = staff.image?.large || '';
+    document.getElementById('det-title').innerText = staff.name.full;
+    document.getElementById('det-desc').innerHTML = staff.description || 'No description available.';
+    document.getElementById('romaji-title').innerText = staff.name.native || 'N/A';
+    document.getElementById('synonyms-list').innerHTML = staff.primaryOccupations?.join(', ') || '—';
+
+    const statsGrid = document.getElementById('det-stats-grid');
+    statsGrid.innerHTML = `
+        ${renderStat('fa-star', 'Favourites', staff.favourites || 0)}
+        ${renderStat('fa-briefcase', 'Occupations', staff.primaryOccupations?.length || 0)}
+    `;
+
+    const relationsDiv = document.getElementById('relations-section');
+    if (staff.staffMedia?.edges?.length) {
+        relationsDiv.innerHTML = `
+            <h3 class="section-title">Worked on</h3>
+            <div class="relation-scroller">
+                ${staff.staffMedia.edges.map(e => `
+                    <div class="relation-card" onclick="window.location.href='details.html?id=${e.node.id}&type=${e.node.type}'">
+                        <img src="${e.node.coverImage.large}">
+                        <div class="relation-name">${e.node.title.romaji}</div>
+                        <div class="relation-badge">${e.staffRole}</div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    } else {
+        relationsDiv.innerHTML = '';
+    }
+    document.getElementById('trailer-container').innerHTML = '';
+    hideLoader();
 }
 
-// --- Studio Details (unchanged) ---
+// ========== STUDIO DETAILS ==========
 function renderStudioDetails(studio) {
-    // ... (your existing renderStudioDetails)
+    document.getElementById('det-banner').style.backgroundImage = `url('')`;
+    document.getElementById('det-cover').style.display = 'none';
+    document.getElementById('det-title').innerText = studio.name;
+    document.getElementById('det-desc').innerHTML = studio.isAnimationStudio ? 'Animation Studio' : 'Non-animation studio';
+    document.getElementById('romaji-title').innerText = '';
+    document.getElementById('synonyms-list').innerHTML = '';
+
+    const statsGrid = document.getElementById('det-stats-grid');
+    statsGrid.innerHTML = `
+        ${renderStat('fa-star', 'Favourites', studio.favourites || 0)}
+        ${renderStat('fa-tv', 'Anime Produced', studio.media?.edges?.length || 0)}
+    `;
+
+    const relationsDiv = document.getElementById('relations-section');
+    if (studio.media?.edges?.length) {
+        relationsDiv.innerHTML = `
+            <h3 class="section-title">Anime</h3>
+            <div class="relation-scroller">
+                ${studio.media.edges.map(e => `
+                    <div class="relation-card" onclick="window.location.href='details.html?id=${e.node.id}&type=${e.node.type}'">
+                        <img src="${e.node.coverImage.large}">
+                        <div class="relation-name">${e.node.title.romaji}</div>
+                        <div class="relation-score">${e.node.meanScore ? (e.node.meanScore/10).toFixed(1)+'★' : '?'}</div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    } else {
+        relationsDiv.innerHTML = '';
+    }
+    document.getElementById('trailer-container').innerHTML = '';
+    hideLoader();
 }
 
 function renderStat(icon, label, val) {
