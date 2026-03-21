@@ -3,6 +3,7 @@
 const accessToken = localStorage.getItem('anilist_token');
 
 async function fetchUserProfile() {
+    // First query: get all profile data except followers/following
     const query = `
     query {
         Viewer {
@@ -50,12 +51,6 @@ async function fetchUserProfile() {
                     }
                 }
             }
-            followers {
-                pageInfo { total }
-            }
-            following {
-                pageInfo { total }
-            }
         }
     }`;
 
@@ -77,7 +72,33 @@ async function fetchUserProfile() {
     }
 }
 
-function updateProfileUI(user) {
+async function fetchFollowerCounts(userId) {
+    const query = `
+    query ($userId: Int) {
+        User(id: $userId) {
+            followers(page: 1, perPage: 1) { pageInfo { total } }
+            following(page: 1, perPage: 1) { pageInfo { total } }
+        }
+    }`;
+    try {
+        const response = await fetch('https://graphql.anilist.co', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${accessToken}`
+            },
+            body: JSON.stringify({ query, variables: { userId } })
+        });
+        const { data, errors } = await response.json();
+        if (errors) throw new Error(errors[0].message);
+        return data.User;
+    } catch (error) {
+        console.error('Error fetching follower counts:', error);
+        return { followers: null, following: null };
+    }
+}
+
+function updateProfileUI(user, followerData = null) {
     // Avatar & Name
     document.getElementById('profile-avatar').src = user.avatar?.large || 'default-avatar.png';
     document.getElementById('profile-name').textContent = user.name;
@@ -95,9 +116,9 @@ function updateProfileUI(user) {
     const mangaStats = user.statistics.manga;
     const daysWatched = Math.floor(animeStats.minutesWatched / (60 * 24));
     
-    // Get follower/following counts from connections
-    const followersCount = user.followers?.pageInfo?.total || 0;
-    const followingCount = user.following?.pageInfo?.total || 0;
+    // Use follower data if available
+    const followersCount = followerData?.followers?.pageInfo?.total || 0;
+    const followingCount = followerData?.following?.pageInfo?.total || 0;
     
     document.getElementById('followers').textContent = followersCount;
     document.getElementById('following').textContent = followingCount;
@@ -164,7 +185,8 @@ function updateProfileUI(user) {
 }
 
 function showError(message) {
-    document.getElementById('profile-loading').style.display = 'none';
+    const loadingDiv = document.getElementById('profile-loading');
+    if (loadingDiv) loadingDiv.style.display = 'none';
     const errorDiv = document.getElementById('profile-error');
     errorDiv.innerHTML = message;
     errorDiv.style.display = 'block';
@@ -177,12 +199,22 @@ async function initProfile() {
     }
     
     try {
+        // First fetch main profile data
         const userData = await fetchUserProfile();
         document.getElementById('profile-loading').style.display = 'none';
         document.getElementById('profile-content').style.display = 'block';
+        
+        // Display everything except followers/following initially (will be updated)
         updateProfileUI(userData);
         
-        // Optionally update header avatar if present
+        // Then fetch follower/following counts in background
+        fetchFollowerCounts(userData.id).then(followerData => {
+            if (followerData) {
+                updateProfileUI(userData, followerData);
+            }
+        }).catch(err => console.warn('Could not load follower counts:', err));
+        
+        // Update header avatar if present
         const headerAvatar = document.getElementById('user-avatar');
         if (headerAvatar && userData.avatar?.large) {
             headerAvatar.src = userData.avatar.large;
