@@ -2,16 +2,6 @@
   <img src="https://komarev.com/ghpvc/?username=PotatoWithThoughts&label=Visitors&color=0e75b6&style=flat" alt="visitor badge" />
 </div>
 
-<p align="center">
-  <img src="https://files.catbox.moe/your_banner.png" alt="AniStats Pro Banner" width="100%">
-</p>
-
-<p align="center">
-  <img src="https://img.shields.io/github/stars/PotatoWithThoughts/PotatoWithThoughts?style=for-the-badge&logo=github&label=Stars&color=0d1117&labelColor=38bdf8" />
-  <img src="https://img.shields.io/github/forks/PotatoWithThoughts/PotatoWithThoughts?style=for-the-badge&logo=github&label=Forks&color=0d1117&labelColor=38bdf8" />
-  <img src="https://img.shields.io/github/last-commit/PotatoWithThoughts/PotatoWithThoughts?style=for-the-badge&logo=git&label=Last%20Commit&color=0d1117&labelColor=38bdf8" />
-</p>
-
 # AniStats Pro
 
 **AniStats Pro** is a sleek, modern web app that connects to your **AniList** account to track your anime and manga stats, discover new series, and manage your lists.  
