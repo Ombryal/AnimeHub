@@ -63,7 +63,7 @@ function renderHero(items) {
     if (!container || !items) return;
 
     container.innerHTML = items.map(m => `
-        <div class="hero-card" onclick="window.location.href='details.html?id=${m.id}&type=MANGA'">
+        <div class="hero-card" onclick="window.location.href='manga-detail.html?id=${m.id}'">
             <img src="${m.coverImage.extraLarge}" class="hero-img" loading="lazy">
             <div class="hero-info-pill">
                 <div class="play-btn"><i class="fas fa-book-open"></i></div>
@@ -102,7 +102,6 @@ function startHeroAutoScroll() {
 function updateActiveDepth(slider) {
     const cards = slider.querySelectorAll('.hero-card');
     const sliderCenter = slider.scrollLeft + (slider.offsetWidth / 2);
-
     cards.forEach(card => {
         const cardCenter = card.offsetLeft + (card.offsetWidth / 2);
         const distance = Math.abs(sliderCenter - cardCenter);
@@ -125,7 +124,7 @@ function renderVerticalPopularList(containerId, items) {
         const chapters = m.chapters ? `${m.chapters} Ch.` : "Ongoing";
 
         return `
-            <div class="landscape-card" onclick="window.location.href='details.html?id=${m.id}&type=MANGA'">
+            <div class="landscape-card" onclick="window.location.href='manga-detail.html?id=${m.id}'">
                 <div class="card-banner" style="background-image: url('${banner}')"></div>
                 <div class="card-content">
                     <img src="${m.coverImage.large}" class="mini-poster" loading="lazy">
