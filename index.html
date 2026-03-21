@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>AniStats Pro | Home</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="css/global.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
@@ -20,7 +20,9 @@
         <div class="user-dashboard">
             <div class="profile-top">
                 <div class="user-pfp-container">
-                    <img src="" id="header-avatar" alt="pfp">
+                    <a href="profile.html" target="_blank">
+                        <img src="" id="header-avatar" alt="pfp">
+                    </a>
                     <div class="user-text">
                         <p class="greeting">Keep it chill,</p>
                         <h1 id="username-display">Guest</h1>
@@ -43,11 +45,11 @@
             </div>
 
             <div class="list-nav-cards">
-                <div class="nav-card anime-card">
+                <div class="nav-card anime-card" onclick="window.location.href='anime.html'">
                     <span>ANIME LIST</span>
                     <div class="underline"></div>
                 </div>
-                <div class="nav-card manga-card">
+                <div class="nav-card manga-card" onclick="window.location.href='manga.html'">
                     <span>MANGA LIST</span>
                     <div class="underline"></div>
                 </div>
@@ -114,7 +116,7 @@
         </div>
     </div>
 
-    <script src="auth.js"></script>
-    <script src="home.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/home.js"></script>
 </body>
 </html>
