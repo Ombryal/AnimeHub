@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>My Profile - AniList</title>
+    <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="css/profile.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="bg-glow"></div>
+
+    <main class="profile-container">
+        <div id="profile-loading" class="loading-spinner">Loading profile...</div>
+        <div id="profile-content" style="display: none;">
+            <!-- Banner -->
+            <div class="profile-banner" id="profile-banner"></div>
+            
+            <!-- Avatar & Name -->
+            <div class="profile-header">
+                <img id="profile-avatar" class="profile-avatar" src="" alt="Avatar">
+                <h1 id="profile-name"></h1>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="stats-section">
+                <h2>Stats</h2>
+                <div class="stats-grid">
+                    <div class="stat-card"><span class="stat-label">Followers</span><span id="followers" class="stat-value">-</span></div>
+                    <div class="stat-card"><span class="stat-label">Following</span><span id="following" class="stat-value">-</span></div>
+                    <div class="stat-card"><span class="stat-label">Anime</span><span id="anime-count" class="stat-value">-</span></div>
+                    <div class="stat-card"><span class="stat-label">Manga</span><span id="manga-count" class="stat-value">-</span></div>
+                    <div class="stat-card"><span class="stat-label">Episodes Watched</span><span id="episodes-watched" class="stat-value">-</span></div>
+                    <div class="stat-card"><span class="stat-label">Days watched</span><span id="days-watched" class="stat-value">-</span></div>
+                    <div class="stat-card"><span class="stat-label">Anime Mean Score</span><span id="anime-mean-score" class="stat-value">-</span></div>
+                    <div class="stat-card"><span class="stat-label">Chapters Read</span><span id="chapters-read" class="stat-value">-</span></div>
+                    <div class="stat-card"><span class="stat-label">Volume read</span><span id="volumes-read" class="stat-value">-</span></div>
+                    <div class="stat-card"><span class="stat-label">Manga Mean Score</span><span id="manga-mean-score" class="stat-value">-</span></div>
+                </div>
+            </div>
+
+            <!-- About Me -->
+            <div class="about-section">
+                <h2>About me</h2>
+                <div id="about-text" class="about-text"></div>
+            </div>
+
+            <!-- Favourites -->
+            <div class="favourites-section">
+                <h2>Favourite Anime</h2>
+                <div id="favourite-anime" class="favourites-grid"></div>
+                
+                <h2>Favourite Manga</h2>
+                <div id="favourite-manga" class="favourites-grid"></div>
+                
+                <h2>Favourite Characters</h2>
+                <div id="favourite-characters" class="favourites-grid characters-grid"></div>
+            </div>
+        </div>
+        <div id="profile-error" style="display: none;" class="error-message"></div>
+    </main>
+
+    <script src="js/auth.js"></script>
+    <script src="js/profile.js"></script>
+</body>
+</html>
