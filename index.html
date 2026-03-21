@@ -95,27 +95,20 @@
         <a href="manga.html" class="nav-link"><i class="fas fa-book-open"></i></a>
     </nav>
 
+    <!-- Global Search Bottom Sheet (Category Links) -->
     <div id="search-sheet" class="bottom-sheet">
         <div class="sheet-overlay" id="close-search"></div>
         <div class="sheet-content">
             <div class="sheet-handle"></div>
-            <h2 style="margin-bottom: 15px;">Global Search</h2>
-            <div class="search-bar">
-                <i class="fas fa-search"></i>
-                <input type="text" id="global-search-input" placeholder="Search for anything...">
-            </div>
-            
-            <!-- Vertical chips -->
+            <h2 style="margin-bottom: 20px;">Search Categories</h2>
             <div class="filter-vertical">
-                <button class="chip active">Anime</button>
-                <button class="chip">Manga</button>
-                <button class="chip">Users</button>
-                <button class="chip">Characters</button>
-                <button class="chip">Staff</button>
-                <button class="chip">Studios</button>
+                <a href="search.html?type=ANIME" class="chip active">Anime</a>
+                <a href="search.html?type=MANGA" class="chip">Manga</a>
+                <a href="search.html?type=USER" class="chip">Users</a>
+                <a href="search.html?type=CHARACTER" class="chip">Characters</a>
+                <a href="search.html?type=STAFF" class="chip">Staff</a>
+                <a href="search.html?type=STUDIO" class="chip">Studios</a>
             </div>
-            
-            <div id="search-results" class="results-container"></div>
         </div>
     </div>
 
