@@ -161,23 +161,11 @@ async function handleSearch(input, containerId, forcedType = null) {
             img = null;
         }
 
-        // Build redirect URL
-        let redirectUrl = '#';
-        if (mode === 'ANIME' || mode === 'MANGA') {
-            redirectUrl = `details.html?id=${item.id}&type=${mode}`;
-        } else if (mode === 'USER') {
-            // Open user profile on AniList in new tab (or could open your own profile page later)
-            redirectUrl = `https://anilist.co/user/${item.name}`;
-        } else if (mode === 'CHARACTER') {
-            redirectUrl = `https://anilist.co/character/${item.id}`;
-        } else if (mode === 'STAFF') {
-            redirectUrl = `https://anilist.co/staff/${item.id}`;
-        } else if (mode === 'STUDIO') {
-            redirectUrl = `https://anilist.co/studio/${item.id}`;
-        }
+        // Redirect to details.html with appropriate type
+        let redirectUrl = `details.html?id=${item.id}&type=${mode}`;
 
         return `
-            <div class="search-item-row" onclick="window.open('${redirectUrl}', '_blank')" style="display:flex; align-items:center; gap:12px; padding:12px; border-bottom:1px solid rgba(255,255,255,0.05); cursor:pointer;">
+            <div class="search-item-row" onclick="window.location.href='${redirectUrl}'" style="display:flex; align-items:center; gap:12px; padding:12px; border-bottom:1px solid rgba(255,255,255,0.05); cursor:pointer;">
                 ${img ? `<img src="${img}" style="width:45px; height:60px; border-radius:8px; object-fit:cover; flex-shrink:0;">` : `<div style="width:45px; height:60px; background:rgba(255,255,255,0.1); border-radius:8px; flex-shrink:0;"></div>`}
                 <div style="flex:1; overflow:hidden;">
                     <h4 style="font-size:0.85rem; margin:0; color:white; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">${title}</h4>
