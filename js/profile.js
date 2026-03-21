@@ -11,8 +11,6 @@ async function fetchUserProfile() {
             avatar { large }
             bannerImage
             about
-            followerCount
-            followingCount
             statistics {
                 anime {
                     count
@@ -51,6 +49,12 @@ async function fetchUserProfile() {
                         image { large }
                     }
                 }
+            }
+            followers {
+                pageInfo { total }
+            }
+            following {
+                pageInfo { total }
             }
         }
     }`;
@@ -91,8 +95,12 @@ function updateProfileUI(user) {
     const mangaStats = user.statistics.manga;
     const daysWatched = Math.floor(animeStats.minutesWatched / (60 * 24));
     
-    document.getElementById('followers').textContent = user.followerCount || 0;
-    document.getElementById('following').textContent = user.followingCount || 0;
+    // Get follower/following counts from connections
+    const followersCount = user.followers?.pageInfo?.total || 0;
+    const followingCount = user.following?.pageInfo?.total || 0;
+    
+    document.getElementById('followers').textContent = followersCount;
+    document.getElementById('following').textContent = followingCount;
     document.getElementById('anime-count').textContent = animeStats.count || 0;
     document.getElementById('manga-count').textContent = mangaStats.count || 0;
     document.getElementById('episodes-watched').textContent = animeStats.episodesWatched || 0;
@@ -174,7 +182,7 @@ async function initProfile() {
         document.getElementById('profile-content').style.display = 'block';
         updateProfileUI(userData);
         
-        // Optionally update header avatar if present (the profile page may have a header)
+        // Optionally update header avatar if present
         const headerAvatar = document.getElementById('user-avatar');
         if (headerAvatar && userData.avatar?.large) {
             headerAvatar.src = userData.avatar.large;
