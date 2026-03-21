@@ -154,15 +154,22 @@ async function handleSearch(input, containerId, forcedType = null) {
     }).join('');
 }
 
-// Set up search UI for anime and manga pages only
+// Set up UI events
 document.addEventListener('DOMContentLoaded', () => {
-    // Only set up if the input elements exist (anime.html / manga.html)
-    const animeInput = document.getElementById('anime-search-input');
-    const mangaInput = document.getElementById('manga-search-input');
+    // Bottom sheet toggle for home page
+    const openSearch = document.getElementById('open-search');
+    const closeSearch = document.getElementById('close-search');
+    const searchSheet = document.getElementById('search-sheet');
 
+    if (openSearch && closeSearch && searchSheet) {
+        openSearch.onclick = () => searchSheet.classList.add('active');
+        closeSearch.onclick = () => searchSheet.classList.remove('active');
+    }
+
+    // Search for anime page
+    const animeInput = document.getElementById('anime-search-input');
     if (animeInput) {
         animeInput.addEventListener('input', () => handleSearch(animeInput, 'anime-search-results', 'ANIME'));
-        // Close floating results when clicking outside
         document.addEventListener('click', (e) => {
             if (!animeInput.contains(e.target) && !document.getElementById('anime-search-results')?.contains(e.target)) {
                 const container = document.getElementById('anime-search-results');
@@ -173,6 +180,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    // Search for manga page
+    const mangaInput = document.getElementById('manga-search-input');
     if (mangaInput) {
         mangaInput.addEventListener('input', () => handleSearch(mangaInput, 'manga-search-results', 'MANGA'));
         document.addEventListener('click', (e) => {
