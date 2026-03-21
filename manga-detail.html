@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Manga Details</title>
+    <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="css/details-common.css">
+    <link rel="stylesheet" href="css/manga-detail.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div id="loading-overlay"><div class="spinner"></div></div>
+    <div class="bg-glow"></div>
+
+    <!-- Banner -->
+    <div id="det-banner"></div>
+
+    <!-- Back button -->
+    <button class="back-btn" onclick="history.back()">
+        <i class="fas fa-arrow-left"></i>
+    </button>
+
+    <div class="container">
+        <div class="detail-header">
+            <img id="det-cover" alt="Cover">
+            <div>
+                <h1 id="det-title"></h1>
+            </div>
+        </div>
+
+        <!-- Statistics grid -->
+        <div id="det-stats-grid" class="stats-grid-container"></div>
+
+        <!-- Synopsis -->
+        <div class="glass-card">
+            <h3 class="section-label">Synopsis</h3>
+            <p id="det-desc"></p>
+        </div>
+
+        <!-- Romaji & Synonyms -->
+        <div class="glass-card">
+            <h3 class="section-label">Romaji Title</h3>
+            <p id="romaji-title"></p>
+            <h3 class="section-label">Synonyms</h3>
+            <p id="synonyms-list"></p>
+        </div>
+
+        <!-- Relations -->
+        <div id="relations-section"></div>
+
+        <!-- Recommendations -->
+        <div id="recommendations-section">
+            <h3 class="section-title">Recommended</h3>
+            <div class="scroller" id="recommendations-scroll"></div>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/manga-detail.js"></script>
+</body>
+</html>
