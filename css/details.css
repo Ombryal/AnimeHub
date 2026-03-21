@@ -1,0 +1,231 @@
+/* details.css - Styles specific to the details page */
+
+.main-col {
+    width: 100%;
+    animation: fadeUp 0.8s ease-out;
+}
+
+#det-desc {
+    font-size: 0.95rem;
+    line-height: 1.8;
+    color: var(--text-dim);
+}
+
+.genre-badge {
+    background: var(--glass-highlight);
+    border: 1px solid var(--glass-border);
+    color: var(--accent);
+    padding: 6px 14px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.stats-grid-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+.stat-card {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--glass-border);
+    border-radius: 15px;
+    padding: 12px 15px;
+}
+
+.stat-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-dim);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+.stat-header i {
+    color: var(--accent);
+    width: 14px;
+}
+
+.stat-value {
+    font-weight: 800;
+    font-size: 1rem;
+    color: #fff;
+    text-transform: uppercase;
+}
+
+.char-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.char-card {
+    background: var(--glass-bg);
+    border-radius: 12px;
+    display: flex;
+    justify-content: space-between;
+    overflow: hidden;
+    height: 70px;
+    border: 1px solid var(--glass-border);
+}
+
+.char-side,
+.va-side {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 48%;
+}
+
+.va-side {
+    justify-content: flex-end;
+    text-align: right;
+}
+
+.char-side img,
+.va-side img {
+    width: 50px;
+    height: 100%;
+    object-fit: cover;
+}
+
+.char-info span,
+.va-info span {
+    font-size: 0.8rem;
+    font-weight: 700;
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.char-info small,
+.va-info small {
+    font-size: 0.65rem;
+    color: var(--text-dim);
+}
+
+.section-title {
+    font-size: 1.2rem;
+    font-weight: 800;
+    margin-bottom: 20px;
+    color: #fff;
+    border-left: 4px solid var(--accent);
+    padding-left: 10px;
+}
+
+.detail-block {
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.section-label {
+    color: var(--accent);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+    font-weight: 800;
+}
+
+.relation-scroller {
+    display: flex;
+    overflow-x: auto;
+    gap: 15px;
+    padding-bottom: 15px;
+    scrollbar-width: none;
+}
+
+.relation-scroller::-webkit-scrollbar {
+    display: none;
+}
+
+.relation-card {
+    flex: 0 0 150px;
+    cursor: pointer;
+}
+
+.relation-card img {
+    width: 150px;
+    height: 210px;
+    border-radius: 20px;
+    object-fit: cover;
+    margin-bottom: 10px;
+    border: 1px solid var(--glass-border);
+    transition: transform 0.2s ease;
+}
+
+.relation-card:active img {
+    transform: scale(0.96);
+}
+
+.relation-name {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 8px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.relation-badge {
+    background: #fff;
+    color: #000;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: 25px;
+    font-size: 0.6rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+.relation-badge i {
+    font-size: 0.5rem;
+}
+
+/* Overrides for better title alignment */
+.relation-scroller {
+    gap: 15px;
+}
+
+.relation-card {
+    flex: 0 0 135px !important;
+    width: 135px;
+}
+
+.relation-card img {
+    width: 100%;
+    height: 190px;
+    border-radius: 18px;
+}
+
+.relation-name {
+    font-size: 0.8rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    height: 2.6em;
+    white-space: normal;
+}
+
+.relation-badge {
+    background: #fff;
+    color: #000;
+    display: inline-flex;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.6rem;
+    font-weight: 900;
+    text-transform: uppercase;
+}
