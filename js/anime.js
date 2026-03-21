@@ -35,7 +35,6 @@ async function initAnimeDiscovery() {
             renderScrollerItems('movies-scroll', data.Movies?.media, 'ANIME');
             renderVerticalPopularList('popular-vertical-list', data.AllTimePopular?.media);
             
-            // Start Auto-Scroll and Depth Logic
             startHeroAutoScroll();
         }
     } catch (error) {
@@ -55,7 +54,7 @@ function renderHero(items) {
         const score = m.meanScore ? (m.meanScore / 10).toFixed(1) : "?.?";
 
         return `
-            <div class="hero-card" onclick="window.location.href='details.html?id=${m.id}&type=ANIME'">
+            <div class="hero-card" onclick="window.location.href='anime-detail.html?id=${m.id}'">
                 <img src="${img}" class="hero-img" loading="lazy">
                 <div class="hero-info-pill">
                     <div class="play-btn"><i class="fas fa-play"></i></div>
@@ -72,10 +71,7 @@ function renderHero(items) {
         `;
     }).join('');
 
-    // Initial check for depth
     updateActiveDepth(container);
-    
-    // Listen for manual swipes to update depth
     container.addEventListener('scroll', () => updateActiveDepth(container));
 }
 
@@ -86,9 +82,7 @@ function startHeroAutoScroll() {
     setInterval(() => {
         const firstCard = slider.querySelector('.hero-card');
         if (!firstCard) return;
-        
         const scrollAmount = firstCard.offsetWidth + 12; 
-        
         if (slider.scrollLeft + slider.offsetWidth >= slider.scrollWidth - 20) {
             slider.scrollTo({ left: 0, behavior: 'smooth' });
         } else {
@@ -97,18 +91,12 @@ function startHeroAutoScroll() {
     }, 4000); 
 }
 
-/**
- * Depth Engine: Makes the middle card pop and fades side cards
- */
 function updateActiveDepth(slider) {
     const cards = slider.querySelectorAll('.hero-card');
     const sliderCenter = slider.scrollLeft + (slider.offsetWidth / 2);
-
     cards.forEach(card => {
         const cardCenter = card.offsetLeft + (card.offsetWidth / 2);
         const distance = Math.abs(sliderCenter - cardCenter);
-        
-        // If card is within the center focus area
         if (distance < card.offsetWidth / 2) {
             card.classList.add('active-depth');
         } else {
@@ -129,7 +117,7 @@ function renderVerticalPopularList(containerId, items) {
         const eps = m.episodes ? `${m.episodes} EP` : "TV";
 
         return `
-            <div class="landscape-card" onclick="window.location.href='details.html?id=${m.id}&type=ANIME'">
+            <div class="landscape-card" onclick="window.location.href='anime-detail.html?id=${m.id}'">
                 <div class="card-banner" style="background-image: url('${banner}')"></div>
                 <div class="card-content">
                     <img src="${poster}" class="mini-poster" loading="lazy">
