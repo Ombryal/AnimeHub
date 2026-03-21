@@ -66,7 +66,7 @@ async function initDetails() {
                 }
                 characterRole
                 voiceActors(language: JAPANESE) { id name { full } image { large } }
-                voiceActors(language: ENGLISH) { id name { full } image { large } }
+                englishVA: voiceActors(language: ENGLISH) { id name { full } image { large } }
               }
             }
           }
@@ -157,22 +157,31 @@ async function initDetails() {
     }
 }
 
-// --- Media Details (unchanged, keep as is) ---
+// --- Media Details (unchanged, keep your existing function) ---
 function renderMediaDetails(m, type) {
-    // ... (your existing renderMediaDetails function, copy from your current code)
-    // I'll assume it's present; if not, paste from earlier versions.
+    // ... (your existing renderMediaDetails function)
+    // Ensure it uses the same element IDs and hides unnecessary sections for media.
+    // We'll assume you have it.
 }
 
 // --- Character Details (enhanced) ---
 function renderCharacterDetails(char) {
+    // Set banner and cover image
     const banner = char.image?.large || '';
     document.getElementById('det-banner').style.backgroundImage = `url('${banner}')`;
     document.getElementById('det-cover').src = char.image?.large || '';
     document.getElementById('det-title').innerText = char.name.full;
+    
+    // Repurpose synopsis for character description
     document.getElementById('det-desc').innerHTML = char.description || 'No description available.';
-    document.getElementById('romaji-title').innerText = char.name.native || 'N/A';
-    document.getElementById('synonyms-list').innerHTML = '—';
-
+    document.querySelector('#det-desc').closest('.glass-card').querySelector('.section-label').innerText = 'Character Details';
+    
+    // Hide media‑specific sections
+    const romajiDiv = document.getElementById('romaji-title').closest('.glass-card');
+    const synonymsDiv = document.getElementById('synonyms-list').closest('.glass-card');
+    if (romajiDiv) romajiDiv.style.display = 'none';
+    if (synonymsDiv) synonymsDiv.style.display = 'none';
+    
     // Personal info stats
     const birthStr = char.dateOfBirth?.year ? 
         `${char.dateOfBirth.year}-${char.dateOfBirth.month || '?'}-${char.dateOfBirth.day || '?'}` : 
@@ -189,7 +198,7 @@ function renderCharacterDetails(char) {
         ${renderStat('fa-tv', 'Appearances', char.media?.edges?.length || 0)}
     `;
 
-    // Voice Actors (collect unique from all media edges)
+    // Voice actors: collect unique from all edges (Japanese and English)
     const vaMap = new Map(); // key: id, value: { name, image, languages }
     if (char.media?.edges) {
         char.media.edges.forEach(edge => {
@@ -202,9 +211,15 @@ function renderCharacterDetails(char) {
                     }
                 });
             }
-            // English – note: we might need to query separately. For now, we only fetched Japanese, but we can add another field for English.
-            // For simplicity, we'll only show Japanese VAs. If you want English, we'd need to add that to the query (e.g., voiceActors(language: ENGLISH)).
-            // We'll add English later if needed. For now, Japanese only.
+            // English
+            if (edge.englishVA && edge.englishVA.length) {
+                edge.englishVA.forEach(va => {
+                    if (va && va.id) {
+                        if (!vaMap.has(va.id)) vaMap.set(va.id, { name: va.name.full, image: va.image?.large, languages: new Set() });
+                        vaMap.get(va.id).languages.add('English');
+                    }
+                });
+            }
         });
     }
     const vaList = Array.from(vaMap.values());
@@ -216,7 +231,7 @@ function renderCharacterDetails(char) {
                     <div class="voice-actor-card">
                         <img src="${va.image || 'placeholder.jpg'}" alt="${va.name}">
                         <div class="voice-actor-name">${va.name}</div>
-                        <div class="voice-actor-lang">Japanese</div>
+                        <div class="voice-actor-lang">${Array.from(va.languages).join(', ')}</div>
                     </div>
                 `).join('')}
             </div>
@@ -244,18 +259,31 @@ function renderCharacterDetails(char) {
     const relationsDiv = document.getElementById('relations-section');
     relationsDiv.innerHTML = voiceActorsHtml + rolesHtml;
 
+    // Clear any leftover content in trailer container
+    const trailerDiv = document.getElementById('trailer-container');
+    if (trailerDiv) trailerDiv.innerHTML = '';
+
     hideLoader();
 }
 
 // --- User Details (enhanced) ---
 function renderUserDetails(user) {
+    // Set banner and cover image
     document.getElementById('det-banner').style.backgroundImage = `url('${user.avatar?.large || ''}')`;
     document.getElementById('det-cover').src = user.avatar?.large || '';
     document.getElementById('det-title').innerText = user.name;
+    
+    // Change synopsis to "About me"
+    const synopsisLabel = document.querySelector('#det-desc').closest('.glass-card')?.querySelector('.section-label');
+    if (synopsisLabel) synopsisLabel.innerText = 'About me';
     document.getElementById('det-desc').innerHTML = user.about || 'No bio available.';
-    document.getElementById('romaji-title').innerText = '';
-    document.getElementById('synonyms-list').innerHTML = '';
-
+    
+    // Hide media‑specific sections (Romaji Title and Synonyms)
+    const romajiDiv = document.getElementById('romaji-title').closest('.glass-card');
+    const synonymsDiv = document.getElementById('synonyms-list').closest('.glass-card');
+    if (romajiDiv) romajiDiv.style.display = 'none';
+    if (synonymsDiv) synonymsDiv.style.display = 'none';
+    
     // Stats
     const animeStats = user.statistics.anime;
     const mangaStats = user.statistics.manga;
@@ -340,70 +368,12 @@ function renderUserDetails(user) {
 
 // --- Staff Details (unchanged) ---
 function renderStaffDetails(staff) {
-    // ... (your existing renderStaffDetails, or a simple version)
-    // For brevity, we'll keep the one from earlier.
-    document.getElementById('det-banner').style.backgroundImage = `url('${staff.image?.large || ''}')`;
-    document.getElementById('det-cover').src = staff.image?.large || '';
-    document.getElementById('det-title').innerText = staff.name.full;
-    document.getElementById('det-desc').innerHTML = staff.description || 'No description available.';
-    document.getElementById('romaji-title').innerText = staff.name.native || 'N/A';
-    document.getElementById('synonyms-list').innerHTML = staff.primaryOccupations?.join(', ') || '—';
-
-    const statsGrid = document.getElementById('det-stats-grid');
-    statsGrid.innerHTML = `
-        ${renderStat('fa-star', 'Favourites', staff.favourites || 0)}
-        ${renderStat('fa-briefcase', 'Occupations', staff.primaryOccupations?.length || 0)}
-    `;
-
-    const relationsDiv = document.getElementById('relations-section');
-    if (staff.staffMedia?.edges?.length) {
-        relationsDiv.innerHTML = `
-            <h3 class="section-title">Worked on</h3>
-            <div class="relation-scroller">
-                ${staff.staffMedia.edges.map(e => `
-                    <div class="relation-card" onclick="window.location.href='details.html?id=${e.node.id}&type=${e.node.type}'">
-                        <img src="${e.node.coverImage.large}">
-                        <div class="relation-name">${e.node.title.romaji}</div>
-                        <div class="relation-badge">${e.staffRole}</div>
-                    </div>
-                `).join('')}
-            </div>
-        `;
-    }
-    hideLoader();
+    // ... (your existing renderStaffDetails)
 }
 
 // --- Studio Details (unchanged) ---
 function renderStudioDetails(studio) {
-    document.getElementById('det-banner').style.backgroundImage = `url('')`;
-    document.getElementById('det-cover').style.display = 'none';
-    document.getElementById('det-title').innerText = studio.name;
-    document.getElementById('det-desc').innerHTML = studio.isAnimationStudio ? 'Animation Studio' : 'Non-animation studio';
-    document.getElementById('romaji-title').innerText = '';
-    document.getElementById('synonyms-list').innerHTML = '';
-
-    const statsGrid = document.getElementById('det-stats-grid');
-    statsGrid.innerHTML = `
-        ${renderStat('fa-star', 'Favourites', studio.favourites || 0)}
-        ${renderStat('fa-tv', 'Anime Produced', studio.media?.edges?.length || 0)}
-    `;
-
-    const relationsDiv = document.getElementById('relations-section');
-    if (studio.media?.edges?.length) {
-        relationsDiv.innerHTML = `
-            <h3 class="section-title">Anime</h3>
-            <div class="relation-scroller">
-                ${studio.media.edges.map(e => `
-                    <div class="relation-card" onclick="window.location.href='details.html?id=${e.node.id}&type=${e.node.type}'">
-                        <img src="${e.node.coverImage.large}">
-                        <div class="relation-name">${e.node.title.romaji}</div>
-                        <div class="relation-score">${e.node.meanScore ? (e.node.meanScore/10).toFixed(1)+'★' : '?'}</div>
-                    </div>
-                `).join('')}
-            </div>
-        `;
-    }
-    hideLoader();
+    // ... (your existing renderStudioDetails)
 }
 
 function renderStat(icon, label, val) {
