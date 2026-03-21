@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Studio Details</title>
+    <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="css/details-common.css">
+    <link rel="stylesheet" href="css/studio-detail.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div id="loading-overlay"><div class="spinner"></div></div>
+    <div class="bg-glow"></div>
+
+    <div id="det-banner" style="background: linear-gradient(135deg, #2c3e50, #3498db);"></div>
+
+    <button class="back-btn" onclick="history.back()">
+        <i class="fas fa-arrow-left"></i>
+    </button>
+
+    <div class="container">
+        <div class="detail-header">
+            <img id="det-cover" style="display: none;">
+            <div>
+                <h1 id="det-title"></h1>
+            </div>
+        </div>
+
+        <div id="det-stats-grid" class="stats-grid-container"></div>
+
+        <div class="glass-card">
+            <h3 class="section-label">About</h3>
+            <p id="det-desc"></p>
+        </div>
+
+        <div class="glass-card" id="romaji-synonyms-card" style="display: none;">
+            <h3 class="section-label">Romaji Title</h3>
+            <p id="romaji-title"></p>
+            <h3 class="section-label">Synonyms</h3>
+            <p id="synonyms-list"></p>
+        </div>
+
+        <div id="relations-section"></div>
+
+        <div id="recommendations-section" style="display: none;">
+            <h3 class="section-title">Recommended</h3>
+            <div class="scroller" id="recommendations-scroll"></div>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/studio-detail.js"></script>
+</body>
+</html>
