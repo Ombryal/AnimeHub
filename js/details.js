@@ -1,5 +1,5 @@
 /**
- * details.js
+ * details.js - Handles all details pages: anime, manga, user, character, staff, studio
  */
 
 async function initDetails() {
@@ -9,39 +9,119 @@ async function initDetails() {
 
     if (!id) { window.location.href = 'index.html'; return; }
 
-    const query = `
-    query ($id: Int, $type: MediaType) {
-      Media (id: $id, type: $type) {
-        id type title { romaji english native }
-        synonyms coverImage { extraLarge } bannerImage
-        description format status episodes chapters averageScore
-        season seasonYear genres popularity duration
-        trailer { id site }
-        studios(isMain: true) { nodes { name } }
-        relations {
-          edges { 
-            relationType 
-            node { id title { romaji } type coverImage { large } } 
-          }
-        }
-        characters(sort: [ROLE, RELEVANCE], perPage: 6) {
-          edges {
-            role
-            node { name { full } image { large } }
-            voiceActors(language: JAPANESE) { name { full } image { large } }
-          }
-        }
-        recommendations(perPage: 6) {
-          nodes { mediaRecommendation { id title { romaji } type coverImage { large } meanScore } }
-        }
-      }
-    }`;
+    let query = '';
+    let variables = { id: parseInt(id) };
 
-    const data = await apiFetch(query, { id: parseInt(id), type: type });
-    if (data && data.Media) renderDetails(data.Media);
+    // Build query based on type
+    if (type === 'ANIME' || type === 'MANGA') {
+        query = `
+        query ($id: Int, $type: MediaType) {
+          Media (id: $id, type: $type) {
+            id type title { romaji english native }
+            synonyms coverImage { extraLarge } bannerImage
+            description format status episodes chapters averageScore
+            season seasonYear genres popularity duration
+            trailer { id site }
+            studios(isMain: true) { nodes { name } }
+            relations {
+              edges { 
+                relationType 
+                node { id title { romaji } type coverImage { large } } 
+              }
+            }
+            characters(sort: [ROLE, RELEVANCE], perPage: 6) {
+              edges {
+                role
+                node { name { full } image { large } }
+                voiceActors(language: JAPANESE) { name { full } image { large } }
+              }
+            }
+            recommendations(perPage: 6) {
+              nodes { mediaRecommendation { id title { romaji } type coverImage { large } meanScore } }
+            }
+          }
+        }`;
+        variables.type = type;
+    } 
+    else if (type === 'CHARACTER') {
+        query = `
+        query ($id: Int) {
+          Character (id: $id) {
+            id name { full native }
+            image { large }
+            description
+            favourites
+            media (perPage: 6) {
+              edges {
+                node { id title { romaji } type coverImage { large } }
+                characterRole
+              }
+            }
+          }
+        }`;
+    }
+    else if (type === 'STAFF') {
+        query = `
+        query ($id: Int) {
+          Staff (id: $id) {
+            id name { full native }
+            image { large }
+            description
+            favourites
+            primaryOccupations
+            staffMedia (perPage: 6) {
+              edges {
+                node { id title { romaji } type coverImage { large } }
+                staffRole
+              }
+            }
+          }
+        }`;
+    }
+    else if (type === 'USER') {
+        query = `
+        query ($id: Int) {
+          User (id: $id) {
+            id name
+            avatar { large }
+            about
+            statistics {
+              anime { count episodesWatched }
+              manga { count chaptersRead }
+            }
+          }
+        }`;
+    }
+    else if (type === 'STUDIO') {
+        query = `
+        query ($id: Int) {
+          Studio (id: $id) {
+            id name
+            isAnimationStudio
+            favourites
+            media (perPage: 6) {
+              edges {
+                node { id title { romaji } type coverImage { large } }
+              }
+            }
+          }
+        }`;
+    }
+
+    const data = await apiFetch(query, variables);
+    if (data) {
+        if (type === 'ANIME' || type === 'MANGA') renderMediaDetails(data.Media, type);
+        else if (type === 'CHARACTER') renderCharacterDetails(data.Character);
+        else if (type === 'STAFF') renderStaffDetails(data.Staff);
+        else if (type === 'USER') renderUserDetails(data.User);
+        else if (type === 'STUDIO') renderStudioDetails(data.Studio);
+    } else {
+        showError("Data not found");
+    }
 }
 
-function renderDetails(m) {
+// --- Media Details (your existing function) ---
+function renderMediaDetails(m, type) {
     const banner = m.bannerImage || m.coverImage.extraLarge;
     document.getElementById('det-banner').style.backgroundImage = `url('${banner}')`;
     document.getElementById('det-cover').src = m.coverImage.extraLarge;
@@ -59,7 +139,6 @@ function renderDetails(m) {
         }
     }
 
-    // THE STATS FIX
     const statsGrid = document.getElementById('det-stats-grid');
     const rating = m.averageScore ? (m.averageScore/10).toFixed(1)+'/10' : '??';
 
@@ -135,11 +214,147 @@ function renderDetails(m) {
     hideLoader();
 }
 
+// --- Character Details ---
+function renderCharacterDetails(char) {
+    const banner = char.image?.large || '';
+    document.getElementById('det-banner').style.backgroundImage = `url('${banner}')`;
+    document.getElementById('det-cover').src = char.image?.large || '';
+    document.getElementById('det-title').innerText = char.name.full;
+    document.getElementById('det-desc').innerHTML = char.description || 'No description available.';
+    document.getElementById('romaji-title').innerText = char.name.native || 'N/A';
+    document.getElementById('synonyms-list').innerText = '—';
+
+    // Stats for character
+    const statsGrid = document.getElementById('det-stats-grid');
+    statsGrid.innerHTML = `
+        ${renderStat('fa-star', 'Favourites', char.favourites || 0)}
+        ${renderStat('fa-tv', 'Appears in', char.media?.edges?.length || 0)}
+    `;
+
+    // Appearances
+    const relationsDiv = document.getElementById('relations-section');
+    if (char.media?.edges?.length) {
+        relationsDiv.innerHTML = `
+            <h3 class="section-title">Appears in</h3>
+            <div class="relation-scroller">
+                ${char.media.edges.map(e => `
+                    <div class="relation-card" onclick="window.location.href='details.html?id=${e.node.id}&type=${e.node.type}'">
+                        <img src="${e.node.coverImage.large}">
+                        <div class="relation-name">${e.node.title.romaji}</div>
+                        <div class="relation-badge">${e.characterRole}</div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    }
+    hideLoader();
+}
+
+// --- Staff Details ---
+function renderStaffDetails(staff) {
+    document.getElementById('det-banner').style.backgroundImage = `url('${staff.image?.large || ''}')`;
+    document.getElementById('det-cover').src = staff.image?.large || '';
+    document.getElementById('det-title').innerText = staff.name.full;
+    document.getElementById('det-desc').innerHTML = staff.description || 'No description available.';
+    document.getElementById('romaji-title').innerText = staff.name.native || 'N/A';
+    document.getElementById('synonyms-list').innerHTML = staff.primaryOccupations?.join(', ') || '—';
+
+    const statsGrid = document.getElementById('det-stats-grid');
+    statsGrid.innerHTML = `
+        ${renderStat('fa-star', 'Favourites', staff.favourites || 0)}
+        ${renderStat('fa-briefcase', 'Occupations', staff.primaryOccupations?.length || 0)}
+    `;
+
+    const relationsDiv = document.getElementById('relations-section');
+    if (staff.staffMedia?.edges?.length) {
+        relationsDiv.innerHTML = `
+            <h3 class="section-title">Worked on</h3>
+            <div class="relation-scroller">
+                ${staff.staffMedia.edges.map(e => `
+                    <div class="relation-card" onclick="window.location.href='details.html?id=${e.node.id}&type=${e.node.type}'">
+                        <img src="${e.node.coverImage.large}">
+                        <div class="relation-name">${e.node.title.romaji}</div>
+                        <div class="relation-badge">${e.staffRole}</div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    }
+    hideLoader();
+}
+
+// --- User Details ---
+function renderUserDetails(user) {
+    document.getElementById('det-banner').style.backgroundImage = `url('${user.avatar?.large || ''}')`;
+    document.getElementById('det-cover').src = user.avatar?.large || '';
+    document.getElementById('det-title').innerText = user.name;
+    document.getElementById('det-desc').innerHTML = user.about || 'No bio available.';
+    document.getElementById('romaji-title').innerText = '';
+    document.getElementById('synonyms-list').innerHTML = '';
+
+    const statsGrid = document.getElementById('det-stats-grid');
+    statsGrid.innerHTML = `
+        ${renderStat('fa-tv', 'Anime Count', user.statistics?.anime?.count || 0)}
+        ${renderStat('fa-film', 'Episodes Watched', user.statistics?.anime?.episodesWatched || 0)}
+        ${renderStat('fa-book', 'Manga Count', user.statistics?.manga?.count || 0)}
+        ${renderStat('fa-book-open', 'Chapters Read', user.statistics?.manga?.chaptersRead || 0)}
+    `;
+
+    // Add external link to AniList profile
+    const relationsDiv = document.getElementById('relations-section');
+    relationsDiv.innerHTML = `
+        <div style="text-align: center; margin-top: 20px;">
+            <a href="https://anilist.co/user/${user.name}" target="_blank" class="glass-card" style="display: inline-block; padding: 12px 24px; border-radius: 25px; color: var(--accent); text-decoration: none;">
+                View full profile on AniList <i class="fas fa-external-link-alt"></i>
+            </a>
+        </div>
+    `;
+    hideLoader();
+}
+
+// --- Studio Details ---
+function renderStudioDetails(studio) {
+    document.getElementById('det-banner').style.backgroundImage = `url('')`;
+    document.getElementById('det-cover').style.display = 'none';
+    document.getElementById('det-title').innerText = studio.name;
+    document.getElementById('det-desc').innerHTML = studio.isAnimationStudio ? 'Animation Studio' : 'Non-animation studio';
+    document.getElementById('romaji-title').innerText = '';
+    document.getElementById('synonyms-list').innerHTML = '';
+
+    const statsGrid = document.getElementById('det-stats-grid');
+    statsGrid.innerHTML = `
+        ${renderStat('fa-star', 'Favourites', studio.favourites || 0)}
+        ${renderStat('fa-tv', 'Anime Produced', studio.media?.edges?.length || 0)}
+    `;
+
+    const relationsDiv = document.getElementById('relations-section');
+    if (studio.media?.edges?.length) {
+        relationsDiv.innerHTML = `
+            <h3 class="section-title">Anime</h3>
+            <div class="relation-scroller">
+                ${studio.media.edges.map(e => `
+                    <div class="relation-card" onclick="window.location.href='details.html?id=${e.node.id}&type=${e.node.type}'">
+                        <img src="${e.node.coverImage.large}">
+                        <div class="relation-name">${e.node.title.romaji}</div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    }
+    hideLoader();
+}
+
 function renderStat(icon, label, val) {
     return `<div class="stat-card">
         <div class="stat-header"><i class="fas ${icon}"></i> <span>${label}</span></div>
         <div class="stat-value">${val || 'N/A'}</div>
     </div>`;
+}
+
+function showError(message) {
+    document.getElementById('loading-overlay').style.display = 'none';
+    document.getElementById('det-title').innerText = 'Error';
+    document.getElementById('det-desc').innerHTML = message;
 }
 
 document.addEventListener('DOMContentLoaded', initDetails);
