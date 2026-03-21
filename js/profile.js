@@ -3,7 +3,6 @@
 const accessToken = localStorage.getItem('anilist_token');
 
 async function fetchUserProfile() {
-    // First query: get all profile data except followers/following
     const query = `
     query {
         Viewer {
@@ -109,6 +108,9 @@ function updateProfileUI(user, followerData = null) {
         bannerDiv.style.backgroundImage = `url(${user.bannerImage})`;
         bannerDiv.style.backgroundSize = 'cover';
         bannerDiv.style.backgroundPosition = 'center';
+    } else {
+        // fallback gradient
+        bannerDiv.style.backgroundImage = 'linear-gradient(135deg, #2c3e50, #3498db)';
     }
     
     // Stats
@@ -134,24 +136,26 @@ function updateProfileUI(user, followerData = null) {
     // About
     const aboutDiv = document.getElementById('about-text');
     if (user.about) {
-        aboutDiv.innerHTML = user.about;
+        aboutDiv.innerHTML = user.about; // allows HTML formatting
     } else {
         aboutDiv.innerHTML = '<p>No bio yet.</p>';
     }
     
-    // Favourite Anime
+    // Favourite Anime - render as horizontal scroller with media-item style
     const favAnime = user.favourites.anime.nodes;
     const animeContainer = document.getElementById('favourite-anime');
     if (favAnime.length) {
         animeContainer.innerHTML = favAnime.map(anime => `
-            <div class="favourite-item" onclick="window.location.href='details.html?id=${anime.id}&type=ANIME'">
-                <img src="${anime.coverImage?.large || 'placeholder.jpg'}" alt="${anime.title.userPreferred}">
-                <div class="title">${anime.title.userPreferred}</div>
-                <div class="score">${anime.averageScore ? (anime.averageScore / 10).toFixed(1) + '★' : 'N/A'}</div>
+            <div class="media-item" onclick="window.location.href='details.html?id=${anime.id}&type=ANIME'">
+                <div class="img-box">
+                    <img src="${anime.coverImage?.large || 'placeholder.jpg'}" loading="lazy">
+                    <div class="purple-badge">${anime.averageScore ? (anime.averageScore / 10).toFixed(1) + '★' : '??'}</div>
+                </div>
+                <div class="media-title">${anime.title.userPreferred}</div>
             </div>
         `).join('');
     } else {
-        animeContainer.innerHTML = '<p>No favourite anime added yet.</p>';
+        animeContainer.innerHTML = '<p class="empty-message">No favourite anime added yet.</p>';
     }
     
     // Favourite Manga
@@ -159,28 +163,31 @@ function updateProfileUI(user, followerData = null) {
     const mangaContainer = document.getElementById('favourite-manga');
     if (favManga.length) {
         mangaContainer.innerHTML = favManga.map(manga => `
-            <div class="favourite-item" onclick="window.location.href='details.html?id=${manga.id}&type=MANGA'">
-                <img src="${manga.coverImage?.large || 'placeholder.jpg'}" alt="${manga.title.userPreferred}">
-                <div class="title">${manga.title.userPreferred}</div>
-                <div class="score">${manga.averageScore ? (manga.averageScore / 10).toFixed(1) + '★' : 'N/A'}</div>
+            <div class="media-item" onclick="window.location.href='details.html?id=${manga.id}&type=MANGA'">
+                <div class="img-box">
+                    <img src="${manga.coverImage?.large || 'placeholder.jpg'}" loading="lazy">
+                    <div class="purple-badge">${manga.averageScore ? (manga.averageScore / 10).toFixed(1) + '★' : '??'}</div>
+                </div>
+                <div class="media-title">${manga.title.userPreferred}</div>
             </div>
         `).join('');
     } else {
-        mangaContainer.innerHTML = '<p>No favourite manga added yet.</p>';
+        mangaContainer.innerHTML = '<p class="empty-message">No favourite manga added yet.</p>';
     }
     
-    // Favourite Characters
+    // Favourite Characters - use custom class for circular style
     const favChars = user.favourites.characters.nodes;
     const charContainer = document.getElementById('favourite-characters');
     if (favChars.length) {
+        charContainer.classList.add('characters-scroller');
         charContainer.innerHTML = favChars.map(char => `
-            <div class="favourite-item" onclick="window.location.href='details.html?id=${char.id}&type=CHARACTER'">
+            <div class="character-item" onclick="window.location.href='details.html?id=${char.id}&type=CHARACTER'">
                 <img src="${char.image?.large || 'placeholder.jpg'}" alt="${char.name.userPreferred}">
                 <div class="title">${char.name.userPreferred}</div>
             </div>
         `).join('');
     } else {
-        charContainer.innerHTML = '<p>No favourite characters added yet.</p>';
+        charContainer.innerHTML = '<p class="empty-message">No favourite characters added yet.</p>';
     }
 }
 
@@ -199,15 +206,13 @@ async function initProfile() {
     }
     
     try {
-        // First fetch main profile data
         const userData = await fetchUserProfile();
         document.getElementById('profile-loading').style.display = 'none';
         document.getElementById('profile-content').style.display = 'block';
         
-        // Display everything except followers/following initially (will be updated)
         updateProfileUI(userData);
         
-        // Then fetch follower/following counts in background
+        // Fetch follower/following counts separately
         fetchFollowerCounts(userData.id).then(followerData => {
             if (followerData) {
                 updateProfileUI(userData, followerData);
