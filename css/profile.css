@@ -14,6 +14,7 @@
     position: relative;
     background-size: cover;
     background-position: center;
+    min-height: 200px; /* ensure height even without image */
 }
 
 .profile-header {
@@ -23,6 +24,8 @@
     padding: 0 2rem;
     margin-bottom: 2rem;
     flex-wrap: wrap;
+    position: relative;
+    z-index: 2;
 }
 
 .profile-avatar {
@@ -42,6 +45,7 @@
     text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
 }
 
+/* Stats Section */
 .stats-section {
     background: rgba(255,255,255,0.05);
     border-radius: 12px;
@@ -89,6 +93,7 @@
     color: #3498db;
 }
 
+/* About Section */
 .about-section {
     background: rgba(255,255,255,0.05);
     border-radius: 12px;
@@ -113,6 +118,7 @@
     color: #3498db;
 }
 
+/* Favourites Section */
 .favourites-section {
     background: rgba(255,255,255,0.05);
     border-radius: 12px;
@@ -132,53 +138,97 @@
     margin-top: 0;
 }
 
-.favourites-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 1.5rem;
-    margin-bottom: 2rem;
+/* Use the same scroller styles as global.css, but ensure items are consistent */
+.scroller {
+    display: flex;
+    overflow-x: auto;
+    gap: 16px;
+    padding: 5px 0 15px 0;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
 }
+.scroller::-webkit-scrollbar { display: none; }
 
-.favourite-item {
-    background: rgba(0,0,0,0.3);
-    border-radius: 8px;
+/* For anime/manga items, use media-item style (same as home page) */
+.media-item {
+    min-width: 130px;
+    max-width: 130px;
+    scroll-snap-align: start;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+}
+.media-item:active { transform: scale(0.95); }
+.media-item:hover { transform: translateY(-5px); }
+
+.img-box {
+    position: relative;
+    width: 130px;
+    height: 190px;
+    border-radius: 18px;
     overflow: hidden;
-    transition: transform 0.2s;
-    text-align: center;
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
 }
 
-.favourite-item:hover {
+.img-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s ease;
+}
+.media-item:hover .img-box img { transform: scale(1.08); }
+
+.purple-badge {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    background: linear-gradient(135deg, var(--primary), #7e22ce);
+    color: white;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    box-shadow: 0 4px 15px rgba(168, 85, 247, 0.5);
+    backdrop-filter: blur(5px);
+}
+
+.media-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-top: 10px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    color: var(--text-main);
+    line-height: 1.3;
+}
+
+/* Characters scroller – different style (circular) */
+.characters-scroller .character-item {
+    min-width: 100px;
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+.characters-scroller .character-item:hover {
     transform: translateY(-5px);
 }
-
-.favourite-item img {
-    width: 100%;
-    aspect-ratio: 2/3;
-    object-fit: cover;
-}
-
-.favourite-item .title {
-    padding: 0.5rem;
-    font-weight: bold;
-    color: white;
-    font-size: 0.9rem;
-}
-
-.favourite-item .score {
-    padding: 0 0.5rem 0.5rem;
-    color: #f1c40f;
-    font-size: 0.9rem;
-}
-
-.characters-grid .favourite-item img {
-    aspect-ratio: 1/1;
-    border-radius: 50%;
+.characters-scroller .character-item img {
     width: 80px;
     height: 80px;
-    margin: 1rem auto 0;
-    display: block;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 8px;
+    border: 2px solid var(--glass-border);
+}
+.characters-scroller .character-item .title {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: white;
 }
 
+/* Loading & Error */
 .loading-spinner {
     text-align: center;
     padding: 3rem;
@@ -204,8 +254,13 @@
     .stats-grid {
         grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
     }
-
-    .favourites-grid {
-        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    
+    .media-item {
+        min-width: 110px;
+        max-width: 110px;
+    }
+    .img-box {
+        width: 110px;
+        height: 160px;
     }
 }
