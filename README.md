@@ -69,11 +69,19 @@ PotatoWithThoughts/
 - [Font Awesome](https://fontawesome.com/) icons
 - Glass‑morphism design principles
 
+
+## 🛠️ Built With
+
+- HTML5, CSS3, JavaScript (ES6)
+- [AniList GraphQL API](https://anilist.gitbook.io/anilist-apiv2-docs/)
+- [Font Awesome](https://fontawesome.com/) icons
+- Glass‑morphism design principles
+
 ## 📦 Getting Started
 
 1. Clone this repository:
    ```bash
-   git clone https://github.com/PotatoWithThoughts/PotatoWithThoughts.git
+   git clone https://github.com/Ombryal/Animehub.git
 
 1. Serve the files using any static server (e.g., Live Server extension in VS Code).
 2. Open index.html and log in with your AniList account.
