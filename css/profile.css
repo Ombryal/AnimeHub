@@ -14,7 +14,7 @@
     position: relative;
     background-size: cover;
     background-position: center;
-    min-height: 200px; /* ensure height even without image */
+    min-height: 200px;
 }
 
 .profile-header {
@@ -52,7 +52,6 @@
     padding: 1.5rem;
     margin-bottom: 2rem;
 }
-
 .stats-section h2 {
     margin-top: 0;
     margin-bottom: 1rem;
@@ -60,13 +59,11 @@
     border-left: 4px solid #3498db;
     padding-left: 12px;
 }
-
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 1rem;
 }
-
 .stat-card {
     background: rgba(0,0,0,0.3);
     padding: 1rem;
@@ -74,18 +71,15 @@
     text-align: center;
     transition: transform 0.2s;
 }
-
 .stat-card:hover {
     transform: translateY(-3px);
 }
-
 .stat-label {
     display: block;
     font-size: 0.9rem;
     color: #aaa;
     margin-bottom: 0.5rem;
 }
-
 .stat-value {
     display: block;
     font-size: 1.5rem;
@@ -100,7 +94,6 @@
     padding: 1.5rem;
     margin-bottom: 2rem;
 }
-
 .about-section h2 {
     margin-top: 0;
     margin-bottom: 1rem;
@@ -108,12 +101,10 @@
     border-left: 4px solid #3498db;
     padding-left: 12px;
 }
-
 .about-text {
     line-height: 1.6;
     color: #ddd;
 }
-
 .about-text a {
     color: #3498db;
 }
@@ -125,7 +116,6 @@
     padding: 1.5rem;
     margin-bottom: 2rem;
 }
-
 .favourites-section h2 {
     margin-top: 1rem;
     margin-bottom: 1rem;
@@ -133,12 +123,11 @@
     border-left: 4px solid #3498db;
     padding-left: 12px;
 }
-
 .favourites-section h2:first-of-type {
     margin-top: 0;
 }
 
-/* Use the same scroller styles as global.css, but ensure items are consistent */
+/* Unified scroller and media-item styles */
 .scroller {
     display: flex;
     overflow-x: auto;
@@ -149,7 +138,6 @@
 }
 .scroller::-webkit-scrollbar { display: none; }
 
-/* For anime/manga items, use media-item style (same as home page) */
 .media-item {
     min-width: 130px;
     max-width: 130px;
@@ -169,7 +157,6 @@
     border: 1px solid var(--glass-border);
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
 }
-
 .img-box img {
     width: 100%;
     height: 100%;
@@ -204,28 +191,12 @@
     line-height: 1.3;
 }
 
-/* Characters scroller – different style (circular) */
-.characters-scroller .character-item {
-    min-width: 100px;
+/* Empty state messages */
+.empty-message {
+    color: var(--text-dim);
+    padding: 20px;
     text-align: center;
-    cursor: pointer;
-    transition: transform 0.2s;
-}
-.characters-scroller .character-item:hover {
-    transform: translateY(-5px);
-}
-.characters-scroller .character-item img {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    object-fit: cover;
-    margin-bottom: 8px;
-    border: 2px solid var(--glass-border);
-}
-.characters-scroller .character-item .title {
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: white;
+    font-size: 0.9rem;
 }
 
 /* Loading & Error */
@@ -235,7 +206,6 @@
     font-size: 1.2rem;
     color: #aaa;
 }
-
 .error-message {
     text-align: center;
     padding: 3rem;
@@ -250,11 +220,9 @@
         align-items: center;
         text-align: center;
     }
-
     .stats-grid {
         grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
     }
-    
     .media-item {
         min-width: 110px;
         max-width: 110px;
