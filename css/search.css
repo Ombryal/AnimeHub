@@ -136,7 +136,7 @@
     grid-column: 1 / -1;
 }
 
-/* ========== FILTER PANEL (collapsible) ========== */
+/* ========== FILTER PANEL (new horizontal row + collapsible genres/tags) ========== */
 .filter-toggle-btn {
     background: var(--glass-bg);
     border: 1px solid var(--glass-border);
@@ -158,10 +158,67 @@
     padding: 20px;
     margin-bottom: 20px;
 }
-
-/* Collapsible groups */
-.filter-group.collapsible {
+.filter-panel h4 {
+    margin: 0 0 15px 0;
+    font-size: 1.1rem;
+    color: var(--accent);
+}
+.filter-category-row {
+    display: flex;
+    gap: 12px;
     margin-bottom: 15px;
+    flex-wrap: wrap;
+}
+.category-btn {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 6px 16px;
+    color: var(--text-main);
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.category-btn:hover {
+    background: var(--glass-highlight);
+}
+.category-panel {
+    margin-bottom: 20px;
+    padding: 12px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 12px;
+}
+.filter-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.filter-options.year-inputs {
+    gap: 10px;
+}
+.filter-options input {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    padding: 6px 10px;
+    color: white;
+    width: 100px;
+}
+.filter-chip {
+    padding: 6px 12px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.filter-chip.selected {
+    background: var(--accent);
+    color: var(--bg-base);
+    border-color: var(--accent);
+}
+.filter-group {
+    margin-bottom: 20px;
 }
 .filter-group-header {
     display: flex;
@@ -181,40 +238,6 @@
 }
 .filter-group-header.active i {
     transform: rotate(180deg);
-}
-.filter-options {
-    margin-top: 10px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-}
-.filter-options.year-inputs {
-    gap: 10px;
-}
-.filter-options input {
-    background: rgba(255,255,255,0.1);
-    border: 1px solid var(--glass-border);
-    border-radius: 8px;
-    padding: 6px 10px;
-    color: white;
-    width: 100px;
-}
-.filter-options input:focus {
-    outline: none;
-    border-color: var(--accent);
-}
-.filter-chip {
-    padding: 6px 12px;
-    background: rgba(255,255,255,0.05);
-    border: 1px solid var(--glass-border);
-    border-radius: 20px;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-.filter-chip.selected {
-    background: var(--accent);
-    color: var(--bg-base);
-    border-color: var(--accent);
 }
 .filter-actions {
     display: flex;
