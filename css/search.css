@@ -62,13 +62,20 @@
     font-weight: 600;
 }
 
-/* Force 3 columns for results (search & trending) */
+/* Results grid: 3 columns on mobile, auto‑fit on larger */
 .search-results-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 20px;
     margin-top: 20px;
 }
+/* On screens wider than 700px, let the grid auto‑fit with a min width of 150px */
+@media (min-width: 701px) {
+    .search-results-grid {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    }
+}
+/* Make cards fill the grid cells */
 .search-results-grid .media-item {
     width: 100%;
     min-width: 0;
@@ -303,16 +310,4 @@
 /* Prevent body scroll when filter sheet is open */
 body.filter-sheet-open {
     overflow: hidden;
-}
-
-/* Responsive: 2 columns on tablet, 1 on mobile */
-@media (max-width: 768px) {
-    .search-results-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-@media (max-width: 480px) {
-    .search-results-grid {
-        grid-template-columns: 1fr;
-    }
 }
