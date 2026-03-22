@@ -32,7 +32,7 @@ let yearMin = null;
 let yearMax = null;
 let selectedSources = [];
 
-// Helper to load trending
+// Load trending
 async function loadTrending() {
     if (!current.mediaType) return;
     const trendingQuery = `
@@ -55,7 +55,6 @@ async function loadTrending() {
     }
 }
 
-// Render media results (trending or search)
 function renderMediaResults(items) {
     if (items.length) {
         trendingSection.style.display = 'block';
@@ -127,7 +126,6 @@ function updateSelectedFilters() {
     const yearMaxInput = document.getElementById('year-max');
     yearMin = yearMinInput?.value ? parseInt(yearMinInput.value) : null;
     yearMax = yearMaxInput?.value ? parseInt(yearMaxInput.value) : null;
-    console.log('Filters updated:', { selectedGenres, selectedTags, selectedFormats, selectedStatus, selectedSeasons, selectedSources, yearMin, yearMax });
 }
 
 function getSelectedValues(type) {
@@ -167,9 +165,9 @@ async function performSearch(query) {
     if (!current.mediaType) return;
 
     const hasFilters = selectedGenres.length || selectedTags.length || selectedFormats.length || selectedStatus.length || selectedSeasons.length || selectedSources.length || yearMin || yearMax;
+    const hasSearch = !!query;
 
-    // If no search query and no filters, show trending
-    if (!query && !hasFilters) {
+    if (!hasSearch && !hasFilters) {
         await loadTrending();
         return;
     }
@@ -182,7 +180,7 @@ async function performSearch(query) {
     const graphqlQuery = `
         query ($search: String, $type: MediaType) {
             Page(perPage: 20) {
-                media(search: $search, type: $type ${filterArgs}) {
+                media(${hasSearch ? 'search: $search,' : ''} type: $type ${filterArgs}) {
                     id
                     title { romaji }
                     coverImage { large }
@@ -191,12 +189,12 @@ async function performSearch(query) {
                 }
             }
         }`;
-    const variables = { search: query || '', type: current.queryType };
-    console.log('GraphQL query:', graphqlQuery);
-    console.log('Variables:', variables);
+    const variables = hasSearch
+        ? { search: query, type: current.queryType }
+        : { type: current.queryType };
+
     const data = await apiFetch(graphqlQuery, variables);
     if (!data || !data.Page) {
-        console.error('No data returned or Page missing', data);
         resultsContainer.innerHTML = `<div class="empty-message">No results found.</div>`;
         return;
     }
