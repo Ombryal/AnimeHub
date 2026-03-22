@@ -50,15 +50,15 @@
 }
 
 /* =========================================
-   ROLES GRID (3 columns, responsive)
+   ROLES GRID (Responsive)
    ========================================= */
 .roles-section {
     margin: 30px 0;
 }
 .roles-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 16px;
 }
 .roles-grid .media-item {
     width: 100%;
@@ -80,16 +80,10 @@
     margin-top: 4px;
 }
 
-/* Responsive: 2 columns on tablets, 1 on mobile */
-@media (max-width: 768px) {
-    .roles-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 15px;
-    }
-}
+/* Mobile: force 3 columns exactly */
 @media (max-width: 480px) {
     .roles-grid {
-        grid-template-columns: 1fr;
-        gap: 15px;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
     }
 }
