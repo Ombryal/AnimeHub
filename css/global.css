@@ -673,3 +673,17 @@ body {
 .scroller {
     gap: 14px;           /* was 16px – slight reduction */
 }
+
+/* Compact layout for all pages */
+.section-group {
+    margin-bottom: 20px;    /* was 30px */
+}
+
+.row-header {
+    margin-bottom: 8px;     /* was 15px */
+}
+
+.scroller {
+    padding: 0 0 12px 0;    /* was 5px 0 15px 0 */
+    gap: 14px;              /* optional – reduces gap between cards */
+}
