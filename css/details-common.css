@@ -198,66 +198,90 @@
     margin-top: 4px;
 }
 
-/* Character grid */
-.char-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+/* =========================================
+   CHARACTER & STAFF CARDS (Horizontal Scroller)
+   ========================================= */
+.character-card,
+.staff-card {
+    min-width: 130px;
+    max-width: 130px;
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.2s;
 }
-.char-card {
-    background: var(--glass-bg);
-    border-radius: 12px;
-    display: flex;
-    justify-content: space-between;
+.character-card:hover,
+.staff-card:hover {
+    transform: translateY(-5px);
+}
+.character-card .character-image,
+.staff-card .staff-image {
+    width: 130px;
+    height: 190px;
+    border-radius: 18px;
     overflow: hidden;
-    height: 70px;
+    margin-bottom: 8px;
     border: 1px solid var(--glass-border);
 }
-.char-side,
-.va-side {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    width: 48%;
-}
-.va-side {
-    justify-content: flex-end;
-    text-align: right;
-}
-.char-side img,
-.va-side img {
-    width: 50px;
+.character-card .character-image img,
+.staff-card .staff-image img {
+    width: 100%;
     height: 100%;
     object-fit: cover;
 }
-.char-info span,
-.va-info span {
-    font-size: 0.8rem;
+.character-card .character-name,
+.staff-card .staff-name {
     font-weight: 700;
-    display: block;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    font-size: 0.85rem;
+    color: white;
 }
-.char-info small,
-.va-info small {
+.character-card .character-role,
+.staff-card .staff-role {
+    font-size: 0.7rem;
+    color: var(--accent);
+    margin-top: 2px;
+}
+.character-card .voice-actor {
     font-size: 0.65rem;
     color: var(--text-dim);
+    margin-top: 4px;
+    cursor: pointer;
+}
+.character-card .voice-actor:hover {
+    color: var(--accent);
 }
 
-/* Voice actors (for character detail) */
+/* Media role text (under the card in character roles) */
+.media-role {
+    font-size: 0.7rem;
+    color: var(--accent);
+    text-align: center;
+    margin-top: 4px;
+}
+
+/* =========================================
+   VOICE ACTORS (Horizontal Scroller)
+   ========================================= */
 .voice-actors-section {
     margin: 30px 0;
 }
 .voice-actors-list {
     display: flex;
-    flex-wrap: wrap;
+    overflow-x: auto;
     gap: 20px;
-    justify-content: flex-start;
+    padding: 5px 0 15px;
+    scrollbar-width: none;
+}
+.voice-actors-list::-webkit-scrollbar {
+    display: none;
 }
 .voice-actor-card {
+    min-width: 100px;
     text-align: center;
-    width: 100px;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+.voice-actor-card:hover {
+    transform: translateY(-5px);
 }
 .voice-actor-card img {
     width: 80px;
@@ -277,7 +301,9 @@
     color: var(--accent);
 }
 
-/* User favourites */
+/* =========================================
+   USER FAVOURITES (Profile page)
+   ========================================= */
 .user-favourites {
     margin: 20px 0;
 }
@@ -307,7 +333,9 @@
     transform: translateY(-5px);
 }
 
-/* Media scroller (same as global, but override for consistency) */
+/* =========================================
+   MEDIA SCROLLER (Recommended, etc.)
+   ========================================= */
 .scroller {
     display: flex;
     overflow-x: auto;
@@ -375,7 +403,9 @@
     line-height: 1.3;
 }
 
-/* Back button (common) */
+/* =========================================
+   BACK BUTTON
+   ========================================= */
 .back-btn {
     position: fixed;
     top: 20px;
@@ -398,7 +428,9 @@
     transform: scale(1.05);
 }
 
-/* List status section */
+/* =========================================
+   LIST STATUS (User Progress)
+   ========================================= */
 #list-status {
     margin-bottom: 20px;
 }
@@ -419,7 +451,9 @@
     text-align: center;
 }
 
-/* Responsive adjustments – keep 2 columns for stats */
+/* =========================================
+   RESPONSIVE ADJUSTMENTS
+   ========================================= */
 @media (max-width: 768px) {
     .detail-header {
         flex-direction: column;
@@ -427,12 +461,15 @@
         text-align: center;
     }
     /* Keep stats grid in 2 columns */
-    /* If you want to switch to 1fr on very small screens, add a lower breakpoint */
-    .media-item {
+    .media-item,
+    .character-card,
+    .staff-card {
         min-width: 110px;
         max-width: 110px;
     }
-    .img-box {
+    .img-box,
+    .character-card .character-image,
+    .staff-card .staff-image {
         width: 110px;
         height: 160px;
     }
@@ -443,83 +480,4 @@
     .relation-card img {
         height: 150px;
     }
-   }
-
-/* Character cards */
-.character-card {
-    min-width: 150px;
-    max-width: 150px;
-    text-align: center;
-    cursor: pointer;
-    transition: transform 0.2s;
-}
-.character-card:hover {
-    transform: translateY(-5px);
-}
-.character-card .character-image {
-    width: 150px;
-    height: 210px;
-    border-radius: 18px;
-    overflow: hidden;
-    margin-bottom: 8px;
-    border: 1px solid var(--glass-border);
-}
-.character-card .character-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-.character-card .character-name {
-    font-weight: 700;
-    font-size: 0.85rem;
-    color: white;
-}
-.character-card .character-role {
-    font-size: 0.7rem;
-    color: var(--accent);
-    margin-top: 2px;
-}
-.character-card .voice-actor {
-    font-size: 0.65rem;
-    color: var(--text-dim);
-    margin-top: 4px;
-    cursor: pointer;
-}
-.character-card .voice-actor:hover {
-    color: var(--accent);
-}
-
-/* Staff cards */
-.staff-card {
-    min-width: 130px;
-    max-width: 130px;
-    text-align: center;
-    cursor: pointer;
-    transition: transform 0.2s;
-}
-.staff-card:hover {
-    transform: translateY(-5px);
-}
-.staff-card .staff-image {
-    width: 130px;
-    height: 130px;
-    border-radius: 18px;
-    overflow: hidden;
-    margin-bottom: 8px;
-    border: 1px solid var(--glass-border);
-}
-.staff-card .staff-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-.staff-card .staff-name {
-    font-weight: 700;
-    font-size: 0.8rem;
-    color: white;
-}
-.staff-card .staff-role {
-    font-size: 0.65rem;
-    color: var(--accent);
-    margin-top: 2px;
 }
