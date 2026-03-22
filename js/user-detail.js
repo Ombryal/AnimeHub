@@ -62,8 +62,8 @@ function renderUserDetails(user) {
     document.getElementById('det-cover').src = user.avatar?.large || '';
     document.getElementById('det-title').innerText = user.name;
     
-    // About
-    document.getElementById('det-desc').innerHTML = user.about || 'No bio available.';
+    // About (formatted)
+    document.getElementById('det-desc').innerHTML = formatAnilistText(user.about);
     
     // Hide romaji/synonyms card
     const romajiCard = document.getElementById('romaji-synonyms-card');
