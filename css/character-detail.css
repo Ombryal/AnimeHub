@@ -57,22 +57,18 @@
 }
 .roles-grid {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(3, 1fr);
     gap: 20px;
-    justify-items: center;
 }
 .roles-grid .media-item {
     width: 100%;
-    max-width: 160px;          /* prevents overgrowth */
-    margin: 0;
-    min-width: unset;
-    max-width: 160px;
+    min-width: unset;   /* override global fixed width */
+    max-width: unset;   /* override global fixed width */
 }
 .roles-grid .media-item .img-box {
     width: 100%;
     aspect-ratio: 2/3;
-    height: auto;
-    margin: 0 auto;
+    height: auto;       /* override fixed height */
 }
 .roles-grid .media-item .media-title {
     font-size: 0.85rem;
@@ -87,19 +83,13 @@
 /* Responsive: 2 columns on tablets, 1 on mobile */
 @media (max-width: 768px) {
     .roles-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-columns: repeat(2, 1fr);
         gap: 15px;
-    }
-    .roles-grid .media-item {
-        max-width: 140px;
     }
 }
 @media (max-width: 480px) {
     .roles-grid {
         grid-template-columns: 1fr;
         gap: 15px;
-    }
-    .roles-grid .media-item {
-        max-width: 130px;
     }
 }
