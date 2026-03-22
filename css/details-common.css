@@ -105,11 +105,7 @@
     margin-bottom: 8px;
     font-weight: 800;
 }
-#det-desc {
-    font-size: 0.95rem;
-    line-height: 1.8;
-    color: var(--text-dim);
-}
+#det-desc,
 #romaji-title,
 #synonyms-list {
     color: var(--text-main);
@@ -493,12 +489,14 @@ code {
     border-radius: 4px;
 }
 
-/* Preserve line breaks in descriptions (applies to synopsis and profile about) */
+/* Preserve line breaks in descriptions (synopsis & profile about) */
 #det-desc,
 .about-text {
     white-space: pre-wrap;
     word-break: break-word;
     line-height: 1.5;
+    margin: 0;
+    padding: 0;
 }
 
 /* Center alignment class */
