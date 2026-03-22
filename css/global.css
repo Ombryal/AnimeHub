@@ -58,14 +58,14 @@ body {
 }
 
 .section-group {
-    margin-bottom: 30px;
+    margin-bottom: 20px;
 }
 
 .row-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 15px;
+    margin-bottom: 8px;
 }
 
 .row-header h3 {
@@ -78,8 +78,8 @@ body {
 .scroller {
     display: flex;
     overflow-x: auto;
-    gap: 16px;
-    padding: 5px 0 15px 0;
+    gap: 14px;
+    padding: 0 0 12px 0;
     scroll-snap-type: x mandatory;
     scrollbar-width: none;
 }
@@ -104,7 +104,6 @@ body {
     border: 1px solid var(--glass-border);
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
 }
-
 .img-box img {
     width: 100%;
     height: 100%;
@@ -655,39 +654,16 @@ body {
     background: rgba(56, 189, 248, 0.2);
 }
 
-/* Reduce spacing between home sections */
-.section-group {
-    margin-bottom: 20px; /* was 30px */
+/* Home and discovery pages – 4 full cards + peek */
+.home-container,
+.discovery-container {
+    max-width: 630px;          /* 4 cards + peek of 5th */
 }
 
-.row-header {
-    margin-bottom: 8px;  /* was 15px */
-}
-
-/* Reduce padding on scroller to tighten vertical space */
-.scroller {
-    padding: 0 0 8px 0;  /* was 5px 0 15px 0 */
-}
-
-/* Optional: reduce gap between title and cards if still needed */
-.scroller {
-    gap: 14px;           /* was 16px – slight reduction */
-}
-
-/* Home page specific styles */
-.home-container {
-    max-width: 470px;          /* Show 3 full cards + a peek of the 4th */
-}
-
-.home-container .section-group {
-    margin-bottom: 20px;      /* was 30px */
-}
-
-.home-container .row-header {
-    margin-bottom: 8px;       /* was 15px */
-}
-
-.home-container .scroller {
-    padding: 0 0 12px 0;      /* was 5px 0 15px 0 */
-    gap: 12px;                /* slightly tighter gap between cards */
+/* On narrower screens, show 3 cards + peek */
+@media (max-width: 640px) {
+    .home-container,
+    .discovery-container {
+        max-width: 490px;      /* 3 cards + peek */
+    }
 }
