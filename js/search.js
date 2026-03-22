@@ -254,36 +254,43 @@ document.querySelectorAll('.filter-group-header').forEach(header => {
     });
 });
 
-// Filter panel toggle
+// Bottom sheet toggle
+const filterToggle = document.getElementById('filter-toggle');
+const filterSheet = document.getElementById('filter-sheet');
+const closeFilter = document.getElementById('close-filter');
+
+if (filterToggle && filterSheet && closeFilter) {
+    filterToggle.onclick = () => filterSheet.classList.add('active');
+    closeFilter.onclick = () => filterSheet.classList.remove('active');
+}
+
+// Apply filters and clear buttons
+const applyBtn = document.getElementById('apply-filters');
+const clearBtn = document.getElementById('clear-filters');
+if (applyBtn) {
+    applyBtn.addEventListener('click', () => {
+        updateSelectedFilters();
+        filterSheet.classList.remove('active');
+        if (searchInput.value.trim().length >= 2) performSearch(searchInput.value.trim());
+    });
+}
+if (clearBtn) {
+    clearBtn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-chip.selected').forEach(chip => chip.classList.remove('selected'));
+        const yearMinInput = document.getElementById('year-min');
+        const yearMaxInput = document.getElementById('year-max');
+        if (yearMinInput) yearMinInput.value = '';
+        if (yearMaxInput) yearMaxInput.value = '';
+        updateSelectedFilters();
+        filterSheet.classList.remove('active');
+        if (searchInput.value.trim().length >= 2) performSearch(searchInput.value.trim());
+    });
+}
+
+// Initial load
 document.addEventListener('DOMContentLoaded', () => {
-    const filterToggle = document.getElementById('filter-toggle');
-    const filterPanel = document.getElementById('filter-panel');
-    if (filterToggle && filterPanel) {
-        filterToggle.addEventListener('click', () => {
-            filterPanel.style.display = filterPanel.style.display === 'none' ? 'block' : 'none';
-        });
-    }
-    const applyBtn = document.getElementById('apply-filters');
-    const clearBtn = document.getElementById('clear-filters');
-    if (applyBtn) {
-        applyBtn.addEventListener('click', () => {
-            updateSelectedFilters();
-            if (searchInput.value.trim().length >= 2) performSearch(searchInput.value.trim());
-        });
-    }
-    if (clearBtn) {
-        clearBtn.addEventListener('click', () => {
-            document.querySelectorAll('.filter-chip.selected').forEach(chip => chip.classList.remove('selected'));
-            const yearMinInput = document.getElementById('year-min');
-            const yearMaxInput = document.getElementById('year-max');
-            if (yearMinInput) yearMinInput.value = '';
-            if (yearMaxInput) yearMaxInput.value = '';
-            updateSelectedFilters();
-            if (searchInput.value.trim().length >= 2) performSearch(searchInput.value.trim());
-        });
-    }
     if (current.mediaType) {
         loadFilterOptions();
-        loadTrending(); // load trending on initial page load
+        loadTrending();
     }
 });
