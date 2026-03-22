@@ -30,39 +30,78 @@
 
         <!-- Filter panel (collapsible) -->
         <div id="filter-panel" class="filter-panel" style="display: none;">
-            <div class="filter-group">
-                <h4>Genres</h4>
-                <div class="filter-options" id="genre-filters"></div>
-            </div>
-            <div class="filter-group">
-                <h4>Tags</h4>
-                <div class="filter-options" id="tag-filters"></div>
-            </div>
-            <div class="filter-group">
-                <h4>Format</h4>
-                <div class="filter-options" id="format-filters">
-                    <!-- Populated by JS -->
+            <!-- Format -->
+            <div class="filter-group collapsible">
+                <div class="filter-group-header" data-target="format-options">
+                    <h4>Format</h4>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div id="format-options" class="filter-options" style="display: none;">
+                    <!-- populated by JS -->
                 </div>
             </div>
-            <div class="filter-group">
-                <h4>Status</h4>
-                <div class="filter-options" id="status-filters"></div>
+            <!-- Status -->
+            <div class="filter-group collapsible">
+                <div class="filter-group-header" data-target="status-options">
+                    <h4>Status</h4>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div id="status-options" class="filter-options" style="display: none;">
+                    <!-- populated by JS -->
+                </div>
             </div>
-            <div class="filter-group">
-                <h4>Season</h4>
-                <div class="filter-options" id="season-filters"></div>
+            <!-- Season -->
+            <div class="filter-group collapsible">
+                <div class="filter-group-header" data-target="season-options">
+                    <h4>Season</h4>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div id="season-options" class="filter-options" style="display: none;">
+                    <!-- populated by JS -->
+                </div>
             </div>
-            <div class="filter-group">
-                <h4>Year</h4>
-                <div class="filter-options" id="year-filters">
+            <!-- Year -->
+            <div class="filter-group collapsible">
+                <div class="filter-group-header" data-target="year-options">
+                    <h4>Year</h4>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div id="year-options" class="filter-options year-inputs" style="display: none;">
                     <input type="number" id="year-min" placeholder="From" min="1900" max="2100">
                     <input type="number" id="year-max" placeholder="To" min="1900" max="2100">
                 </div>
             </div>
-            <div class="filter-group">
-                <h4>Source</h4>
-                <div class="filter-options" id="source-filters"></div>
+            <!-- Source -->
+            <div class="filter-group collapsible">
+                <div class="filter-group-header" data-target="source-options">
+                    <h4>Source</h4>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div id="source-options" class="filter-options" style="display: none;">
+                    <!-- populated by JS -->
+                </div>
             </div>
+            <!-- Genres (at the end) -->
+            <div class="filter-group collapsible">
+                <div class="filter-group-header" data-target="genre-options">
+                    <h4>Genres</h4>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div id="genre-options" class="filter-options" style="display: none;">
+                    <!-- populated by JS -->
+                </div>
+            </div>
+            <!-- Tags (at the end) -->
+            <div class="filter-group collapsible">
+                <div class="filter-group-header" data-target="tag-options">
+                    <h4>Tags</h4>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div id="tag-options" class="filter-options" style="display: none;">
+                    <!-- populated by JS -->
+                </div>
+            </div>
+
             <div class="filter-actions">
                 <button id="apply-filters" class="btn-primary">Apply Filters</button>
                 <button id="clear-filters" class="btn-secondary">Clear</button>
