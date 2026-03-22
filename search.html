@@ -49,21 +49,21 @@
                 <button class="category-btn" data-category="season">Season</button>
                 <button class="category-btn" data-category="year">Year</button>
             </div>
-            <!-- Dynamic panels for each category (initially hidden) -->
+            <!-- Dynamic panels for each category (horizontal scrollers) -->
             <div id="source-panel" class="category-panel" style="display: none;">
-                <div class="filter-options" id="source-options"></div>
+                <div class="horizontal-scroller" id="source-options"></div>
             </div>
             <div id="format-panel" class="category-panel" style="display: none;">
-                <div class="filter-options" id="format-options"></div>
+                <div class="horizontal-scroller" id="format-options"></div>
             </div>
             <div id="status-panel" class="category-panel" style="display: none;">
-                <div class="filter-options" id="status-options"></div>
+                <div class="horizontal-scroller" id="status-options"></div>
             </div>
             <div id="season-panel" class="category-panel" style="display: none;">
-                <div class="filter-options" id="season-options"></div>
+                <div class="horizontal-scroller" id="season-options"></div>
             </div>
             <div id="year-panel" class="category-panel" style="display: none;">
-                <div class="filter-options year-inputs">
+                <div class="horizontal-scroller year-inputs">
                     <input type="number" id="year-min" placeholder="From" min="1900" max="2100">
                     <input type="number" id="year-max" placeholder="To" min="1900" max="2100">
                 </div>
@@ -75,7 +75,7 @@
                     <h4>Genres</h4>
                     <i class="fas fa-th"></i>
                 </div>
-                <div id="genre-options" class="filter-options" style="display: none;">
+                <div id="genre-options" class="horizontal-scroller" style="display: none;">
                     <!-- populated by JS -->
                 </div>
             </div>
@@ -84,7 +84,7 @@
                     <h4>Tags</h4>
                     <i class="fas fa-th"></i>
                 </div>
-                <div id="tag-options" class="filter-options" style="display: none;">
+                <div id="tag-options" class="horizontal-scroller" style="display: none;">
                     <!-- populated by JS -->
                 </div>
             </div>
