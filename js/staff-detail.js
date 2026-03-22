@@ -40,7 +40,8 @@ function renderStaffDetails(staff) {
     document.getElementById('det-banner').style.backgroundImage = `url('${banner}')`;
     document.getElementById('det-cover').src = staff.image?.large || '';
     document.getElementById('det-title').innerText = staff.name.full;
-    document.getElementById('det-desc').innerHTML = staff.description || 'No description available.';
+    // Description (formatted)
+    document.getElementById('det-desc').innerHTML = formatAnilistText(staff.description);
     document.getElementById('romaji-title').innerText = staff.name.native || 'N/A';
     document.getElementById('synonyms-list').innerHTML = staff.primaryOccupations?.join(', ') || '—';
     
