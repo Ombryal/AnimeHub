@@ -32,29 +32,6 @@ let yearMin = null;
 let yearMax = null;
 let selectedSources = [];
 
-// Load trending
-async function loadTrending() {
-    if (!current.mediaType) return;
-    const trendingQuery = `
-        query {
-            Page(perPage: 12) {
-                media(sort: TRENDING_DESC, type: ${current.queryType}, isAdult: false) {
-                    id
-                    title { romaji }
-                    coverImage { large }
-                    meanScore
-                    format
-                }
-            }
-        }`;
-    const data = await apiFetch(trendingQuery);
-    if (data?.Page?.media) {
-        renderMediaResults(data.Page.media);
-    } else {
-        trendingContainer.innerHTML = '<div class="empty-message">No trending found.</div>';
-    }
-}
-
 function renderMediaResults(items) {
     if (items.length) {
         trendingSection.style.display = 'block';
@@ -74,6 +51,33 @@ function renderMediaResults(items) {
         }).join('');
     } else {
         trendingContainer.innerHTML = '<div class="empty-message">No results found.</div>';
+    }
+}
+
+async function loadTrending() {
+    if (!current.mediaType) return;
+    
+    const trendingQuery = `
+        query ($type: MediaType) {
+            Page(page: 1, perPage: 12) {
+                media(type: $type, sort: [TRENDING_DESC], isAdult: false) {
+                    id
+                    title { romaji }
+                    coverImage { large }
+                    meanScore
+                    format
+                }
+            }
+        }`;
+    
+    const response = await apiFetch(trendingQuery, { type: current.queryType });
+    const items = response?.data?.Page?.media || [];
+    
+    if (items.length) {
+        renderMediaResults(items);
+        trendingSection.style.display = 'block';
+    } else {
+        trendingContainer.innerHTML = '<div class="empty-message">No trending found.</div>';
     }
 }
 
@@ -133,9 +137,9 @@ function getSelectedValues(type) {
     return Array.from(chips).map(c => c.getAttribute('data-value'));
 }
 
-// Helper: build dynamic arguments and variables for the media query
+// Build arguments and variables
 function buildMediaArgsAndVars(query) {
-    const args = ['type: $type', 'sort: POPULARITY_DESC'];
+    const args = ['type: $type', 'sort: [POPULARITY_DESC, SCORE_DESC]'];
     const variables = { type: current.queryType };
 
     if (query) {
@@ -144,12 +148,12 @@ function buildMediaArgsAndVars(query) {
     }
 
     if (selectedGenres.length) {
-        args.push('genre: $genre');
-        variables.genre = selectedGenres;
+        args.push('genre_in: $genres');
+        variables.genres = selectedGenres;
     }
 
     if (selectedTags.length) {
-        args.push('tag: $tags');
+        args.push('tag_in: $tags');
         variables.tags = selectedTags;
     }
 
@@ -158,29 +162,27 @@ function buildMediaArgsAndVars(query) {
         variables.format = selectedFormats;
     }
 
+    // Singular fields (take first selection)
     if (selectedStatus.length) {
-        args.push('status_in: $status');
-        variables.status = selectedStatus;
+        args.push('status: $status');
+        variables.status = selectedStatus[0];
     }
-
     if (selectedSeasons.length) {
-        args.push('season_in: $season');
-        variables.season = selectedSeasons;
+        args.push('season: $season');
+        variables.season = selectedSeasons[0];
     }
-
     if (selectedSources.length) {
-        args.push('source_in: $source');
-        variables.source = selectedSources;
+        args.push('source: $source');
+        variables.source = selectedSources[0];
     }
 
-    // Year range: use startDate_like to filter by year only
     if (yearMin) {
-        args.push('startDate_like: $start');
-        variables.start = { year: yearMin };
+        args.push('startDate_like: $yearGreater');
+        variables.yearGreater = { year: yearMin };
     }
     if (yearMax) {
-        args.push('startDate_like: $end');
-        variables.end = { year: yearMax };
+        args.push('startDate_like: $yearLesser');
+        variables.yearLesser = { year: yearMax };
     }
 
     return { args, variables };
@@ -190,24 +192,25 @@ async function performSearch(query) {
     if (!current.mediaType) return;
 
     const hasSearch = !!query;
-    const hasFilters = selectedGenres.length || selectedTags.length || selectedFormats.length || selectedStatus.length || selectedSeasons.length || selectedSources.length || yearMin || yearMax;
+    const hasFilters = selectedGenres.length || selectedTags.length || selectedFormats.length || 
+                       selectedStatus.length || selectedSeasons.length || selectedSources.length || 
+                       yearMin || yearMax;
 
     if (!hasSearch && !hasFilters) {
-        await loadTrending();
+        loadTrending();
         return;
     }
 
     trendingSection.style.display = 'none';
     resultsContainer.style.display = 'grid';
-    resultsContainer.innerHTML = `<div class="loading-spinner-small">Searching...</div>`;
+    resultsContainer.innerHTML = `<div class="loading-spinner-small"><i class="fas fa-circle-notch fa-spin"></i> Searching...</div>`;
 
     const { args, variables } = buildMediaArgsAndVars(query);
 
-    // Build the GraphQL query with dynamic arguments
     const graphqlQuery = `
-        query ($search: String, $type: MediaType, $genre: [String], $tags: [String], $format: [MediaFormat], $status: [MediaStatus], $season: [MediaSeason], $source: [MediaSource], $start: FuzzyDateInput, $end: FuzzyDateInput) {
-            Page(perPage: 20) {
-                media(${args.join(', ')}) {
+        query ($search: String, $type: MediaType, $genres: [String], $tags: [String], $format: [MediaFormat], $status: MediaStatus, $season: MediaSeason, $source: MediaSource, $yearGreater: FuzzyDateInput, $yearLesser: FuzzyDateInput) {
+            Page(page: 1, perPage: 20) {
+                media(${args.join(', ')}, isAdult: false) {
                     id
                     title { romaji }
                     coverImage { large }
@@ -217,28 +220,20 @@ async function performSearch(query) {
             }
         }`;
 
-    const data = await apiFetch(graphqlQuery, variables);
+    try {
+        const response = await apiFetch(graphqlQuery, variables);
+        const items = response?.data?.Page?.media || [];
+        
+        if (!items.length) {
+            resultsContainer.innerHTML = `<div class="empty-message">No results found.</div>`;
+            return;
+        }
 
-    if (!data?.Page?.media?.length) {
-        resultsContainer.innerHTML = `<div class="empty-message">No results found.</div>`;
-        return;
+        renderMediaResults(items);
+    } catch (error) {
+        console.error('API Error:', error);
+        resultsContainer.innerHTML = `<div class="empty-message">API Error - check console</div>`;
     }
-
-    const items = data.Page.media;
-
-    resultsContainer.innerHTML = items.map(item => {
-        const detailPage = current.queryType === 'ANIME' ? 'anime-detail.html' : 'manga-detail.html';
-        const score = item.meanScore ? (item.meanScore / 10).toFixed(1) + '★' : '??';
-        return `
-            <div class="media-item" onclick="window.location.href='${detailPage}?id=${item.id}'">
-                <div class="img-box">
-                    <img src="${item.coverImage.large}" loading="lazy">
-                    <div class="purple-badge">${score}</div>
-                </div>
-                <div class="media-title">${item.title.romaji}</div>
-            </div>
-        `;
-    }).join('');
 }
 
 let debounceTimeout;
