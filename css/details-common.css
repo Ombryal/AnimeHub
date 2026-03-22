@@ -490,9 +490,10 @@ code {
 }
 
 /* Preserve line breaks in descriptions (synopsis & profile about) */
+/* Synopsis and about text */
 #det-desc,
 .about-text {
-    white-space: pre-wrap;
+    white-space: normal;
     word-break: break-word;
     line-height: 1.5;
     margin: 0;
