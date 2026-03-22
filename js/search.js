@@ -133,39 +133,11 @@ function getSelectedValues(type) {
     return Array.from(chips).map(c => c.getAttribute('data-value'));
 }
 
-function buildFilterArgs() {
-    let filterStr = '';
-    if (selectedGenres.length) {
-        filterStr += `, genre_in: ${JSON.stringify(selectedGenres)}`;
-    }
-    if (selectedTags.length) {
-        filterStr += `, tag_in: ${JSON.stringify(selectedTags)}`;
-    }
-    if (selectedFormats.length) {
-        filterStr += `, format_in: ${JSON.stringify(selectedFormats)}`;
-    }
-    if (selectedStatus.length) {
-        filterStr += `, status_in: ${JSON.stringify(selectedStatus)}`;
-    }
-    if (selectedSeasons.length) {
-        filterStr += `, season_in: ${JSON.stringify(selectedSeasons)}`;
-    }
-    if (yearMin) {
-        filterStr += `, startDate_greater: ${yearMin}0101, startDate_lesser: ${yearMax ? yearMax + '1231' : '21001231'}`;
-    } else if (yearMax) {
-        filterStr += `, startDate_lesser: ${yearMax}1231`;
-    }
-    if (selectedSources.length) {
-        filterStr += `, source_in: ${JSON.stringify(selectedSources)}`;
-    }
-    return filterStr;
-}
-
 async function performSearch(query) {
     if (!current.mediaType) return;
 
-    const hasFilters = selectedGenres.length || selectedTags.length || selectedFormats.length || selectedStatus.length || selectedSeasons.length || selectedSources.length || yearMin || yearMax;
     const hasSearch = !!query;
+    const hasFilters = selectedGenres.length || selectedTags.length || selectedFormats.length || selectedStatus.length || selectedSeasons.length || selectedSources.length || yearMin || yearMax;
 
     if (!hasSearch && !hasFilters) {
         await loadTrending();
@@ -176,11 +148,22 @@ async function performSearch(query) {
     resultsContainer.style.display = 'grid';
     resultsContainer.innerHTML = `<div class="loading-spinner-small"><i class="fas fa-circle-notch fa-spin"></i> Searching...</div>`;
 
-    let filterArgs = buildFilterArgs();
+    // Build the query with variables
     const graphqlQuery = `
-        query ($search: String, $type: MediaType) {
+        query ($search: String, $type: MediaType, $genre: [String], $format: [MediaFormat], $status: [MediaStatus], $season: [MediaSeason], $source: [MediaSource], $start: FuzzyDateInt, $end: FuzzyDateInt) {
             Page(perPage: 20) {
-                media(${hasSearch ? 'search: $search,' : ''} type: $type ${filterArgs}) {
+                media(
+                    ${hasSearch ? 'search: $search,' : ''}
+                    type: $type,
+                    genre_in: $genre,
+                    format_in: $format,
+                    status_in: $status,
+                    season_in: $season,
+                    source_in: $source,
+                    startDate_greater: $start,
+                    startDate_lesser: $end,
+                    sort: POPULARITY_DESC
+                ) {
                     id
                     title { romaji }
                     coverImage { large }
@@ -189,9 +172,18 @@ async function performSearch(query) {
                 }
             }
         }`;
-    const variables = hasSearch
-        ? { search: query, type: current.queryType }
-        : { type: current.queryType };
+
+    const variables = {
+        search: hasSearch ? query : undefined,
+        type: current.queryType,
+        genre: selectedGenres.length ? selectedGenres : undefined,
+        format: selectedFormats.length ? selectedFormats : undefined,
+        status: selectedStatus.length ? selectedStatus : undefined,
+        season: selectedSeasons.length ? selectedSeasons : undefined,
+        source: selectedSources.length ? selectedSources : undefined,
+        start: yearMin ? parseInt(`${yearMin}0101`) : undefined,
+        end: yearMax ? parseInt(`${yearMax}1231`) : undefined
+    };
 
     const data = await apiFetch(graphqlQuery, variables);
     if (!data || !data.Page) {
