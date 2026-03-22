@@ -33,6 +33,7 @@ query ($id: Int) {
         voiceActors {
           id name { full }
           image { large }
+          languageV2
         }
       }
     }
@@ -79,17 +80,23 @@ function renderCharacterDetails(char) {
         ${renderStat('fa-tv', 'Appearances', char.media?.edges?.length || 0)}
     `;
 
-    // Voice Actors: collect unique from all edges (no language info)
-    const vaMap = new Map(); // key: id, value: { name, image }
+    // Voice Actors: collect unique with languages
+    const vaMap = new Map(); // key: id, value: { name, image, languages: Set }
     if (char.media?.edges) {
         char.media.edges.forEach(edge => {
             if (edge.voiceActors && edge.voiceActors.length) {
                 edge.voiceActors.forEach(va => {
-                    if (va && va.id && !vaMap.has(va.id)) {
-                        vaMap.set(va.id, {
-                            name: va.name.full,
-                            image: va.image?.large
-                        });
+                    if (va && va.id) {
+                        if (!vaMap.has(va.id)) {
+                            vaMap.set(va.id, {
+                                name: va.name.full,
+                                image: va.image?.large,
+                                languages: new Set()
+                            });
+                        }
+                        if (va.languageV2) {
+                            vaMap.get(va.id).languages.add(va.languageV2);
+                        }
                     }
                 });
             }
@@ -104,7 +111,7 @@ function renderCharacterDetails(char) {
                     <div class="voice-actor-card" onclick="window.location.href='staff-detail.html?id=${va.id}'">
                         <img src="${va.image || 'placeholder.jpg'}" alt="${va.name}" loading="lazy">
                         <div class="voice-actor-name">${va.name}</div>
-                        <div class="voice-actor-lang">Voice Actor</div>
+                        <div class="voice-actor-lang">${Array.from(va.languages).join(', ') || 'Voice Actor'}</div>
                     </div>
                 `).join('')}
             </div>
