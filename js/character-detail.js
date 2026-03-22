@@ -80,7 +80,7 @@ function renderCharacterDetails(char) {
         ${renderStat('fa-tv', 'Appearances', char.media?.edges?.length || 0)}
     `;
 
-    // Voice Actors: collect unique with languages
+    // Voice Actors: collect unique with languages, render as media items
     const vaMap = new Map(); // key: id, value: { name, image, languages: Set }
     if (char.media?.edges) {
         char.media.edges.forEach(edge => {
@@ -106,12 +106,14 @@ function renderCharacterDetails(char) {
     const voiceActorsHtml = vaList.length ? `
         <div class="voice-actors-section">
             <h3 class="section-title">Voice Actors</h3>
-            <div class="voice-actors-scroller">
+            <div class="scroller">
                 ${vaList.map(va => `
-                    <div class="voice-actor-card" onclick="window.location.href='staff-detail.html?id=${va.id}'">
-                        <img src="${va.image || 'placeholder.jpg'}" alt="${va.name}" loading="lazy">
-                        <div class="voice-actor-name">${va.name}</div>
-                        <div class="voice-actor-lang">${Array.from(va.languages).join(', ') || 'Voice Actor'}</div>
+                    <div class="media-item" onclick="window.location.href='staff-detail.html?id=${va.id}'">
+                        <div class="img-box">
+                            <img src="${va.image || 'placeholder.jpg'}" loading="lazy">
+                        </div>
+                        <div class="media-title">${va.name}</div>
+                        <div class="media-role">${Array.from(va.languages).join(', ') || 'Voice Actor'}</div>
                     </div>
                 `).join('')}
             </div>
