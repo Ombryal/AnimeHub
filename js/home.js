@@ -13,9 +13,18 @@ async function initHome() {
             attempts++;
         }
 
-        // Query: user info, current lists, and recommendations
+        // Step 1: Get user ID
+        const viewerQuery = `query { Viewer { id } }`;
+        const viewerData = await apiFetch(viewerQuery);
+        const userId = viewerData?.Viewer?.id;
+        if (!userId) {
+            console.error("Could not get user ID");
+            return;
+        }
+
+        // Step 2: Fetch all needed data with userId
         const query = `
-        query {
+        query ($userId: Int) {
             Viewer {
                 name
                 avatar { large }
@@ -24,27 +33,31 @@ async function initHome() {
                     manga { chaptersRead }
                 }
             }
-            watching: Page(perPage: 12) {
-                mediaList(status: CURRENT, type: ANIME) {
-                    progress
-                    media { 
-                        id 
-                        title { romaji } 
-                        coverImage { large } 
-                        meanScore 
-                        episodes 
+            animeList: MediaListCollection(userId: $userId, type: ANIME, status: CURRENT) {
+                lists {
+                    entries {
+                        progress
+                        media {
+                            id
+                            title { romaji }
+                            coverImage { large }
+                            meanScore
+                            episodes
+                        }
                     }
                 }
             }
-            reading: Page(perPage: 12) {
-                mediaList(status: CURRENT, type: MANGA) {
-                    progress
-                    media { 
-                        id 
-                        title { romaji } 
-                        coverImage { large } 
-                        meanScore 
-                        chapters 
+            mangaList: MediaListCollection(userId: $userId, type: MANGA, status: CURRENT) {
+                lists {
+                    entries {
+                        progress
+                        media {
+                            id
+                            title { romaji }
+                            coverImage { large }
+                            meanScore
+                            chapters
+                        }
                     }
                 }
             }
@@ -68,7 +81,7 @@ async function initHome() {
             }
         }`;
 
-        const data = await apiFetch(query);
+        const data = await apiFetch(query, { userId });
         if (!data || !data.Viewer) {
             console.error("No data returned from API.");
             return;
@@ -81,34 +94,46 @@ async function initHome() {
         document.getElementById('ep-stat').innerText = v.statistics.anime.episodesWatched.toLocaleString();
         document.getElementById('ch-stat').innerText = v.statistics.manga.chaptersRead.toLocaleString();
 
-        // Log the lists to see if they are being received
-        console.log("Watching list:", data.watching);
-        console.log("Reading list:", data.reading);
+        // Extract current anime list entries
+        let animeEntries = [];
+        if (data.animeList?.lists) {
+            for (const list of data.animeList.lists) {
+                if (list.entries) animeEntries.push(...list.entries);
+            }
+        }
+        console.log("Currently watching:", animeEntries);
+
+        // Extract current manga list entries
+        let mangaEntries = [];
+        if (data.mangaList?.lists) {
+            for (const list of data.mangaList.lists) {
+                if (list.entries) mangaEntries.push(...list.entries);
+            }
+        }
+        console.log("Currently reading:", mangaEntries);
 
         // Render current lists (with progress badges)
-        if (data.watching?.mediaList?.length) {
-            renderScrollerItems('anime-scroll', data.watching.mediaList, 'ANIME', true);
+        if (animeEntries.length) {
+            renderScrollerItems('anime-scroll', animeEntries, 'ANIME', true);
         } else {
             document.getElementById('anime-scroll').innerHTML = '<p style="color:var(--text-dim); padding:20px;">No currently watching anime.</p>';
         }
 
-        if (data.reading?.mediaList?.length) {
-            renderScrollerItems('manga-scroll', data.reading.mediaList, 'MANGA', true);
+        if (mangaEntries.length) {
+            renderScrollerItems('manga-scroll', mangaEntries, 'MANGA', true);
         } else {
             document.getElementById('manga-scroll').innerHTML = '<p style="color:var(--text-dim); padding:20px;">No currently reading manga.</p>';
         }
 
-        // Combine anime and manga recommendations
+        // Combine recommendations
         const animeRecs = data.recAnime?.media || [];
         const mangaRecs = data.recManga?.media || [];
-
-        // Assign a mediaType to each item so we know which detail page to use
         const combinedRecs = [
             ...animeRecs.map(item => ({ ...item, mediaType: 'ANIME' })),
             ...mangaRecs.map(item => ({ ...item, mediaType: 'MANGA' }))
         ];
 
-        // Optional: shuffle to mix them
+        // Shuffle to mix
         for (let i = combinedRecs.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [combinedRecs[i], combinedRecs[j]] = [combinedRecs[j], combinedRecs[i]];
