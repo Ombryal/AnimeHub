@@ -311,3 +311,49 @@
 body.filter-sheet-open {
     overflow: hidden;
 }
+
+/* Dropdown styles */
+.filter-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 0.85rem;
+    color: var(--accent);
+}
+.filter-group select {
+    width: 100%;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 8px 12px;
+    color: white;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+.filter-group select:focus {
+    outline: none;
+    border-color: var(--accent);
+}
+.year-inputs {
+    display: flex;
+    gap: 10px;
+}
+.year-inputs input {
+    flex: 1;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    color: white;
+}
+
+/* Grid layout for genres/tags chips */
+.filter-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-top: 10px;
+}
+.filter-grid .filter-chip {
+    text-align: left;
+    width: 100%;
+}
