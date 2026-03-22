@@ -48,16 +48,6 @@ async function apiFetch(query, variables = {}) {
     }
 }
 
-function hideLoader() {
-    const loader = document.getElementById('loading-overlay');
-    if (loader) {
-        loader.style.opacity = '0';
-        setTimeout(() => {
-            loader.style.display = 'none';
-        }, 500);
-    }
-}
-
 function renderScrollerItems(id, entries, type, isUserList = false) {
     const container = document.getElementById(id);
     if (!container) return;
@@ -96,17 +86,28 @@ function renderScrollerItems(id, entries, type, isUserList = false) {
     }).join('');
 }
 
+function normalizeSynopsisBreaks(text) {
+    let formatted = String(text || '');
+
+    // Normalize Windows line endings
+    formatted = formatted.replace(/\r\n/g, '\n');
+
+    // Trim trailing spaces at end of lines so blank lines stay clean
+    formatted = formatted.replace(/[ \t]+$/gm, '');
+
+    return formatted;
+}
+
 /**
  * Convert AniList markdown to HTML
  * Supports: bold, italic, underline, strikethrough, links, spoilers, images,
  *           headers, horizontal rules, lists, blockquotes, code, center alignment,
  *           YouTube and WebM embeds.
- * Converts newlines to <br> and collapses multiple newlines to a single <br><br>.
  */
 function formatAnilistText(text) {
     if (!text) return '';
 
-    let formatted = String(text);
+    let formatted = normalizeSynopsisBreaks(text);
 
     // AniList-specific embeds
     formatted = formatted.replace(
@@ -126,9 +127,7 @@ function formatAnilistText(text) {
 
     // Standard markdown features
     formatted = formatted.replace(/~!([\s\S]*?)!~/g, '<span class="spoiler">$1</span>');
-
     formatted = formatted.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
-
     formatted = formatted.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" style="max-width:100%; height:auto;">');
 
     formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
@@ -172,10 +171,17 @@ function formatAnilistText(text) {
     formatted = formatted.replace(/~~~([\s\S]*?)~~~/g, '<div class="center-align">$1</div>');
     formatted = formatted.replace(/<center>(.*?)<\/center>/gi, '<div class="center-align">$1</div>');
 
-    formatted = formatted.replace(/\n\n+/g, '[PARAGRAPH_BREAK]');
+    // Clean paragraph spacing:
+    // 3+ blank lines become 2, then convert double newlines to a paragraph gap.
+    formatted = formatted.replace(/\n{3,}/g, '\n\n');
+    formatted = formatted.replace(/\n\n/g, '\u0000PARA\u0000');
     formatted = formatted.replace(/\n/g, '<br>');
-    formatted = formatted.replace(/\[PARAGRAPH_BREAK\]/g, '<br><br>');
+    formatted = formatted.replace(/\u0000PARA\u0000/g, '<br><br>');
 
+    // Prevent runaway <br><br><br> sequences
+    formatted = formatted.replace(/(<br\s*\/?>\s*){3,}/g, '<br><br>');
+
+    // Clean up extra <br> tags inside block elements
     formatted = formatted.replace(/<(h[1-6]|p|blockquote|pre)>(.*?)<\/\1>/g, function (match, tag, content) {
         content = content.replace(/<br\s*\/?>/g, ' ');
         return `<${tag}>${content}</${tag}>`;
@@ -275,6 +281,16 @@ function debounce(fn, delay = 300) {
         clearTimeout(timer);
         timer = setTimeout(() => fn.apply(this, args), delay);
     };
+}
+
+function hideLoader() {
+    const loader = document.getElementById('loading-overlay');
+    if (loader) {
+        loader.style.opacity = '0';
+        setTimeout(() => {
+            loader.style.display = 'none';
+        }, 500);
+    }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
