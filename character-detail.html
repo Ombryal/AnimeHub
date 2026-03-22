@@ -13,10 +13,8 @@
     <div id="loading-overlay"><div class="spinner"></div></div>
     <div class="bg-glow"></div>
 
-    <!-- Banner (using character image) -->
     <div id="det-banner"></div>
 
-    <!-- Back button -->
     <button class="back-btn" onclick="history.back()">
         <i class="fas fa-arrow-left"></i>
     </button>
@@ -32,31 +30,21 @@
         <!-- Statistics grid (personal info) -->
         <div id="det-stats-grid" class="stats-grid-container"></div>
 
-        <!-- Description (character details) -->
+        <!-- Character description -->
         <div class="glass-card">
             <h3 class="section-label">Character Details</h3>
             <p id="det-desc"></p>
         </div>
 
-        <!-- Romaji & Synonyms (hide for characters) -->
-        <div class="glass-card" id="romaji-synonyms-card" style="display: none;">
-            <h3 class="section-label">Romaji Title</h3>
-            <p id="romaji-title"></p>
-            <h3 class="section-label">Synonyms</h3>
-            <p id="synonyms-list"></p>
-        </div>
-
-        <!-- Voice Actors -->
+        <!-- Voice Actors (horizontal scroller) -->
         <div id="voice-actors-section"></div>
 
         <!-- Roles (media appearances) -->
         <div id="relations-section"></div>
 
-        <!-- Recommendations (hidden) -->
-        <div id="recommendations-section" style="display: none;">
-            <h3 class="section-title">Recommended</h3>
-            <div class="scroller" id="recommendations-scroll"></div>
-        </div>
+        <!-- Hidden sections -->
+        <div id="romaji-synonyms-card" style="display: none;"></div>
+        <div id="recommendations-section" style="display: none;"></div>
     </div>
 
     <script src="js/auth.js"></script>
