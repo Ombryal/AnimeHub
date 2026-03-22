@@ -80,7 +80,7 @@ function hideLoader() {
     }
 }
 
- /**
+/**
  * Convert AniList markdown to HTML
  * Supports: bold, italic, underline, strikethrough, links, spoilers, images,
  *           headers, horizontal rules, lists, blockquotes, code, center alignment,
@@ -123,9 +123,6 @@ function formatAnilistText(text) {
     formatted = formatted.replace(/\*([^*\n]+?)\*/g, '<em>$1</em>');
     formatted = formatted.replace(/_([^_\n]+?)_/g, '<em>$1</em>');
 
-    // Underline: __text__ (already handled by bold, but some use <u>)
-    formatted = formatted.replace(/<u>(.*?)<\/u>/g, '<u>$1</u>');
-
     // Strikethrough: ~~text~~
     formatted = formatted.replace(/~~(.*?)~~/g, '<del>$1</del>');
 
@@ -166,15 +163,15 @@ function formatAnilistText(text) {
     formatted = formatted.replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>');
     formatted = formatted.replace(/^ {4}(.*)$/gm, '<pre><code>$1</code></pre>'); // simplified
 
-    // Center alignment: ˜˜˜...˜˜˜ (three tildes)
-    formatted = formatted.replace(/˜˜˜([\s\S]*?)˜˜˜/g, '<div style="text-align:center">$1</div>');
+    // Center alignment: ~~~...~~~ (three ASCII tildes)
+    formatted = formatted.replace(/~~~([\s\S]*?)~~~/g, '<div class="center-align">$1</div>');
     // Also support <center> tags (legacy)
-    formatted = formatted.replace(/<center>(.*?)<\/center>/gi, '<div style="text-align:center">$1</div>');
+    formatted = formatted.replace(/<center>(.*?)<\/center>/gi, '<div class="center-align">$1</div>');
 
-    // Line breaks
-    formatted = formatted.replace(/\n/g, '<br>');
+    // Line breaks: NOT converted to <br> – let CSS handle whitespace
+    // We remove the previous \n → <br> step to avoid excessive spacing.
 
-    // Clean up extra <br> tags inside block elements
+    // Clean up extra <br> tags inside block elements (if any remain)
     formatted = formatted.replace(/<(h[1-6]|p|blockquote|pre)>(.*?)<\/\1>/g, function(match, tag, content) {
         content = content.replace(/<br\s*\/?>/g, ' ');
         return `<${tag}>${content}</${tag}>`;
