@@ -9,17 +9,21 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <div id="loading-overlay" style="display: none;"><div class="spinner"></div></div>
+    <div id="loading-overlay" style="display: none;">
+        <div class="spinner"></div>
+    </div>
+
     <div class="bg-glow"></div>
 
     <div class="container search-container">
         <div class="search-header">
-            <button onclick="history.back()" class="back-btn">
+            <button onclick="history.back()" class="back-btn" aria-label="Go back">
                 <i class="fas fa-arrow-left"></i>
             </button>
             <h1 class="page-title" id="search-type-title">Search Anime</h1>
             <button id="filter-toggle" class="filter-toggle-btn">
-                <i class="fas fa-sliders-h"></i> Filter
+                <i class="fas fa-sliders-h"></i>
+                Filter
             </button>
         </div>
 
@@ -28,20 +32,20 @@
             <input type="text" id="search-input" placeholder="Search..." autocomplete="off">
         </div>
 
-        <!-- Trending section -->
         <div id="trending-section" class="trending-section">
             <h3 class="section-title">Trending</h3>
             <div id="trending-results" class="search-results-grid"></div>
         </div>
+
         <div id="search-results" class="search-results-grid" style="display: none;"></div>
     </div>
 
-    <!-- Filter Bottom Sheet -->
     <div id="filter-sheet" class="bottom-sheet">
         <div class="sheet-overlay" id="close-filter"></div>
         <div class="sheet-content">
             <div class="sheet-handle"></div>
             <h4>Filter</h4>
+
             <div class="filter-category-row">
                 <button class="category-btn" data-category="source">Source</button>
                 <button class="category-btn" data-category="format">Format</button>
@@ -49,44 +53,44 @@
                 <button class="category-btn" data-category="season">Season</button>
                 <button class="category-btn" data-category="year">Year</button>
             </div>
-            <!-- Dynamic panels for each category (horizontal scrollers) -->
-            <div id="source-panel" class="category-panel" style="display: none;">
-                <div class="horizontal-scroller" id="source-options"></div>
+
+            <div id="source-panel" class="category-panel scrollable-panel" style="display: none;">
+                <div class="vertical-chip-grid" id="source-options"></div>
             </div>
-            <div id="format-panel" class="category-panel" style="display: none;">
-                <div class="horizontal-scroller" id="format-options"></div>
+
+            <div id="format-panel" class="category-panel scrollable-panel" style="display: none;">
+                <div class="vertical-chip-grid" id="format-options"></div>
             </div>
-            <div id="status-panel" class="category-panel" style="display: none;">
-                <div class="horizontal-scroller" id="status-options"></div>
+
+            <div id="status-panel" class="category-panel scrollable-panel" style="display: none;">
+                <div class="vertical-chip-grid" id="status-options"></div>
             </div>
-            <div id="season-panel" class="category-panel" style="display: none;">
-                <div class="horizontal-scroller" id="season-options"></div>
+
+            <div id="season-panel" class="category-panel scrollable-panel" style="display: none;">
+                <div class="vertical-chip-grid" id="season-options"></div>
             </div>
-            <div id="year-panel" class="category-panel" style="display: none;">
-                <div class="horizontal-scroller year-inputs">
+
+            <div id="year-panel" class="category-panel scrollable-panel" style="display: none;">
+                <div class="filter-options year-inputs">
                     <input type="number" id="year-min" placeholder="From" min="1900" max="2100">
                     <input type="number" id="year-max" placeholder="To" min="1900" max="2100">
                 </div>
             </div>
 
-            <!-- Genres and Tags sections with Grid button -->
             <div class="filter-group collapsible">
                 <div class="filter-group-header" data-target="genre-options">
                     <h4>Genres</h4>
                     <i class="fas fa-th"></i>
                 </div>
-                <div id="genre-options" class="horizontal-scroller" style="display: none;">
-                    <!-- populated by JS -->
-                </div>
+                <div id="genre-options" class="horizontal-scroller" style="display: none;"></div>
             </div>
+
             <div class="filter-group collapsible">
                 <div class="filter-group-header" data-target="tag-options">
                     <h4>Tags</h4>
                     <i class="fas fa-th"></i>
                 </div>
-                <div id="tag-options" class="horizontal-scroller" style="display: none;">
-                    <!-- populated by JS -->
-                </div>
+                <div id="tag-options" class="horizontal-scroller" style="display: none;"></div>
             </div>
 
             <div class="filter-actions">
