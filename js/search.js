@@ -17,13 +17,9 @@ const typeMap = {
 
 const current = typeMap[searchType] || typeMap['ANIME'];
 
-// Filter selections
+// Filter selections (for genres/tags chips)
 let selectedGenres = [];
 let selectedTags = [];
-let selectedFormats = [];
-let selectedStatus = [];
-let selectedSeasons = [];
-let selectedSources = [];
 
 // --- 2. Core API Helper ---
 async function apiFetch(query, variables = {}) {
@@ -41,7 +37,7 @@ async function apiFetch(query, variables = {}) {
     }
 }
 
-// --- 3. UI Logic: Opening/Closing/Panels ---
+// --- 3. UI Logic: Opening/Closing/Dropdowns ---
 function initUI() {
     const filterToggle = document.getElementById('filter-toggle');
     const filterSheet = document.getElementById('filter-sheet');
@@ -54,22 +50,6 @@ function initUI() {
     // Toggle Bottom Sheet
     filterToggle.onclick = () => filterSheet.classList.add('active');
     closeFilter.onclick = () => filterSheet.classList.remove('active');
-
-    // Category Panel Switching (Source, Format, etc.)
-    document.querySelectorAll('.category-btn').forEach(btn => {
-        btn.onclick = () => {
-            const cat = btn.getAttribute('data-category');
-            // Hide all panels
-            document.querySelectorAll('.category-panel').forEach(p => p.style.display = 'none');
-            // Show target panel
-            const target = document.getElementById(`${cat}-panel`);
-            if (target) target.style.display = 'block';
-            
-            // UI Feedback
-            document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-        };
-    });
 
     // Collapsible Genres/Tags
     document.querySelectorAll('.filter-group-header').forEach(header => {
@@ -88,9 +68,16 @@ function initUI() {
     };
 
     document.getElementById('clear-filters').onclick = () => {
+        // Clear chips
         document.querySelectorAll('.filter-chip.selected').forEach(c => c.classList.remove('selected'));
+        // Clear year inputs
         document.getElementById('year-min').value = '';
         document.getElementById('year-max').value = '';
+        // Clear dropdowns
+        document.getElementById('format-select').value = '';
+        document.getElementById('status-select').value = '';
+        document.getElementById('season-select').value = '';
+        document.getElementById('source-select').value = '';
         filterSheet.classList.remove('active');
         performSearch(searchInput.value.trim());
     };
@@ -107,6 +94,7 @@ function initUI() {
 async function loadFilterOptions() {
     if (!current.mediaType) return;
 
+    // Fetch genres and tags from AniList
     const query = `{
         GenreCollection
         MediaTagCollection { name }
@@ -118,10 +106,28 @@ async function loadFilterOptions() {
         renderChips('tag-options', data.MediaTagCollection.map(t => t.name), 'tag');
     }
 
-    renderChips('format-options', ['TV', 'TV_SHORT', 'MOVIE', 'SPECIAL', 'OVA', 'ONA', 'MUSIC'], 'format');
-    renderChips('status-options', ['FINISHED', 'RELEASING', 'NOT_YET_RELEASED', 'CANCELLED'], 'status');
-    renderChips('season-options', ['WINTER', 'SPRING', 'SUMMER', 'FALL'], 'season');
-    renderChips('source-options', ['ORIGINAL', 'MANGA', 'LIGHT_NOVEL', 'VISUAL_NOVEL', 'VIDEO_GAME', 'NOVEL'], 'source');
+    // Populate dropdowns with options
+    const formatSelect = document.getElementById('format-select');
+    const statusSelect = document.getElementById('status-select');
+    const seasonSelect = document.getElementById('season-select');
+    const sourceSelect = document.getElementById('source-select');
+
+    const formats = ['TV', 'TV_SHORT', 'MOVIE', 'SPECIAL', 'OVA', 'ONA', 'MUSIC'];
+    const statuses = ['FINISHED', 'RELEASING', 'NOT_YET_RELEASED', 'CANCELLED'];
+    const seasons = ['WINTER', 'SPRING', 'SUMMER', 'FALL'];
+    const sources = ['ORIGINAL', 'MANGA', 'LIGHT_NOVEL', 'VISUAL_NOVEL', 'VIDEO_GAME', 'NOVEL'];
+
+    function populate(select, options, placeholder = 'Any') {
+        select.innerHTML = `<option value="">${placeholder}</option>`;
+        options.forEach(opt => {
+            select.innerHTML += `<option value="${opt}">${opt}</option>`;
+        });
+    }
+
+    populate(formatSelect, formats);
+    populate(statusSelect, statuses);
+    populate(seasonSelect, seasons);
+    populate(sourceSelect, sources);
 }
 
 function renderChips(containerId, list, type) {
@@ -143,17 +149,26 @@ async function performSearch(query) {
     const trendingSection = document.getElementById('trending-section');
     
     // 1. Gather Filter Data
-    const getVals = (t) => Array.from(document.querySelectorAll(`.filter-chip[data-type="${t}"].selected`)).map(c => c.dataset.value);
-    const genres = getVals('genre');
-    const tags = getVals('tag');
-    const formats = getVals('format');
-    const status = getVals('status');
-    const seasons = getVals('season');
-    const sources = getVals('source');
+    const getChipVals = (t) => Array.from(document.querySelectorAll(`.filter-chip[data-type="${t}"].selected`)).map(c => c.dataset.value);
+    const genres = getChipVals('genre');
+    const tags = getChipVals('tag');
+
+    // Get dropdown values (single)
+    const format = document.getElementById('format-select').value;
+    const status = document.getElementById('status-select').value;
+    const season = document.getElementById('season-select').value;
+    const source = document.getElementById('source-select').value;
+
+    // Convert to arrays for _in filters
+    const formats = format ? [format] : [];
+    const statuses = status ? [status] : [];
+    const seasons = season ? [season] : [];
+    const sources = source ? [source] : [];
+
     const yMin = document.getElementById('year-min').value;
     const yMax = document.getElementById('year-max').value;
 
-    const hasFilters = genres.length || tags.length || formats.length || status.length || seasons.length || sources.length || yMin || yMax;
+    const hasFilters = genres.length || tags.length || formats.length || statuses.length || seasons.length || sources.length || yMin || yMax;
 
     if (!query && !hasFilters) {
         trendingSection.style.display = 'block';
@@ -181,7 +196,7 @@ async function performSearch(query) {
     if (genres.length) { varDefs.push('$g: [String]'); mediaArgs.push('genre_in: $g'); vars.g = genres; }
     if (tags.length) { varDefs.push('$t: [String]'); mediaArgs.push('tag_in: $t'); vars.t = tags; }
     if (formats.length) { varDefs.push('$f: [MediaFormat]'); mediaArgs.push('format_in: $f'); vars.f = formats; }
-    if (status.length) { varDefs.push('$s: [MediaStatus]'); mediaArgs.push('status_in: $s'); vars.s = status; }
+    if (statuses.length) { varDefs.push('$s: [MediaStatus]'); mediaArgs.push('status_in: $s'); vars.s = statuses; }
     if (seasons.length) { varDefs.push('$sn: [MediaSeason]'); mediaArgs.push('season_in: $sn'); vars.sn = seasons; }
     if (sources.length) { varDefs.push('$src: [MediaSource]'); mediaArgs.push('source_in: $src'); vars.src = sources; }
     
