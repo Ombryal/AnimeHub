@@ -1,7 +1,7 @@
 /* character-detail.css - Styles specific to character detail pages */
 
 /* =========================================
-   VOICE ACTORS (Horizontal Scroller, Rectangular Cards)
+   VOICE ACTORS (Horizontal Scroller)
    ========================================= */
 .voice-actors-section {
     margin: 30px 0;
@@ -24,7 +24,7 @@
     transition: transform 0.2s;
     background: rgba(255,255,255,0.05);
     border-radius: 12px;
-    padding: 12px 8px;
+    overflow: hidden;
     border: 1px solid var(--glass-border);
 }
 .voice-actor-card:hover {
@@ -32,28 +32,25 @@
     background: rgba(255,255,255,0.1);
 }
 .voice-actor-card img {
-    width: 100px;
-    height: 100px;
+    width: 100%;
+    aspect-ratio: 1 / 1;
     object-fit: cover;
-    border-radius: 12px;
-    margin-bottom: 8px;
     display: block;
-    margin-left: auto;
-    margin-right: auto;
 }
 .voice-actor-name {
     font-weight: 600;
     font-size: 0.85rem;
     color: white;
-    margin: 8px 0 4px;
+    padding: 8px 8px 4px;
 }
 .voice-actor-lang {
     font-size: 0.7rem;
     color: var(--accent);
+    padding: 0 8px 8px;
 }
 
 /* =========================================
-   ROLES GRID (Responsive)
+   ROLES GRID (3 columns, responsive)
    ========================================= */
 .roles-section {
     margin: 30px 0;
@@ -66,11 +63,13 @@
 .roles-grid .media-item {
     width: 100%;
     margin: 0;
+    min-width: unset;      /* override global .media-item min-width */
+    max-width: unset;      /* override global .media-item max-width */
 }
 .roles-grid .media-item .img-box {
     width: 100%;
     aspect-ratio: 2/3;
-    height: auto;
+    height: auto;          /* override fixed height */
 }
 .roles-grid .media-item .media-title {
     font-size: 0.85rem;
