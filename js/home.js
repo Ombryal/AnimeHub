@@ -13,7 +13,7 @@ async function initHome() {
             attempts++;
         }
 
-        // Query: user info, current lists, and recommendations
+        // Query: user info, current lists, and recommendations (both types)
         const query = `
         query {
             Viewer {
@@ -36,14 +36,22 @@ async function initHome() {
                     media { id title { romaji } coverImage { large } meanScore chapters }
                 }
             }
-            recAnime: Page(perPage: 10) {
+            recAnime: Page(perPage: 6) {
                 media(sort: TRENDING_DESC, type: ANIME, isAdult: false) {
-                    id title { romaji } coverImage { large } meanScore
+                    id
+                    title { romaji }
+                    coverImage { large }
+                    meanScore
+                    format
                 }
             }
-            recManga: Page(perPage: 10) {
+            recManga: Page(perPage: 6) {
                 media(sort: TRENDING_DESC, type: MANGA, isAdult: false) {
-                    id title { romaji } coverImage { large } meanScore
+                    id
+                    title { romaji }
+                    coverImage { large }
+                    meanScore
+                    format
                 }
             }
         }`;
@@ -65,9 +73,40 @@ async function initHome() {
         renderScrollerItems('anime-scroll', data.watching.mediaList, 'ANIME', true);
         renderScrollerItems('manga-scroll', data.reading.mediaList, 'MANGA', true);
 
-        // Render recommendations (without progress badges)
-        renderScrollerItems('rec-anime-scroll', data.recAnime.media, 'ANIME', false);
-        renderScrollerItems('rec-manga-scroll', data.recManga.media, 'MANGA', false);
+        // Combine anime and manga recommendations
+        const animeRecs = data.recAnime?.media || [];
+        const mangaRecs = data.recManga?.media || [];
+
+        // Assign a mediaType to each item so we know which detail page to use
+        const combinedRecs = [
+            ...animeRecs.map(item => ({ ...item, mediaType: 'ANIME' })),
+            ...mangaRecs.map(item => ({ ...item, mediaType: 'MANGA' }))
+        ];
+
+        // Optional: shuffle to mix them
+        for (let i = combinedRecs.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [combinedRecs[i], combinedRecs[j]] = [combinedRecs[j], combinedRecs[i]];
+        }
+
+        const recContainer = document.getElementById('rec-scroll');
+        if (combinedRecs.length) {
+            recContainer.innerHTML = combinedRecs.map(item => {
+                const detailPage = item.mediaType === 'ANIME' ? 'anime-detail.html' : 'manga-detail.html';
+                const score = item.meanScore ? (item.meanScore / 10).toFixed(1) + '★' : '??';
+                return `
+                    <div class="media-item" onclick="window.location.href='${detailPage}?id=${item.id}'">
+                        <div class="img-box">
+                            <img src="${item.coverImage.large}" loading="lazy">
+                            <div class="purple-badge">${score}</div>
+                        </div>
+                        <div class="media-title">${item.title.romaji}</div>
+                    </div>
+                `;
+            }).join('');
+        } else {
+            recContainer.innerHTML = '<p class="empty-message">No recommendations available.</p>';
+        }
 
     } catch (err) {
         console.error("Home Error:", err);
