@@ -18,11 +18,55 @@
                 <i class="fas fa-arrow-left"></i>
             </button>
             <h1 class="page-title" id="search-type-title">Search</h1>
+            <button id="filter-toggle" class="filter-toggle-btn">
+                <i class="fas fa-sliders-h"></i> Filter
+            </button>
         </div>
 
         <div class="search-input-wrapper">
             <i class="fas fa-search search-icon"></i>
             <input type="text" id="search-input" placeholder="Search..." autocomplete="off">
+        </div>
+
+        <!-- Filter panel (collapsible) -->
+        <div id="filter-panel" class="filter-panel" style="display: none;">
+            <div class="filter-group">
+                <h4>Genres</h4>
+                <div class="filter-options" id="genre-filters"></div>
+            </div>
+            <div class="filter-group">
+                <h4>Tags</h4>
+                <div class="filter-options" id="tag-filters"></div>
+            </div>
+            <div class="filter-group">
+                <h4>Format</h4>
+                <div class="filter-options" id="format-filters">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+            <div class="filter-group">
+                <h4>Status</h4>
+                <div class="filter-options" id="status-filters"></div>
+            </div>
+            <div class="filter-group">
+                <h4>Season</h4>
+                <div class="filter-options" id="season-filters"></div>
+            </div>
+            <div class="filter-group">
+                <h4>Year</h4>
+                <div class="filter-options" id="year-filters">
+                    <input type="number" id="year-min" placeholder="From" min="1900" max="2100">
+                    <input type="number" id="year-max" placeholder="To" min="1900" max="2100">
+                </div>
+            </div>
+            <div class="filter-group">
+                <h4>Source</h4>
+                <div class="filter-options" id="source-filters"></div>
+            </div>
+            <div class="filter-actions">
+                <button id="apply-filters" class="btn-primary">Apply Filters</button>
+                <button id="clear-filters" class="btn-secondary">Clear</button>
+            </div>
         </div>
 
         <div id="search-results" class="search-results-grid"></div>
