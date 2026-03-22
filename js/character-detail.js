@@ -61,8 +61,8 @@ function renderCharacterDetails(char) {
     document.getElementById('det-cover').src = char.image?.large || '';
     document.getElementById('det-title').innerText = char.name.full;
     
-    // Description
-    document.getElementById('det-desc').innerHTML = char.description || 'No description available.';
+    // Description (formatted)
+    document.getElementById('det-desc').innerHTML = formatAnilistText(char.description);
     
     // Personal info stats
     const birthStr = char.dateOfBirth?.year ? 
