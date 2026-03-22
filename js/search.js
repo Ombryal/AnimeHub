@@ -32,7 +32,7 @@ let yearMin = null;
 let yearMax = null;
 let selectedSources = [];
 
-// Load trending media on page load
+// Helper to load trending
 async function loadTrending() {
     if (!current.mediaType) return;
     const trendingQuery = `
@@ -55,11 +55,11 @@ async function loadTrending() {
     }
 }
 
-// Render media results (for both search and trending)
+// Render media results (trending or search)
 function renderMediaResults(items) {
-    trendingSection.style.display = 'block';
-    resultsContainer.style.display = 'none';
     if (items.length) {
+        trendingSection.style.display = 'block';
+        resultsContainer.style.display = 'none';
         trendingContainer.innerHTML = items.map(item => {
             const detailPage = current.queryType === 'ANIME' ? 'anime-detail.html' : 'manga-detail.html';
             const score = item.meanScore ? (item.meanScore/10).toFixed(1)+'★' : '??';
@@ -134,7 +134,6 @@ function getSelectedValues(type) {
     return Array.from(chips).map(c => c.getAttribute('data-value'));
 }
 
-// Build GraphQL filter arguments
 function buildFilterArgs() {
     let filterStr = '';
     if (selectedGenres.length) {
@@ -166,7 +165,10 @@ function buildFilterArgs() {
 async function performSearch(query) {
     if (!current.mediaType) return;
 
-    if (!query || query.length < 2) {
+    const hasFilters = selectedGenres.length || selectedTags.length || selectedFormats.length || selectedStatus.length || selectedSeasons.length || selectedSources.length || yearMin || yearMax;
+
+    // If no search query and no filters, show trending
+    if (!query && !hasFilters) {
         await loadTrending();
         return;
     }
@@ -188,7 +190,7 @@ async function performSearch(query) {
                 }
             }
         }`;
-    const variables = { search: query, type: current.queryType };
+    const variables = { search: query || '', type: current.queryType };
 
     const data = await apiFetch(graphqlQuery, variables);
     if (!data?.Page?.media) {
@@ -217,7 +219,6 @@ async function performSearch(query) {
     }).join('');
 }
 
-// Debounced search
 let debounceTimeout;
 searchInput.addEventListener('input', (e) => {
     clearTimeout(debounceTimeout);
@@ -225,17 +226,15 @@ searchInput.addEventListener('input', (e) => {
     debounceTimeout = setTimeout(() => performSearch(query), 500);
 });
 
-// Category buttons: show/hide the corresponding panel
+// Category buttons: show/hide the corresponding panel (horizontal scroller)
 document.querySelectorAll('.category-btn').forEach(btn => {
     btn.addEventListener('click', () => {
         const category = btn.getAttribute('data-category');
         const panel = document.getElementById(`${category}-panel`);
         if (panel) {
-            // Hide all other panels
             document.querySelectorAll('.category-panel').forEach(p => {
                 if (p !== panel) p.style.display = 'none';
             });
-            // Toggle this panel
             panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
         }
     });
@@ -254,14 +253,21 @@ document.querySelectorAll('.filter-group-header').forEach(header => {
     });
 });
 
-// Bottom sheet toggle
+// Bottom sheet toggle and body scroll lock
 const filterToggle = document.getElementById('filter-toggle');
 const filterSheet = document.getElementById('filter-sheet');
 const closeFilter = document.getElementById('close-filter');
 
 if (filterToggle && filterSheet && closeFilter) {
-    filterToggle.onclick = () => filterSheet.classList.add('active');
-    closeFilter.onclick = () => filterSheet.classList.remove('active');
+    filterToggle.onclick = () => {
+        filterSheet.classList.add('active');
+        document.body.classList.add('filter-sheet-open');
+    };
+    closeFilter.onclick = () => {
+        filterSheet.classList.remove('active');
+        document.body.classList.remove('filter-sheet-open');
+    };
+    // Also close on sheet content click? We'll keep the overlay click only.
 }
 
 // Apply filters and clear buttons
@@ -271,7 +277,9 @@ if (applyBtn) {
     applyBtn.addEventListener('click', () => {
         updateSelectedFilters();
         filterSheet.classList.remove('active');
-        if (searchInput.value.trim().length >= 2) performSearch(searchInput.value.trim());
+        document.body.classList.remove('filter-sheet-open');
+        const query = searchInput.value.trim();
+        performSearch(query);
     });
 }
 if (clearBtn) {
@@ -283,7 +291,9 @@ if (clearBtn) {
         if (yearMaxInput) yearMaxInput.value = '';
         updateSelectedFilters();
         filterSheet.classList.remove('active');
-        if (searchInput.value.trim().length >= 2) performSearch(searchInput.value.trim());
+        document.body.classList.remove('filter-sheet-open');
+        const query = searchInput.value.trim();
+        performSearch(query);
     });
 }
 
