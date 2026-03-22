@@ -13,7 +13,7 @@ async function initHome() {
             attempts++;
         }
 
-        // Query: user info, current lists, and recommendations (both types)
+        // Query: user info, current lists, and recommendations
         const query = `
         query {
             Viewer {
@@ -27,13 +27,25 @@ async function initHome() {
             watching: Page(perPage: 12) {
                 mediaList(status: CURRENT, type: ANIME) {
                     progress
-                    media { id title { romaji } coverImage { large } meanScore episodes }
+                    media { 
+                        id 
+                        title { romaji } 
+                        coverImage { large } 
+                        meanScore 
+                        episodes 
+                    }
                 }
             }
             reading: Page(perPage: 12) {
                 mediaList(status: CURRENT, type: MANGA) {
                     progress
-                    media { id title { romaji } coverImage { large } meanScore chapters }
+                    media { 
+                        id 
+                        title { romaji } 
+                        coverImage { large } 
+                        meanScore 
+                        chapters 
+                    }
                 }
             }
             recAnime: Page(perPage: 6) {
@@ -58,7 +70,7 @@ async function initHome() {
 
         const data = await apiFetch(query);
         if (!data || !data.Viewer) {
-            console.error("No data returned.");
+            console.error("No data returned from API.");
             return;
         }
 
@@ -69,9 +81,22 @@ async function initHome() {
         document.getElementById('ep-stat').innerText = v.statistics.anime.episodesWatched.toLocaleString();
         document.getElementById('ch-stat').innerText = v.statistics.manga.chaptersRead.toLocaleString();
 
+        // Log the lists to see if they are being received
+        console.log("Watching list:", data.watching);
+        console.log("Reading list:", data.reading);
+
         // Render current lists (with progress badges)
-        renderScrollerItems('anime-scroll', data.watching.mediaList, 'ANIME', true);
-        renderScrollerItems('manga-scroll', data.reading.mediaList, 'MANGA', true);
+        if (data.watching?.mediaList?.length) {
+            renderScrollerItems('anime-scroll', data.watching.mediaList, 'ANIME', true);
+        } else {
+            document.getElementById('anime-scroll').innerHTML = '<p style="color:var(--text-dim); padding:20px;">No currently watching anime.</p>';
+        }
+
+        if (data.reading?.mediaList?.length) {
+            renderScrollerItems('manga-scroll', data.reading.mediaList, 'MANGA', true);
+        } else {
+            document.getElementById('manga-scroll').innerHTML = '<p style="color:var(--text-dim); padding:20px;">No currently reading manga.</p>';
+        }
 
         // Combine anime and manga recommendations
         const animeRecs = data.recAnime?.media || [];
