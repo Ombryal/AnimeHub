@@ -17,7 +17,7 @@
             <button onclick="history.back()" class="back-btn">
                 <i class="fas fa-arrow-left"></i>
             </button>
-            <h1 class="page-title" id="search-type-title">Search</h1>
+            <h1 class="page-title" id="search-type-title">Search Anime</h1>
             <button id="filter-toggle" class="filter-toggle-btn">
                 <i class="fas fa-sliders-h"></i> Filter
             </button>
@@ -30,72 +30,49 @@
 
         <!-- Filter panel (collapsible) -->
         <div id="filter-panel" class="filter-panel" style="display: none;">
-            <!-- Source -->
-            <div class="filter-group collapsible">
-                <div class="filter-group-header" data-target="source-options">
-                    <h4>Source</h4>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div id="source-options" class="filter-options" style="display: none;">
-                    <!-- populated by JS -->
-                </div>
+            <h4>Filter</h4>
+            <!-- Horizontal row of category buttons -->
+            <div class="filter-category-row">
+                <button class="category-btn" data-category="source">Source</button>
+                <button class="category-btn" data-category="format">Format</button>
+                <button class="category-btn" data-category="status">Status</button>
+                <button class="category-btn" data-category="season">Season</button>
+                <button class="category-btn" data-category="year">Year</button>
             </div>
-            <!-- Format -->
-            <div class="filter-group collapsible">
-                <div class="filter-group-header" data-target="format-options">
-                    <h4>Format</h4>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div id="format-options" class="filter-options" style="display: none;">
-                    <!-- populated by JS -->
-                </div>
+            <!-- Dynamic panels for each category (initially hidden) -->
+            <div id="source-panel" class="category-panel" style="display: none;">
+                <div class="filter-options" id="source-options"></div>
             </div>
-            <!-- Status -->
-            <div class="filter-group collapsible">
-                <div class="filter-group-header" data-target="status-options">
-                    <h4>Status</h4>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div id="status-options" class="filter-options" style="display: none;">
-                    <!-- populated by JS -->
-                </div>
+            <div id="format-panel" class="category-panel" style="display: none;">
+                <div class="filter-options" id="format-options"></div>
             </div>
-            <!-- Season -->
-            <div class="filter-group collapsible">
-                <div class="filter-group-header" data-target="season-options">
-                    <h4>Season</h4>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div id="season-options" class="filter-options" style="display: none;">
-                    <!-- populated by JS -->
-                </div>
+            <div id="status-panel" class="category-panel" style="display: none;">
+                <div class="filter-options" id="status-options"></div>
             </div>
-            <!-- Year -->
-            <div class="filter-group collapsible">
-                <div class="filter-group-header" data-target="year-options">
-                    <h4>Year</h4>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div id="year-options" class="filter-options year-inputs" style="display: none;">
+            <div id="season-panel" class="category-panel" style="display: none;">
+                <div class="filter-options" id="season-options"></div>
+            </div>
+            <div id="year-panel" class="category-panel" style="display: none;">
+                <div class="filter-options year-inputs">
                     <input type="number" id="year-min" placeholder="From" min="1900" max="2100">
                     <input type="number" id="year-max" placeholder="To" min="1900" max="2100">
                 </div>
             </div>
-            <!-- Genres -->
+
+            <!-- Genres and Tags sections with Grid button -->
             <div class="filter-group collapsible">
                 <div class="filter-group-header" data-target="genre-options">
                     <h4>Genres</h4>
-                    <i class="fas fa-chevron-down"></i>
+                    <i class="fas fa-th"></i>
                 </div>
                 <div id="genre-options" class="filter-options" style="display: none;">
                     <!-- populated by JS -->
                 </div>
             </div>
-            <!-- Tags -->
             <div class="filter-group collapsible">
                 <div class="filter-group-header" data-target="tag-options">
                     <h4>Tags</h4>
-                    <i class="fas fa-chevron-down"></i>
+                    <i class="fas fa-th"></i>
                 </div>
                 <div id="tag-options" class="filter-options" style="display: none;">
                     <!-- populated by JS -->
@@ -108,13 +85,11 @@
             </div>
         </div>
 
-        <!-- Trending results (shown when search is empty) -->
+        <!-- Trending section -->
         <div id="trending-section" class="trending-section">
             <h3 class="section-title">Trending</h3>
             <div id="trending-results" class="search-results-grid"></div>
         </div>
-
-        <!-- Search results (hidden when empty) -->
         <div id="search-results" class="search-results-grid" style="display: none;"></div>
     </div>
 
