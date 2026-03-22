@@ -1,5 +1,5 @@
 /**
- * search.js - Full Fixed Logic for AniList Search & Filtering
+ * search.js - AniStats Pro Search & Filter Engine
  */
 
 // --- 1. Configuration & State ---
@@ -16,240 +16,220 @@ const typeMap = {
 };
 
 const current = typeMap[searchType] || typeMap['ANIME'];
-document.getElementById('search-type-title').innerText = current.title;
 
-const searchInput = document.getElementById('search-input');
-const resultsContainer = document.getElementById('search-results');
-const trendingSection = document.getElementById('trending-section');
-const trendingContainer = document.getElementById('trending-results');
-
-// Filter state
+// Filter selections
 let selectedGenres = [];
 let selectedTags = [];
 let selectedFormats = [];
 let selectedStatus = [];
 let selectedSeasons = [];
 let selectedSources = [];
-let yearMin = null;
-let yearMax = null;
 
-// --- 2. Core API Fetch Helper ---
+// --- 2. Core API Helper ---
 async function apiFetch(query, variables = {}) {
-    const url = 'https://graphql.anilist.co';
-    const options = {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-        },
-        body: JSON.stringify({ query, variables })
-    };
-
     try {
-        const response = await fetch(url, options);
+        const response = await fetch('https://graphql.anilist.co', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            body: JSON.stringify({ query, variables })
+        });
         const json = await response.json();
-        if (json.errors) {
-            console.error('AniList API Error:', json.errors);
-            return null;
-        }
         return json.data;
     } catch (err) {
-        console.error('Network Error:', err);
+        console.error("API Fetch Error:", err);
         return null;
     }
 }
 
-// --- 3. Dynamic Media Search (The Fix) ---
-async function performMediaSearch(query) {
-    const hasSearch = !!query;
+// --- 3. UI Logic: Opening/Closing/Panels ---
+function initUI() {
+    const filterToggle = document.getElementById('filter-toggle');
+    const filterSheet = document.getElementById('filter-sheet');
+    const closeFilter = document.getElementById('close-filter');
+    const searchInput = document.getElementById('search-input');
+
+    // Set page title
+    document.getElementById('search-type-title').innerText = current.title;
+
+    // Toggle Bottom Sheet
+    filterToggle.onclick = () => filterSheet.classList.add('active');
+    closeFilter.onclick = () => filterSheet.classList.remove('active');
+
+    // Category Panel Switching (Source, Format, etc.)
+    document.querySelectorAll('.category-btn').forEach(btn => {
+        btn.onclick = () => {
+            const cat = btn.getAttribute('data-category');
+            // Hide all panels
+            document.querySelectorAll('.category-panel').forEach(p => p.style.display = 'none');
+            // Show target panel
+            const target = document.getElementById(`${cat}-panel`);
+            if (target) target.style.display = 'block';
+            
+            // UI Feedback
+            document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        };
+    });
+
+    // Collapsible Genres/Tags
+    document.querySelectorAll('.filter-group-header').forEach(header => {
+        header.onclick = () => {
+            const targetId = header.getAttribute('data-target');
+            const target = document.getElementById(targetId);
+            const isHidden = target.style.display === 'none';
+            target.style.display = isHidden ? 'flex' : 'none';
+        };
+    });
+
+    // Apply & Clear Buttons
+    document.getElementById('apply-filters').onclick = () => {
+        filterSheet.classList.remove('active');
+        performSearch(searchInput.value.trim());
+    };
+
+    document.getElementById('clear-filters').onclick = () => {
+        document.querySelectorAll('.filter-chip.selected').forEach(c => c.classList.remove('selected'));
+        document.getElementById('year-min').value = '';
+        document.getElementById('year-max').value = '';
+        filterSheet.classList.remove('active');
+        performSearch(searchInput.value.trim());
+    };
+
+    // Search Input Debounce
+    let timer;
+    searchInput.oninput = (e) => {
+        clearTimeout(timer);
+        timer = setTimeout(() => performSearch(e.target.value.trim()), 500);
+    };
+}
+
+// --- 4. Filter Generation ---
+async function loadFilterOptions() {
+    if (!current.mediaType) return;
+
+    const query = `{
+        GenreCollection
+        MediaTagCollection { name }
+    }`;
+    const data = await apiFetch(query);
+
+    if (data) {
+        renderChips('genre-options', data.GenreCollection, 'genre');
+        renderChips('tag-options', data.MediaTagCollection.map(t => t.name), 'tag');
+    }
+
+    renderChips('format-options', ['TV', 'TV_SHORT', 'MOVIE', 'SPECIAL', 'OVA', 'ONA', 'MUSIC'], 'format');
+    renderChips('status-options', ['FINISHED', 'RELEASING', 'NOT_YET_RELEASED', 'CANCELLED'], 'status');
+    renderChips('season-options', ['WINTER', 'SPRING', 'SUMMER', 'FALL'], 'season');
+    renderChips('source-options', ['ORIGINAL', 'MANGA', 'LIGHT_NOVEL', 'VISUAL_NOVEL', 'VIDEO_GAME', 'NOVEL'], 'source');
+}
+
+function renderChips(containerId, list, type) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
     
-    // We build the query parts dynamically to avoid "Variable not used" errors
-    let varDefs = ['$type: MediaType'];
-    let mediaArgs = ['type: $type', 'isAdult: false'];
-    const variables = { type: current.queryType };
+    container.innerHTML = list.map(item => `
+        <div class="filter-chip" data-type="${type}" data-value="${item}">${item}</div>
+    `).join('');
 
-    if (hasSearch) {
-        varDefs.push('$search: String');
-        mediaArgs.push('search: $search');
-        variables.search = query;
-    } else {
-        mediaArgs.push('sort: [POPULARITY_DESC, SCORE_DESC]');
-    }
-
-    // Add filter logic only if arrays have items
-    if (selectedGenres.length) {
-        varDefs.push('$genres: [String]');
-        mediaArgs.push('genre_in: $genres');
-        variables.genres = selectedGenres;
-    }
-    if (selectedTags.length) {
-        varDefs.push('$tags: [String]');
-        mediaArgs.push('tag_in: $tags');
-        variables.tags = selectedTags;
-    }
-    if (selectedFormats.length) {
-        varDefs.push('$format: [MediaFormat]');
-        mediaArgs.push('format_in: $format');
-        variables.format = selectedFormats;
-    }
-    if (selectedStatus.length) {
-        varDefs.push('$status: [MediaStatus]');
-        mediaArgs.push('status_in: $status');
-        variables.status = selectedStatus;
-    }
-    if (selectedSeasons.length) {
-        varDefs.push('$season: [MediaSeason]');
-        mediaArgs.push('season_in: $season');
-        variables.season = selectedSeasons;
-    }
-    if (selectedSources.length) {
-        varDefs.push('$source: [MediaSource]');
-        mediaArgs.push('source_in: $source');
-        variables.source = selectedSources;
-    }
-    if (yearMin) {
-        varDefs.push('$yearGreater: Int');
-        mediaArgs.push('startDate_greater: $yearGreater');
-        variables.yearGreater = parseInt(`${yearMin}0101`);
-    }
-    if (yearMax) {
-        varDefs.push('$yearLesser: Int');
-        mediaArgs.push('startDate_lesser: $yearLesser');
-        variables.yearLesser = parseInt(`${yearMax}1231`);
-    }
-
-    const graphqlQuery = `
-        query (${varDefs.join(', ')}) {
-            Page(perPage: 24) {
-                media(${mediaArgs.join(', ')}) {
-                    id
-                    title { romaji }
-                    coverImage { large }
-                    meanScore
-                    format
-                }
-            }
-        }`;
-
-    const data = await apiFetch(graphqlQuery, variables);
-    renderMediaResults(data?.Page?.media || []);
+    container.querySelectorAll('.filter-chip').forEach(chip => {
+        chip.onclick = () => chip.classList.toggle('selected');
+    });
 }
 
-// --- 4. Rendering & Non-Media Searches ---
-function renderMediaResults(items, isTrending = false) {
-    const container = isTrending ? trendingContainer : resultsContainer;
-    
-    if (!items || !items.length) {
-        container.innerHTML = '<div class="empty-message">No results found matching those filters.</div>';
-        return;
-    }
-
-    container.innerHTML = items.map(item => {
-        const detailPage = current.queryType === 'ANIME' ? 'anime-detail.html' : 'manga-detail.html';
-        const score = item.meanScore ? (item.meanScore / 10).toFixed(1) + '★' : '??';
-        return `
-            <div class="media-item" onclick="window.location.href='${detailPage}?id=${item.id}'">
-                <div class="img-box">
-                    <img src="${item.coverImage.large}" loading="lazy" alt="${item.title.romaji}">
-                    <div class="purple-badge">${score}</div>
-                </div>
-                <div class="media-title">${item.title.romaji}</div>
-                <div class="media-format">${item.format || ''}</div>
-            </div>
-        `;
-    }).join('');
-}
-
-async function performUserSearch(query) {
-    const q = `query($s:String){ Page{ users(search:$s){ id name avatar{large} } } }`;
-    const data = await apiFetch(q, { s: query });
-    const items = data?.Page?.users || [];
-    resultsContainer.innerHTML = items.map(u => `
-        <div class="result-card user-card" onclick="window.location.href='user-detail.html?id=${u.id}'">
-            <img src="${u.avatar.large}" loading="lazy">
-            <div class="title">${u.name}</div>
-        </div>
-    `).join('') || '<div class="empty-message">No users found.</div>';
-}
-
-// (Characters, Staff, and Studios follow the same simple pattern as performUserSearch)
-
-// --- 5. Global Search Dispatcher ---
+// --- 5. The Search Engine ---
 async function performSearch(query) {
-    const hasFilters = selectedGenres.length || selectedTags.length || selectedFormats.length || 
-                       selectedStatus.length || selectedSeasons.length || selectedSources.length || 
-                       yearMin || yearMax;
+    const resultsContainer = document.getElementById('search-results');
+    const trendingSection = document.getElementById('trending-section');
+    
+    // 1. Gather Filter Data
+    const getVals = (t) => Array.from(document.querySelectorAll(`.filter-chip[data-type="${t}"].selected`)).map(c => c.dataset.value);
+    const genres = getVals('genre');
+    const tags = getVals('tag');
+    const formats = getVals('format');
+    const status = getVals('status');
+    const seasons = getVals('season');
+    const sources = getVals('source');
+    const yMin = document.getElementById('year-min').value;
+    const yMax = document.getElementById('year-max').value;
+
+    const hasFilters = genres.length || tags.length || formats.length || status.length || seasons.length || sources.length || yMin || yMax;
 
     if (!query && !hasFilters) {
-        loadTrending();
+        trendingSection.style.display = 'block';
+        resultsContainer.style.display = 'none';
         return;
     }
 
+    // 2. Build Dynamic Query
     trendingSection.style.display = 'none';
     resultsContainer.style.display = 'grid';
-    resultsContainer.innerHTML = `<div class="loading">Searching...</div>`;
+    resultsContainer.innerHTML = '<div class="loading">Searching AniList...</div>';
 
-    if (current.mediaType) {
-        await performMediaSearch(query);
+    let varDefs = ['$type: MediaType'];
+    let mediaArgs = ['type: $type', 'isAdult: false'];
+    let vars = { type: current.queryType };
+
+    if (query) {
+        varDefs.push('$search: String');
+        mediaArgs.push('search: $search');
+        vars.search = query;
     } else {
-        // Simple search for non-media types
-        if (current.queryType === 'USER') await performUserSearch(query);
-        // Add CHARACTER/STAFF/STUDIO calls here as needed
+        mediaArgs.push('sort: POPULARITY_DESC');
     }
+
+    if (genres.length) { varDefs.push('$g: [String]'); mediaArgs.push('genre_in: $g'); vars.g = genres; }
+    if (tags.length) { varDefs.push('$t: [String]'); mediaArgs.push('tag_in: $t'); vars.t = tags; }
+    if (formats.length) { varDefs.push('$f: [MediaFormat]'); mediaArgs.push('format_in: $f'); vars.f = formats; }
+    if (status.length) { varDefs.push('$s: [MediaStatus]'); mediaArgs.push('status_in: $s'); vars.s = status; }
+    if (seasons.length) { varDefs.push('$sn: [MediaSeason]'); mediaArgs.push('season_in: $sn'); vars.sn = seasons; }
+    if (sources.length) { varDefs.push('$src: [MediaSource]'); mediaArgs.push('source_in: $src'); vars.src = sources; }
+    
+    if (yMin) { varDefs.push('$yG: Int'); mediaArgs.push('startDate_greater: $yG'); vars.yG = parseInt(yMin + "0000"); }
+    if (yMax) { varDefs.push('$yL: Int'); mediaArgs.push('startDate_lesser: $yL'); vars.yL = parseInt(yMax + "9999"); }
+
+    const finalQuery = `query(${varDefs.join(',')}){ Page(perPage:20){ media(${mediaArgs.join(',')}){ id title{romaji} coverImage{large} meanScore format } } }`;
+    
+    const data = await apiFetch(finalQuery, vars);
+    renderResults(data?.Page?.media || []);
 }
 
-// --- 6. Trending Logic ---
-async function loadTrending() {
-    if (!current.mediaType) return;
-    const q = `query($type:MediaType){ Page(perPage:12){ media(type:$type, sort:TRENDING_DESC, isAdult:false){ id title{romaji} coverImage{large} meanScore format } } }`;
-    const data = await apiFetch(q, { type: current.queryType });
-    renderMediaResults(data?.Page?.media || [], true);
-    trendingSection.style.display = 'block';
-    resultsContainer.style.display = 'none';
+function renderResults(items) {
+    const resultsContainer = document.getElementById('search-results');
+    if (!items.length) {
+        resultsContainer.innerHTML = '<div class="empty-message">No results found.</div>';
+        return;
+    }
+    resultsContainer.innerHTML = items.map(item => `
+        <div class="media-item" onclick="window.location.href='${current.queryType.toLowerCase()}-detail.html?id=${item.id}'">
+            <div class="img-box">
+                <img src="${item.coverImage.large}" loading="lazy">
+                <div class="purple-badge">${item.meanScore ? (item.meanScore/10).toFixed(1) : '??'}★</div>
+            </div>
+            <div class="media-title">${item.title.romaji}</div>
+        </div>
+    `).join('');
 }
 
-// --- 7. Filter UI & Event Binding ---
-function updateSelectedFilters() {
-    selectedGenres = getSelectedValues('genre');
-    selectedTags = getSelectedValues('tag');
-    selectedFormats = getSelectedValues('format');
-    selectedStatus = getSelectedValues('status');
-    selectedSeasons = getSelectedValues('season');
-    selectedSources = getSelectedValues('source');
-    yearMin = document.getElementById('year-min')?.value || null;
-    yearMax = document.getElementById('year-max')?.value || null;
-}
-
-function getSelectedValues(type) {
-    return Array.from(document.querySelectorAll(`.filter-chip[data-type="${type}"].selected`))
-                .map(c => c.getAttribute('data-value'));
-}
-
-// Debounce for the search bar
-let searchTimer;
-searchInput.addEventListener('input', (e) => {
-    clearTimeout(searchTimer);
-    searchTimer = setTimeout(() => performSearch(e.target.value.trim()), 500);
-});
-
-// Apply / Clear buttons
-document.getElementById('apply-filters')?.addEventListener('click', () => {
-    updateSelectedFilters();
-    document.getElementById('filter-sheet').classList.remove('active');
-    performSearch(searchInput.value.trim());
-});
-
-document.getElementById('clear-filters')?.addEventListener('click', () => {
-    document.querySelectorAll('.filter-chip.selected').forEach(c => c.classList.remove('selected'));
-    ['year-min', 'year-max'].forEach(id => { if(document.getElementById(id)) document.getElementById(id).value = ''; });
-    updateSelectedFilters();
-    performSearch(searchInput.value.trim());
-});
-
-// Initialization
+// --- 6. Startup ---
 document.addEventListener('DOMContentLoaded', () => {
+    initUI();
     if (current.mediaType) {
-        loadTrending();
-        // Trigger filter option loading here (GenreCollection etc)
+        loadFilterOptions();
+        // Load default trending
+        apiFetch(`query($type:MediaType){ Page(perPage:12){ media(type:$type, sort:TRENDING_DESC, isAdult:false){ id title{romaji} coverImage{large} meanScore } } }`, {type: current.queryType})
+            .then(data => {
+                const trend = document.getElementById('trending-results');
+                if (data) {
+                    trend.innerHTML = data.Page.media.map(item => `
+                        <div class="media-item" onclick="window.location.href='${current.queryType.toLowerCase()}-detail.html?id=${item.id}'">
+                            <div class="img-box">
+                                <img src="${item.coverImage.large}" loading="lazy">
+                            </div>
+                            <div class="media-title">${item.title.romaji}</div>
+                        </div>
+                    `).join('');
+                }
+            });
     }
 });
