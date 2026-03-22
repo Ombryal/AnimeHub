@@ -70,6 +70,7 @@
 .roles-grid .media-item .img-box {
     width: 100%;
     aspect-ratio: 2/3;
+    height: auto;
 }
 .roles-grid .media-item .media-title {
     font-size: 0.85rem;
