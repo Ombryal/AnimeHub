@@ -80,6 +80,40 @@ function hideLoader() {
     }
 }
 
+/**
+ * Convert AniList markdown to HTML
+ * Supports: bold **text**, italic *text*, underline __text__, strikethrough ~~text~~,
+ * links [text](url), spoilers ~!text!~
+ */
+function formatAnilistText(text) {
+    if (!text) return '';
+    
+    let formatted = text;
+    
+    // Spoiler tags: ~!...!~  (non-greedy)
+    formatted = formatted.replace(/~!([\s\S]*?)!~/g, '<span class="spoiler">$1</span>');
+    
+    // Links: [text](url)
+    formatted = formatted.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+    
+    // Bold: **text**
+    formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    
+    // Italic: *text* (not inside bold)
+    formatted = formatted.replace(/\*([^*\n]+?)\*/g, '<em>$1</em>');
+    
+    // Underline: __text__
+    formatted = formatted.replace(/__(.*?)__/g, '<u>$1</u>');
+    
+    // Strikethrough: ~~text~~
+    formatted = formatted.replace(/~~(.*?)~~/g, '<del>$1</del>');
+    
+    // Line breaks
+    formatted = formatted.replace(/\n/g, '<br>');
+    
+    return formatted;
+}
+
 // ------------------------------
 // Search for anime & manga pages (floating results)
 // ------------------------------
