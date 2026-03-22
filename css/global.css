@@ -674,16 +674,20 @@ body {
     gap: 14px;           /* was 16px – slight reduction */
 }
 
-/* Compact layout for all pages */
-.section-group {
-    margin-bottom: 20px;    /* was 30px */
+/* Home page specific styles */
+.home-container {
+    max-width: 470px;          /* Show 3 full cards + a peek of the 4th */
 }
 
-.row-header {
-    margin-bottom: 8px;     /* was 15px */
+.home-container .section-group {
+    margin-bottom: 20px;      /* was 30px */
 }
 
-.scroller {
-    padding: 0 0 12px 0;    /* was 5px 0 15px 0 */
-    gap: 14px;              /* optional – reduces gap between cards */
+.home-container .row-header {
+    margin-bottom: 8px;       /* was 15px */
+}
+
+.home-container .scroller {
+    padding: 0 0 12px 0;      /* was 5px 0 15px 0 */
+    gap: 12px;                /* slightly tighter gap between cards */
 }
