@@ -1,5 +1,5 @@
 /**
- * anime-detail.js - Handles anime detail page
+ * anime-detail.js - Handles anime detail page with user list status, characters, staff
  */
 
 const params = new URLSearchParams(window.location.search);
@@ -9,7 +9,8 @@ if (!id) {
     window.location.href = 'index.html';
 }
 
-const query = `
+// Media query with staff
+const mediaQuery = `
 query ($id: Int) {
   Media (id: $id, type: ANIME) {
     id type title { romaji english native }
@@ -24,11 +25,17 @@ query ($id: Int) {
         node { id title { romaji } type coverImage { large } } 
       }
     }
-    characters(sort: [ROLE, RELEVANCE], perPage: 6) {
+    characters(sort: [ROLE, RELEVANCE], perPage: 12) {
       edges {
         role
-        node { name { full } image { large } }
-        voiceActors(language: JAPANESE) { name { full } image { large } }
+        node { id name { full } image { large } }
+        voiceActors(language: JAPANESE) { id name { full } image { large } }
+      }
+    }
+    staff(sort: [ROLE, RELEVANCE], perPage: 12) {
+      edges {
+        role
+        node { id name { full } image { large } }
       }
     }
     recommendations(perPage: 12) {
@@ -37,21 +44,77 @@ query ($id: Int) {
   }
 }`;
 
-async function loadAnime() {
-    const data = await apiFetch(query, { id: parseInt(id) });
-    if (data && data.Media) {
-        renderMediaDetails(data.Media, 'ANIME');
-    } else {
-        showError("Anime not found");
-    }
+// List status query
+const listQuery = `
+query ($userId: Int, $mediaId: Int) {
+  MediaList(userId: $userId, mediaId: $mediaId) {
+    status
+    progress
+    score
+    repeat
+    startedAt { year month day }
+    completedAt { year month day }
+  }
+}`;
+
+let userId = null;
+
+async function getUserId() {
+    const viewerQuery = `query { Viewer { id } }`;
+    const data = await apiFetch(viewerQuery);
+    if (data && data.Viewer) return data.Viewer.id;
+    return null;
 }
 
-function renderMediaDetails(m, type) {
+async function loadAnime() {
+    const mediaData = await apiFetch(mediaQuery, { id: parseInt(id) });
+    if (!mediaData || !mediaData.Media) {
+        showError("Anime not found");
+        return;
+    }
+
+    userId = await getUserId();
+    let listEntry = null;
+    if (userId) {
+        const listData = await apiFetch(listQuery, { userId: userId, mediaId: parseInt(id) });
+        if (listData && listData.MediaList) listEntry = listData.MediaList;
+    }
+
+    renderMediaDetails(mediaData.Media, listEntry);
+}
+
+function renderMediaDetails(m, listEntry) {
+    // Banner and cover
     const banner = m.bannerImage || m.coverImage.extraLarge;
     document.getElementById('det-banner').style.backgroundImage = `url('${banner}')`;
     document.getElementById('det-cover').src = m.coverImage.extraLarge;
     document.getElementById('det-title').innerText = m.title.english || m.title.romaji;
 
+    // List status section
+    const listStatusDiv = document.getElementById('list-status');
+    if (listEntry && m.episodes) {
+        const status = listEntry.status;
+        const progress = listEntry.progress || 0;
+        const total = m.episodes;
+        const percent = (progress / total) * 100;
+
+        let statusText = '';
+        if (status === 'CURRENT') statusText = 'WATCHING';
+        else if (status === 'PLANNING') statusText = 'PLANNING TO WATCH';
+        else if (status === 'COMPLETED') statusText = 'COMPLETED';
+        else if (status === 'PAUSED') statusText = 'PAUSED';
+        else if (status === 'DROPPED') statusText = 'DROPPED';
+        else statusText = status;
+
+        document.getElementById('list-status-title').innerText = statusText;
+        document.getElementById('progress-bar').style.width = `${percent}%`;
+        document.getElementById('progress-text').innerHTML = `Episode ${progress} of ${total}<br>${percent.toFixed(2)}%`;
+        listStatusDiv.style.display = 'block';
+    } else {
+        listStatusDiv.style.display = 'none';
+    }
+
+    // Stats
     let displayDuration = "N/A";
     if (m.duration) {
         if (m.format === 'MOVIE') {
@@ -79,6 +142,7 @@ function renderMediaDetails(m, type) {
         ${renderStat('fa-building', 'Studio', m.studios.nodes[0]?.name || 'N/A')}
     `;
 
+    // Synopsis
     document.getElementById('det-desc').innerHTML = m.description;
     document.getElementById('romaji-title').innerText = m.title.romaji;
     document.getElementById('synonyms-list').innerText = m.synonyms.length > 0 ? m.synonyms.join(', ') : 'None';
@@ -104,20 +168,62 @@ function renderMediaDetails(m, type) {
         </div>`;
     }
 
-    // Characters
+    // Characters (horizontal scroller)
+    const charactersSection = document.getElementById('characters-section');
     if (m.characters.edges.length > 0) {
-        document.getElementById('characters-section').innerHTML = `<h3 class="section-title">Characters & Cast</h3>
-        <div class="char-grid">${m.characters.edges.map(e => `
-            <div class="char-card">
-                <div class="char-side">
-                    <img src="${e.node.image.large}">
-                    <div class="char-info"><span>${e.node.name.full}</span><small>${e.role}</small></div>
-                </div>
-                ${e.voiceActors[0] ? `<div class="va-side">
-                    <div class="va-info"><span>${e.voiceActors[0].name.full}</span><small>JP</small></div>
-                    <img src="${e.voiceActors[0].image.large}">
-                </div>` : ''}
-            </div>`).join('')}</div>`;
+        const charactersHtml = `
+            <h3 class="section-title">Characters & Cast</h3>
+            <div class="scroller" id="characters-scroll">
+                ${m.characters.edges.map(edge => {
+                    const char = edge.node;
+                    const role = edge.role;
+                    const va = edge.voiceActors[0];
+                    return `
+                        <div class="character-card" onclick="window.location.href='character-detail.html?id=${char.id}'">
+                            <div class="character-image">
+                                <img src="${char.image.large}" loading="lazy">
+                            </div>
+                            <div class="character-name">${char.name.full}</div>
+                            <div class="character-role">${role}</div>
+                            ${va ? `
+                                <div class="voice-actor" onclick="event.stopPropagation(); window.location.href='staff-detail.html?id=${va.id}'">
+                                    🎙️ ${va.name.full}
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                }).join('')}
+            </div>
+        `;
+        charactersSection.innerHTML = charactersHtml;
+    } else {
+        charactersSection.innerHTML = '';
+    }
+
+    // Staff (horizontal scroller)
+    const staffSection = document.getElementById('staff-section');
+    if (m.staff && m.staff.edges.length > 0) {
+        const staffHtml = `
+            <h3 class="section-title">Staff</h3>
+            <div class="scroller" id="staff-scroll">
+                ${m.staff.edges.map(edge => {
+                    const staff = edge.node;
+                    const role = edge.role;
+                    return `
+                        <div class="staff-card" onclick="window.location.href='staff-detail.html?id=${staff.id}'">
+                            <div class="staff-image">
+                                <img src="${staff.image?.large || 'placeholder.jpg'}" loading="lazy">
+                            </div>
+                            <div class="staff-name">${staff.name.full}</div>
+                            <div class="staff-role">${role}</div>
+                        </div>
+                    `;
+                }).join('')}
+            </div>
+        `;
+        staffSection.innerHTML = staffHtml;
+    } else {
+        staffSection.innerHTML = '';
     }
 
     // Recommendations
