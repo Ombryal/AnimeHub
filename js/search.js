@@ -6,16 +6,16 @@ const urlParams = new URLSearchParams(window.location.search);
 const searchType = urlParams.get('type') || 'ANIME';
 
 const typeMap = {
-    'ANIME': { queryType: 'ANIME', title: 'Anime', mediaType: true },
-    'MANGA': { queryType: 'MANGA', title: 'Manga', mediaType: true },
-    'USER': { queryType: 'USER', title: 'Users', mediaType: false },
-    'CHARACTER': { queryType: 'CHARACTER', title: 'Characters', mediaType: false },
-    'STAFF': { queryType: 'STAFF', title: 'Staff', mediaType: false },
-    'STUDIO': { queryType: 'STUDIO', title: 'Studios', mediaType: false }
+    'ANIME': { queryType: 'ANIME', title: 'Search Anime', mediaType: true },
+    'MANGA': { queryType: 'MANGA', title: 'Search Manga', mediaType: true },
+    'USER': { queryType: 'USER', title: 'Search Users', mediaType: false },
+    'CHARACTER': { queryType: 'CHARACTER', title: 'Search Characters', mediaType: false },
+    'STAFF': { queryType: 'STAFF', title: 'Search Staff', mediaType: false },
+    'STUDIO': { queryType: 'STUDIO', title: 'Search Studios', mediaType: false }
 };
 
 const current = typeMap[searchType] || typeMap['ANIME'];
-document.getElementById('search-type-title').innerText = `Search ${current.title}`;
+document.getElementById('search-type-title').innerText = current.title;
 
 const searchInput = document.getElementById('search-input');
 const resultsContainer = document.getElementById('search-results');
@@ -55,7 +55,7 @@ async function loadTrending() {
     }
 }
 
-// Render media results (used for both search and trending)
+// Render media results (for both search and trending)
 function renderMediaResults(items) {
     trendingSection.style.display = 'block';
     resultsContainer.style.display = 'none';
@@ -167,12 +167,10 @@ async function performSearch(query) {
     if (!current.mediaType) return;
 
     if (!query || query.length < 2) {
-        // Show trending
         await loadTrending();
         return;
     }
 
-    // Hide trending section, show results container
     trendingSection.style.display = 'none';
     resultsContainer.style.display = 'grid';
     resultsContainer.innerHTML = `<div class="loading-spinner-small"><i class="fas fa-circle-notch fa-spin"></i> Searching...</div>`;
@@ -227,7 +225,23 @@ searchInput.addEventListener('input', (e) => {
     debounceTimeout = setTimeout(() => performSearch(query), 500);
 });
 
-// Collapsible sections
+// Category buttons: show/hide the corresponding panel
+document.querySelectorAll('.category-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const category = btn.getAttribute('data-category');
+        const panel = document.getElementById(`${category}-panel`);
+        if (panel) {
+            // Hide all other panels
+            document.querySelectorAll('.category-panel').forEach(p => {
+                if (p !== panel) p.style.display = 'none';
+            });
+            // Toggle this panel
+            panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+        }
+    });
+});
+
+// Collapsible sections (Genres and Tags)
 document.querySelectorAll('.filter-group-header').forEach(header => {
     header.addEventListener('click', () => {
         const targetId = header.getAttribute('data-target');
@@ -270,6 +284,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     if (current.mediaType) {
         loadFilterOptions();
-        loadTrending();  // load trending on initial page load
+        loadTrending(); // load trending on initial page load
     }
 });
