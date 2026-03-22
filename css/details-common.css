@@ -444,3 +444,82 @@
         height: 150px;
     }
    }
+
+/* Character cards */
+.character-card {
+    min-width: 150px;
+    max-width: 150px;
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+.character-card:hover {
+    transform: translateY(-5px);
+}
+.character-card .character-image {
+    width: 150px;
+    height: 210px;
+    border-radius: 18px;
+    overflow: hidden;
+    margin-bottom: 8px;
+    border: 1px solid var(--glass-border);
+}
+.character-card .character-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.character-card .character-name {
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: white;
+}
+.character-card .character-role {
+    font-size: 0.7rem;
+    color: var(--accent);
+    margin-top: 2px;
+}
+.character-card .voice-actor {
+    font-size: 0.65rem;
+    color: var(--text-dim);
+    margin-top: 4px;
+    cursor: pointer;
+}
+.character-card .voice-actor:hover {
+    color: var(--accent);
+}
+
+/* Staff cards */
+.staff-card {
+    min-width: 130px;
+    max-width: 130px;
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+.staff-card:hover {
+    transform: translateY(-5px);
+}
+.staff-card .staff-image {
+    width: 130px;
+    height: 130px;
+    border-radius: 18px;
+    overflow: hidden;
+    margin-bottom: 8px;
+    border: 1px solid var(--glass-border);
+}
+.staff-card .staff-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.staff-card .staff-name {
+    font-weight: 700;
+    font-size: 0.8rem;
+    color: white;
+}
+.staff-card .staff-role {
+    font-size: 0.65rem;
+    color: var(--accent);
+    margin-top: 2px;
+}
