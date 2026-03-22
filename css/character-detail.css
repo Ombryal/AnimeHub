@@ -1,2 +1,96 @@
 /* character-detail.css - Styles specific to character detail pages */
-/* Add any character-specific overrides or customizations here if needed */
+
+/* =========================================
+   VOICE ACTORS (Horizontal Scroller, Rectangular Cards)
+   ========================================= */
+.voice-actors-section {
+    margin: 30px 0;
+}
+.voice-actors-scroller {
+    display: flex;
+    overflow-x: auto;
+    gap: 16px;
+    padding: 5px 0 15px;
+    scrollbar-width: none;
+}
+.voice-actors-scroller::-webkit-scrollbar {
+    display: none;
+}
+.voice-actor-card {
+    min-width: 130px;
+    max-width: 130px;
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.2s;
+    background: rgba(255,255,255,0.05);
+    border-radius: 12px;
+    padding: 12px 8px;
+    border: 1px solid var(--glass-border);
+}
+.voice-actor-card:hover {
+    transform: translateY(-5px);
+    background: rgba(255,255,255,0.1);
+}
+.voice-actor-card img {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 12px;
+    margin-bottom: 8px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+.voice-actor-name {
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: white;
+    margin: 8px 0 4px;
+}
+.voice-actor-lang {
+    font-size: 0.7rem;
+    color: var(--accent);
+}
+
+/* =========================================
+   ROLES GRID (Responsive)
+   ========================================= */
+.roles-section {
+    margin: 30px 0;
+}
+.roles-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+.roles-grid .media-item {
+    width: 100%;
+    margin: 0;
+}
+.roles-grid .media-item .img-box {
+    width: 100%;
+    aspect-ratio: 2/3;
+}
+.roles-grid .media-item .media-title {
+    font-size: 0.85rem;
+}
+.media-role {
+    font-size: 0.7rem;
+    color: var(--accent);
+    text-align: center;
+    margin-top: 4px;
+}
+
+/* Responsive: 2 columns on tablets, 1 on mobile */
+@media (max-width: 768px) {
+    .roles-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+    }
+}
+@media (max-width: 480px) {
+    .roles-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+}
