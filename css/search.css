@@ -136,13 +136,7 @@
     grid-column: 1 / -1;
 }
 
-/* Filter panel styles */
-.search-header {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    margin-bottom: 25px;
-}
+/* ========== FILTER PANEL (collapsible) ========== */
 .filter-toggle-btn {
     background: var(--glass-bg);
     border: 1px solid var(--glass-border);
@@ -164,18 +158,38 @@
     padding: 20px;
     margin-bottom: 20px;
 }
-.filter-group {
-    margin-bottom: 20px;
+
+/* Collapsible groups */
+.filter-group.collapsible {
+    margin-bottom: 15px;
 }
-.filter-group h4 {
-    margin-bottom: 10px;
+.filter-group-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--glass-border);
+}
+.filter-group-header h4 {
+    margin: 0;
     font-size: 1rem;
     color: var(--accent);
 }
+.filter-group-header i {
+    transition: transform 0.2s;
+}
+.filter-group-header.active i {
+    transform: rotate(180deg);
+}
 .filter-options {
+    margin-top: 10px;
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
+}
+.filter-options.year-inputs {
+    gap: 10px;
 }
 .filter-options input {
     background: rgba(255,255,255,0.1);
