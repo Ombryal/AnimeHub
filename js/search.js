@@ -19,6 +19,8 @@ document.getElementById('search-type-title').innerText = `Search ${current.title
 
 const searchInput = document.getElementById('search-input');
 const resultsContainer = document.getElementById('search-results');
+const trendingContainer = document.getElementById('trending-results');
+const trendingSection = document.getElementById('trending-section');
 
 // Filter state
 let selectedGenres = [];
@@ -30,7 +32,53 @@ let yearMin = null;
 let yearMax = null;
 let selectedSources = [];
 
-// Load available filter options (only for media types)
+// Load trending media on page load
+async function loadTrending() {
+    if (!current.mediaType) return;
+    const trendingQuery = `
+        query {
+            Page(perPage: 12) {
+                media(sort: TRENDING_DESC, type: ${current.queryType}, isAdult: false) {
+                    id
+                    title { romaji }
+                    coverImage { large }
+                    meanScore
+                    format
+                }
+            }
+        }`;
+    const data = await apiFetch(trendingQuery);
+    if (data?.Page?.media) {
+        renderMediaResults(data.Page.media);
+    } else {
+        trendingContainer.innerHTML = '<div class="empty-message">No trending found.</div>';
+    }
+}
+
+// Render media results (used for both search and trending)
+function renderMediaResults(items) {
+    trendingSection.style.display = 'block';
+    resultsContainer.style.display = 'none';
+    if (items.length) {
+        trendingContainer.innerHTML = items.map(item => {
+            const detailPage = current.queryType === 'ANIME' ? 'anime-detail.html' : 'manga-detail.html';
+            const score = item.meanScore ? (item.meanScore/10).toFixed(1)+'★' : '??';
+            return `
+                <div class="media-item" onclick="window.location.href='${detailPage}?id=${item.id}'">
+                    <div class="img-box">
+                        <img src="${item.coverImage.large}" loading="lazy">
+                        <div class="purple-badge">${score}</div>
+                    </div>
+                    <div class="media-title">${item.title.romaji}</div>
+                </div>
+            `;
+        }).join('');
+    } else {
+        trendingContainer.innerHTML = '<div class="empty-message">No results found.</div>';
+    }
+}
+
+// Load filter options (genres, tags, etc.)
 async function loadFilterOptions() {
     if (!current.mediaType) return;
     const genreQuery = `{ GenreCollection }`;
@@ -60,7 +108,6 @@ function renderFilterChips(containerId, options, type) {
     container.innerHTML = options.map(opt => `
         <div class="filter-chip" data-type="${type}" data-value="${opt}">${opt}</div>
     `).join('');
-    // Attach click handlers
     container.querySelectorAll('.filter-chip').forEach(chip => {
         chip.addEventListener('click', () => {
             chip.classList.toggle('selected');
@@ -117,156 +164,66 @@ function buildFilterArgs() {
 }
 
 async function performSearch(query) {
+    if (!current.mediaType) return;
+
     if (!query || query.length < 2) {
-        resultsContainer.innerHTML = '';
+        // Show trending
+        await loadTrending();
         return;
     }
 
+    // Hide trending section, show results container
+    trendingSection.style.display = 'none';
+    resultsContainer.style.display = 'grid';
     resultsContainer.innerHTML = `<div class="loading-spinner-small"><i class="fas fa-circle-notch fa-spin"></i> Searching...</div>`;
 
-    let graphqlQuery = '';
-    let variables = { search: query };
-
-    if (current.mediaType) {
-        let filterArgs = buildFilterArgs();
-        graphqlQuery = `
-            query ($search: String, $type: MediaType) {
-                Page(perPage: 20) {
-                    media(search: $search, type: $type ${filterArgs}) {
-                        id
-                        title { romaji }
-                        coverImage { large }
-                        meanScore
-                        format
-                    }
+    let filterArgs = buildFilterArgs();
+    const graphqlQuery = `
+        query ($search: String, $type: MediaType) {
+            Page(perPage: 20) {
+                media(search: $search, type: $type ${filterArgs}) {
+                    id
+                    title { romaji }
+                    coverImage { large }
+                    meanScore
+                    format
                 }
-            }`;
-        variables.type = current.queryType;
-    } else if (current.queryType === 'USER') {
-        graphqlQuery = `
-            query ($search: String) {
-                Page(perPage: 20) {
-                    users(search: $search) {
-                        id
-                        name
-                        avatar { large }
-                    }
-                }
-            }`;
-    } else if (current.queryType === 'CHARACTER') {
-        graphqlQuery = `
-            query ($search: String) {
-                Page(perPage: 20) {
-                    characters(search: $search) {
-                        id
-                        name { full }
-                        image { large }
-                    }
-                }
-            }`;
-    } else if (current.queryType === 'STAFF') {
-        graphqlQuery = `
-            query ($search: String) {
-                Page(perPage: 20) {
-                    staff(search: $search) {
-                        id
-                        name { full }
-                        image { large }
-                    }
-                }
-            }`;
-    } else if (current.queryType === 'STUDIO') {
-        graphqlQuery = `
-            query ($search: String) {
-                Page(perPage: 20) {
-                    studios(search: $search) {
-                        id
-                        name
-                    }
-                }
-            }`;
-    }
+            }
+        }`;
+    const variables = { search: query, type: current.queryType };
 
     const data = await apiFetch(graphqlQuery, variables);
-    if (!data || !data.Page) {
+    if (!data?.Page?.media) {
         resultsContainer.innerHTML = `<div class="empty-message">No results found.</div>`;
         return;
     }
 
-    let items = [];
-    if (current.mediaType) items = data.Page.media;
-    else if (current.queryType === 'USER') items = data.Page.users;
-    else if (current.queryType === 'CHARACTER') items = data.Page.characters;
-    else if (current.queryType === 'STAFF') items = data.Page.staff;
-    else if (current.queryType === 'STUDIO') items = data.Page.studios;
-
-    if (!items || items.length === 0) {
+    const items = data.Page.media;
+    if (items.length === 0) {
         resultsContainer.innerHTML = `<div class="empty-message">No results found.</div>`;
         return;
     }
 
-    // Render results
-    if (current.mediaType) {
-        resultsContainer.innerHTML = items.map(item => {
-            const detailPage = current.queryType === 'ANIME' ? 'anime-detail.html' : 'manga-detail.html';
-            return `
-                <div class="media-item" onclick="window.location.href='${detailPage}?id=${item.id}'">
-                    <div class="img-box">
-                        <img src="${item.coverImage?.large || 'placeholder.jpg'}" loading="lazy">
-                        <div class="purple-badge">${item.meanScore ? (item.meanScore/10).toFixed(1)+'★' : '??'}</div>
-                    </div>
-                    <div class="media-title">${item.title.romaji}</div>
+    resultsContainer.innerHTML = items.map(item => {
+        const detailPage = current.queryType === 'ANIME' ? 'anime-detail.html' : 'manga-detail.html';
+        const score = item.meanScore ? (item.meanScore/10).toFixed(1)+'★' : '??';
+        return `
+            <div class="media-item" onclick="window.location.href='${detailPage}?id=${item.id}'">
+                <div class="img-box">
+                    <img src="${item.coverImage.large}" loading="lazy">
+                    <div class="purple-badge">${score}</div>
                 </div>
-            `;
-        }).join('');
-    } else {
-        resultsContainer.innerHTML = items.map(item => {
-            let title = '';
-            let img = '';
-            let sub = '';
-            let link = '';
-
-            if (current.queryType === 'USER') {
-                title = item.name;
-                img = item.avatar?.large;
-                sub = 'User';
-                link = `user-detail.html?id=${item.id}`;
-            } else if (current.queryType === 'CHARACTER') {
-                title = item.name.full;
-                img = item.image?.large;
-                sub = 'Character';
-                link = `character-detail.html?id=${item.id}`;
-            } else if (current.queryType === 'STAFF') {
-                title = item.name.full;
-                img = item.image?.large;
-                sub = 'Staff';
-                link = `staff-detail.html?id=${item.id}`;
-            } else if (current.queryType === 'STUDIO') {
-                title = item.name;
-                img = null;
-                sub = 'Studio';
-                link = `studio-detail.html?id=${item.id}`;
-            }
-
-            return `
-                <div class="result-card ${current.queryType === 'USER' ? 'user-card' : ''}" onclick="window.location.href='${link}'">
-                    ${img ? `<img src="${img}" loading="lazy">` : `<div style="width:100%; height:150px; background:rgba(255,255,255,0.1); border-radius:12px;"></div>`}
-                    <div class="title">${title}</div>
-                    <div class="sub">${sub}</div>
-                </div>
-            `;
-        }).join('');
-    }
+                <div class="media-title">${item.title.romaji}</div>
+            </div>
+        `;
+    }).join('');
 }
 
+// Debounced search
 let debounceTimeout;
 searchInput.addEventListener('input', (e) => {
     clearTimeout(debounceTimeout);
     const query = e.target.value.trim();
-    if (query.length < 2) {
-        resultsContainer.innerHTML = '';
-        return;
-    }
     debounceTimeout = setTimeout(() => performSearch(query), 500);
 });
 
@@ -303,15 +260,16 @@ document.addEventListener('DOMContentLoaded', () => {
     if (clearBtn) {
         clearBtn.addEventListener('click', () => {
             document.querySelectorAll('.filter-chip.selected').forEach(chip => chip.classList.remove('selected'));
-            const yearMin = document.getElementById('year-min');
-            const yearMax = document.getElementById('year-max');
-            if (yearMin) yearMin.value = '';
-            if (yearMax) yearMax.value = '';
+            const yearMinInput = document.getElementById('year-min');
+            const yearMaxInput = document.getElementById('year-max');
+            if (yearMinInput) yearMinInput.value = '';
+            if (yearMaxInput) yearMaxInput.value = '';
             updateSelectedFilters();
             if (searchInput.value.trim().length >= 2) performSearch(searchInput.value.trim());
         });
     }
     if (current.mediaType) {
         loadFilterOptions();
+        loadTrending();  // load trending on initial page load
     }
 });
