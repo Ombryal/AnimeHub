@@ -42,48 +42,50 @@
         <div class="sheet-content">
             <div class="sheet-handle"></div>
             <h4>Filter</h4>
-            <div class="filter-category-row">
-                <button class="category-btn" data-category="source">Source</button>
-                <button class="category-btn" data-category="format">Format</button>
-                <button class="category-btn" data-category="status">Status</button>
-                <button class="category-btn" data-category="season">Season</button>
-                <button class="category-btn" data-category="year">Year</button>
+
+            <!-- Single-choice dropdowns -->
+            <div class="filter-group">
+                <label for="format-select">Format</label>
+                <select id="format-select"></select>
+            </div>
+            <div class="filter-group">
+                <label for="status-select">Status</label>
+                <select id="status-select"></select>
+            </div>
+            <div class="filter-group">
+                <label for="season-select">Season</label>
+                <select id="season-select"></select>
+            </div>
+            <div class="filter-group">
+                <label for="source-select">Source</label>
+                <select id="source-select"></select>
             </div>
 
-            <!-- Panels: vertical chips -->
-            <div id="source-panel" class="category-panel" style="display: none;">
-                <div class="vertical-options" id="source-options"></div>
-            </div>
-            <div id="format-panel" class="category-panel" style="display: none;">
-                <div class="vertical-options" id="format-options"></div>
-            </div>
-            <div id="status-panel" class="category-panel" style="display: none;">
-                <div class="vertical-options" id="status-options"></div>
-            </div>
-            <div id="season-panel" class="category-panel" style="display: none;">
-                <div class="vertical-options" id="season-options"></div>
-            </div>
-            <div id="year-panel" class="category-panel" style="display: none;">
-                <div class="vertical-options year-inputs">
+            <!-- Year range -->
+            <div class="filter-group">
+                <label>Year</label>
+                <div class="year-inputs">
                     <input type="number" id="year-min" placeholder="From" min="1900" max="2100">
                     <input type="number" id="year-max" placeholder="To" min="1900" max="2100">
                 </div>
             </div>
 
-            <!-- Genres and Tags sections with Grid button (collapsible) -->
+            <!-- Genres (collapsible grid) -->
             <div class="filter-group collapsible">
                 <div class="filter-group-header" data-target="genre-options">
                     <h4>Genres</h4>
                     <i class="fas fa-th"></i>
                 </div>
-                <div id="genre-options" class="vertical-options" style="display: none;"></div>
+                <div id="genre-options" class="filter-grid" style="display: none;"></div>
             </div>
+
+            <!-- Tags (collapsible grid) -->
             <div class="filter-group collapsible">
                 <div class="filter-group-header" data-target="tag-options">
                     <h4>Tags</h4>
                     <i class="fas fa-th"></i>
                 </div>
-                <div id="tag-options" class="vertical-options" style="display: none;"></div>
+                <div id="tag-options" class="filter-grid" style="display: none;"></div>
             </div>
 
             <div class="filter-actions">
