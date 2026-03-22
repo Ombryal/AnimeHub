@@ -135,3 +135,90 @@
     color: var(--text-dim);
     grid-column: 1 / -1;
 }
+
+/* Filter panel styles */
+.search-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+.filter-toggle-btn {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 8px 16px;
+    color: var(--text-main);
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.filter-toggle-btn:hover {
+    background: var(--glass-highlight);
+}
+.filter-panel {
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+.filter-group {
+    margin-bottom: 20px;
+}
+.filter-group h4 {
+    margin-bottom: 10px;
+    font-size: 1rem;
+    color: var(--accent);
+}
+.filter-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.filter-options input {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    padding: 6px 10px;
+    color: white;
+    width: 100px;
+}
+.filter-options input:focus {
+    outline: none;
+    border-color: var(--accent);
+}
+.filter-chip {
+    padding: 6px 12px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.filter-chip.selected {
+    background: var(--accent);
+    color: var(--bg-base);
+    border-color: var(--accent);
+}
+.filter-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+.btn-primary, .btn-secondary {
+    padding: 8px 16px;
+    border-radius: 20px;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+}
+.btn-primary {
+    background: var(--accent);
+    color: var(--bg-base);
+}
+.btn-secondary {
+    background: rgba(255,255,255,0.1);
+    color: var(--text-main);
+}
