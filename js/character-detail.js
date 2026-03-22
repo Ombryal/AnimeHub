@@ -30,10 +30,9 @@ query ($id: Int) {
           meanScore
         }
         characterRole
-        voiceActors {      // fetches all voice actors for this media (all languages)
+        voiceActors {
           id name { full }
           image { large }
-          language
         }
       }
     }
@@ -41,11 +40,16 @@ query ($id: Int) {
 }`;
 
 async function loadCharacter() {
-    const data = await apiFetch(query, { id: parseInt(id) });
-    if (data && data.Character) {
-        renderCharacterDetails(data.Character);
-    } else {
-        showError("Character not found");
+    try {
+        const data = await apiFetch(query, { id: parseInt(id) });
+        if (data && data.Character) {
+            renderCharacterDetails(data.Character);
+        } else {
+            showError("Character not found");
+        }
+    } catch (err) {
+        console.error(err);
+        showError("Failed to load character: " + err.message);
     }
 }
 
@@ -75,23 +79,17 @@ function renderCharacterDetails(char) {
         ${renderStat('fa-tv', 'Appearances', char.media?.edges?.length || 0)}
     `;
 
-    // Voice Actors: collect unique from all edges (all languages)
-    const vaMap = new Map(); // key: id, value: { name, image, languages: Set }
+    // Voice Actors: collect unique from all edges (no language info)
+    const vaMap = new Map(); // key: id, value: { name, image }
     if (char.media?.edges) {
         char.media.edges.forEach(edge => {
             if (edge.voiceActors && edge.voiceActors.length) {
                 edge.voiceActors.forEach(va => {
-                    if (va && va.id) {
-                        if (!vaMap.has(va.id)) {
-                            vaMap.set(va.id, {
-                                name: va.name.full,
-                                image: va.image?.large,
-                                languages: new Set()
-                            });
-                        }
-                        if (va.language) {
-                            vaMap.get(va.id).languages.add(va.language);
-                        }
+                    if (va && va.id && !vaMap.has(va.id)) {
+                        vaMap.set(va.id, {
+                            name: va.name.full,
+                            image: va.image?.large
+                        });
                     }
                 });
             }
@@ -106,14 +104,14 @@ function renderCharacterDetails(char) {
                     <div class="voice-actor-card" onclick="window.location.href='staff-detail.html?id=${va.id}'">
                         <img src="${va.image || 'placeholder.jpg'}" alt="${va.name}" loading="lazy">
                         <div class="voice-actor-name">${va.name}</div>
-                        <div class="voice-actor-lang">${Array.from(va.languages).join(', ')}</div>
+                        <div class="voice-actor-lang">Voice Actor</div>
                     </div>
                 `).join('')}
             </div>
         </div>
     ` : '<div class="voice-actors-section"><h3 class="section-title">Voice Actors</h3><p>No voice actors found.</p></div>';
 
-    // Roles (media appearances) – responsive grid (3 columns on desktop)
+    // Roles (media appearances) – responsive grid
     const rolesHtml = char.media?.edges?.length ? `
         <div class="roles-section">
             <h3 class="section-title">Roles</h3>
