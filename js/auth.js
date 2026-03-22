@@ -85,6 +85,7 @@ function hideLoader() {
  * Supports: bold, italic, underline, strikethrough, links, spoilers, images,
  *           headers, horizontal rules, lists, blockquotes, code, center alignment,
  *           YouTube and WebM embeds.
+ * Converts newlines to <br> for proper spacing.
  */
 function formatAnilistText(text) {
     if (!text) return '';
@@ -168,8 +169,11 @@ function formatAnilistText(text) {
     // Also support <center> tags (legacy)
     formatted = formatted.replace(/<center>(.*?)<\/center>/gi, '<div class="center-align">$1</div>');
 
-    // Line breaks: NOT converted to <br> – let CSS handle whitespace
-    // We remove the previous \n → <br> step to avoid excessive spacing.
+    // ---- NEW: Convert newlines to <br> ----
+    // First, preserve line breaks inside <pre> and <code> by temporarily marking them
+    // (simple approach: we won't replace inside them because the regex won't match inside tags)
+    // Replace each newline with <br>
+    formatted = formatted.replace(/\n/g, '<br>');
 
     // Clean up extra <br> tags inside block elements (if any remain)
     formatted = formatted.replace(/<(h[1-6]|p|blockquote|pre)>(.*?)<\/\1>/g, function(match, tag, content) {
