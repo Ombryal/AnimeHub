@@ -143,7 +143,7 @@ function renderChips(containerId, list, type) {
     });
 }
 
-// --- 5. The Search Engine ---
+// --- 5. The Search Engine (now returns up to 50 results) ---
 async function performSearch(query) {
     const resultsContainer = document.getElementById('search-results');
     const trendingSection = document.getElementById('trending-section');
@@ -203,7 +203,8 @@ async function performSearch(query) {
     if (yMin) { varDefs.push('$yG: Int'); mediaArgs.push('startDate_greater: $yG'); vars.yG = parseInt(yMin + "0000"); }
     if (yMax) { varDefs.push('$yL: Int'); mediaArgs.push('startDate_lesser: $yL'); vars.yL = parseInt(yMax + "9999"); }
 
-    const finalQuery = `query(${varDefs.join(',')}){ Page(perPage:20){ media(${mediaArgs.join(',')}){ id title{romaji} coverImage{large} meanScore format } } }`;
+    // 🔁 Increase perPage to 50 for more results
+    const finalQuery = `query(${varDefs.join(',')}){ Page(perPage:50){ media(${mediaArgs.join(',')}){ id title{romaji} coverImage{large} meanScore format } } }`;
     
     const data = await apiFetch(finalQuery, vars);
     renderResults(data?.Page?.media || []);
@@ -231,8 +232,8 @@ document.addEventListener('DOMContentLoaded', () => {
     initUI();
     if (current.mediaType) {
         loadFilterOptions();
-        // Load default trending
-        apiFetch(`query($type:MediaType){ Page(perPage:12){ media(type:$type, sort:TRENDING_DESC, isAdult:false){ id title{romaji} coverImage{large} meanScore } } }`, {type: current.queryType})
+        // Load default trending (now shows 20 items)
+        apiFetch(`query($type:MediaType){ Page(perPage:20){ media(type:$type, sort:TRENDING_DESC, isAdult:false){ id title{romaji} coverImage{large} meanScore } } }`, {type: current.queryType})
             .then(data => {
                 const trend = document.getElementById('trending-results');
                 if (data) {
