@@ -72,7 +72,7 @@ function renderCharacterDetails(char) {
         ${renderStat('fa-tv', 'Appearances', char.media?.edges?.length || 0)}
     `;
 
-    // Voice Actors: collect unique from all edges
+    // Voice Actors: collect unique from all edges (Japanese + English)
     const vaMap = new Map(); // key: id, value: { name, image, languages }
     if (char.media?.edges) {
         char.media.edges.forEach(edge => {
@@ -100,17 +100,17 @@ function renderCharacterDetails(char) {
     const voiceActorsHtml = vaList.length ? `
         <div class="voice-actors-section">
             <h3 class="section-title">Voice Actors</h3>
-            <div class="voice-actors-list">
+            <div class="voice-actors-scroller">
                 ${vaList.map(va => `
                     <div class="voice-actor-card" onclick="window.location.href='staff-detail.html?id=${va.id}'">
-                        <img src="${va.image || 'placeholder.jpg'}" alt="${va.name}">
+                        <img src="${va.image || 'placeholder.jpg'}" alt="${va.name}" loading="lazy">
                         <div class="voice-actor-name">${va.name}</div>
                         <div class="voice-actor-lang">${Array.from(va.languages).join(', ')}</div>
                     </div>
                 `).join('')}
             </div>
         </div>
-    ` : '';
+    ` : '<div class="voice-actors-section"><h3 class="section-title">Voice Actors</h3><p>No voice actors found.</p></div>';
 
     // Roles (media appearances) – horizontal scroller using media-item style
     const rolesHtml = char.media?.edges?.length ? `
@@ -127,7 +127,7 @@ function renderCharacterDetails(char) {
                                 <div class="purple-badge">${score}</div>
                             </div>
                             <div class="media-title">${edge.node.title.romaji}</div>
-                            <div class="media-role" style="font-size: 0.7rem; color: var(--accent); text-align: center; margin-top: 4px;">${edge.characterRole}</div>
+                            <div class="media-role">${edge.characterRole}</div>
                         </div>
                     `;
                 }).join('')}
