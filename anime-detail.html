@@ -29,8 +29,23 @@
             </div>
         </div>
 
+        <!-- List status (user's progress) -->
+        <div id="list-status" class="glass-card" style="display: none;">
+            <h3 id="list-status-title" class="section-label"></h3>
+            <div class="progress-container">
+                <div class="progress-bar" id="progress-bar"></div>
+                <div class="progress-text" id="progress-text"></div>
+            </div>
+        </div>
+
         <!-- Statistics grid -->
-        <div id="det-stats-grid" class="stats-grid-container"></div>
+        <div class="section-group">
+            <div class="row-header">
+                <h3>Statistics</h3>
+                <i class="fas fa-chart-bar"></i>
+            </div>
+            <div id="det-stats-grid" class="stats-grid-container"></div>
+        </div>
 
         <!-- Synopsis -->
         <div class="glass-card">
@@ -52,8 +67,11 @@
         <!-- Relations -->
         <div id="relations-section"></div>
 
-        <!-- Characters -->
+        <!-- Characters (horizontal scroller) -->
         <div id="characters-section"></div>
+
+        <!-- Staff (horizontal scroller) -->
+        <div id="staff-section"></div>
 
         <!-- Recommendations -->
         <div id="recommendations-section">
