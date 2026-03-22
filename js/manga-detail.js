@@ -55,7 +55,8 @@ function renderMediaDetails(m, type) {
         ${renderStat('fa-book-open', 'Chapters', m.chapters || '??')}
     `;
 
-    document.getElementById('det-desc').innerHTML = m.description;
+    // Synopsis (formatted)
+    document.getElementById('det-desc').innerHTML = formatAnilistText(m.description);
     document.getElementById('romaji-title').innerText = m.title.romaji;
     document.getElementById('synonyms-list').innerText = m.synonyms.length > 0 ? m.synonyms.join(', ') : 'None';
 
