@@ -69,7 +69,6 @@
     gap: 20px;
     margin-top: 20px;
 }
-/* Make cards fill the grid cells */
 .search-results-grid .media-item {
     width: 100%;
     min-width: 0;
@@ -212,31 +211,27 @@
     background: var(--glass-highlight);
 }
 
-/* Panels that appear when a category button is clicked */
+/* Panels – vertical layout for chips */
 .category-panel {
     margin-bottom: 20px;
     padding: 12px;
     background: rgba(0,0,0,0.2);
     border-radius: 12px;
 }
-.horizontal-scroller {
+.vertical-options {
     display: flex;
-    overflow-x: auto;
-    gap: 12px;
-    padding: 8px 0;
-    scrollbar-width: thin;
+    flex-direction: column;
+    gap: 8px;
 }
-.horizontal-scroller::-webkit-scrollbar {
-    height: 4px;
+.vertical-options .filter-chip {
+    display: block;
+    text-align: left;
 }
-.horizontal-scroller .filter-chip {
-    flex-shrink: 0;
-    white-space: nowrap;
-}
-.filter-options.year-inputs {
+.vertical-options.year-inputs {
+    flex-direction: row;
     gap: 10px;
 }
-.filter-options input {
+.vertical-options input {
     background: rgba(255,255,255,0.1);
     border: 1px solid var(--glass-border);
     border-radius: 8px;
@@ -245,12 +240,13 @@
     width: 100px;
 }
 .filter-chip {
-    padding: 6px 12px;
+    padding: 8px 12px;
     background: rgba(255,255,255,0.05);
     border: 1px solid var(--glass-border);
     border-radius: 20px;
     cursor: pointer;
     transition: all 0.2s;
+    width: 100%;
 }
 .filter-chip.selected {
     background: var(--accent);
