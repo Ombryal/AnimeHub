@@ -32,7 +32,7 @@ let yearMin = null;
 let yearMax = null;
 let selectedSources = [];
 
-// Load trending
+// Helper to load trending
 async function loadTrending() {
     if (!current.mediaType) return;
     const trendingQuery = `
@@ -78,7 +78,7 @@ function renderMediaResults(items) {
     }
 }
 
-// Load filter options
+// Load filter options (genres, tags, etc.)
 async function loadFilterOptions() {
     if (!current.mediaType) return;
     const genreQuery = `{ GenreCollection }`;
@@ -127,6 +127,7 @@ function updateSelectedFilters() {
     const yearMaxInput = document.getElementById('year-max');
     yearMin = yearMinInput?.value ? parseInt(yearMinInput.value) : null;
     yearMax = yearMaxInput?.value ? parseInt(yearMaxInput.value) : null;
+    console.log('Filters updated:', { selectedGenres, selectedTags, selectedFormats, selectedStatus, selectedSeasons, selectedSources, yearMin, yearMax });
 }
 
 function getSelectedValues(type) {
@@ -167,6 +168,7 @@ async function performSearch(query) {
 
     const hasFilters = selectedGenres.length || selectedTags.length || selectedFormats.length || selectedStatus.length || selectedSeasons.length || selectedSources.length || yearMin || yearMax;
 
+    // If no search query and no filters, show trending
     if (!query && !hasFilters) {
         await loadTrending();
         return;
@@ -190,15 +192,17 @@ async function performSearch(query) {
             }
         }`;
     const variables = { search: query || '', type: current.queryType };
-
+    console.log('GraphQL query:', graphqlQuery);
+    console.log('Variables:', variables);
     const data = await apiFetch(graphqlQuery, variables);
-    if (!data?.Page?.media) {
+    if (!data || !data.Page) {
+        console.error('No data returned or Page missing', data);
         resultsContainer.innerHTML = `<div class="empty-message">No results found.</div>`;
         return;
     }
 
     const items = data.Page.media;
-    if (items.length === 0) {
+    if (!items || items.length === 0) {
         resultsContainer.innerHTML = `<div class="empty-message">No results found.</div>`;
         return;
     }
@@ -218,7 +222,6 @@ async function performSearch(query) {
     }).join('');
 }
 
-// Debounced search
 let debounceTimeout;
 searchInput.addEventListener('input', (e) => {
     clearTimeout(debounceTimeout);
