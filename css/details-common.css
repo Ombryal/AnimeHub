@@ -53,8 +53,8 @@
     color: var(--text-main);
 }
 
-/* Stats grid */
-.stats-grid-container {
+/* Stats grid – always 2 columns */
+#det-stats-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 12px;
@@ -398,16 +398,36 @@
     transform: scale(1.05);
 }
 
-/* Responsive */
+/* List status section */
+#list-status {
+    margin-bottom: 20px;
+}
+.progress-container {
+    margin-top: 10px;
+}
+.progress-bar {
+    height: 8px;
+    background: var(--accent);
+    border-radius: 10px;
+    width: 0%;
+    transition: width 0.3s ease;
+}
+.progress-text {
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    margin-top: 8px;
+    text-align: center;
+}
+
+/* Responsive adjustments – keep 2 columns for stats */
 @media (max-width: 768px) {
     .detail-header {
         flex-direction: column;
         align-items: center;
         text-align: center;
     }
-    .stats-grid-container {
-        grid-template-columns: 1fr;
-    }
+    /* Keep stats grid in 2 columns */
+    /* If you want to switch to 1fr on very small screens, add a lower breakpoint */
     .media-item {
         min-width: 110px;
         max-width: 110px;
@@ -423,4 +443,4 @@
     .relation-card img {
         height: 150px;
     }
-}
+   }
