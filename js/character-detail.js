@@ -20,7 +20,7 @@ query ($id: Int) {
     dateOfBirth { year month day }
     gender
     bloodType
-    media(perPage: 12, sort: POPULARITY_DESC) {
+    media(perPage: 20, sort: POPULARITY_DESC) {
       edges {
         node {
           id
@@ -30,8 +30,11 @@ query ($id: Int) {
           meanScore
         }
         characterRole
-        voiceActors(language: JAPANESE) { id name { full } image { large } }
-        englishVA: voiceActors(language: ENGLISH) { id name { full } image { large } }
+        voiceActors {      // fetches all voice actors for this media (all languages)
+          id name { full }
+          image { large }
+          language
+        }
       }
     }
   }
@@ -72,25 +75,23 @@ function renderCharacterDetails(char) {
         ${renderStat('fa-tv', 'Appearances', char.media?.edges?.length || 0)}
     `;
 
-    // Voice Actors: collect unique from all edges (Japanese + English)
-    const vaMap = new Map(); // key: id, value: { name, image, languages }
+    // Voice Actors: collect unique from all edges (all languages)
+    const vaMap = new Map(); // key: id, value: { name, image, languages: Set }
     if (char.media?.edges) {
         char.media.edges.forEach(edge => {
-            // Japanese
             if (edge.voiceActors && edge.voiceActors.length) {
                 edge.voiceActors.forEach(va => {
                     if (va && va.id) {
-                        if (!vaMap.has(va.id)) vaMap.set(va.id, { name: va.name.full, image: va.image?.large, languages: new Set() });
-                        vaMap.get(va.id).languages.add('Japanese');
-                    }
-                });
-            }
-            // English
-            if (edge.englishVA && edge.englishVA.length) {
-                edge.englishVA.forEach(va => {
-                    if (va && va.id) {
-                        if (!vaMap.has(va.id)) vaMap.set(va.id, { name: va.name.full, image: va.image?.large, languages: new Set() });
-                        vaMap.get(va.id).languages.add('English');
+                        if (!vaMap.has(va.id)) {
+                            vaMap.set(va.id, {
+                                name: va.name.full,
+                                image: va.image?.large,
+                                languages: new Set()
+                            });
+                        }
+                        if (va.language) {
+                            vaMap.get(va.id).languages.add(va.language);
+                        }
                     }
                 });
             }
@@ -112,11 +113,11 @@ function renderCharacterDetails(char) {
         </div>
     ` : '<div class="voice-actors-section"><h3 class="section-title">Voice Actors</h3><p>No voice actors found.</p></div>';
 
-    // Roles (media appearances) – horizontal scroller using media-item style
+    // Roles (media appearances) – responsive grid (3 columns on desktop)
     const rolesHtml = char.media?.edges?.length ? `
         <div class="roles-section">
             <h3 class="section-title">Roles</h3>
-            <div class="scroller" id="roles-scroll">
+            <div class="roles-grid">
                 ${char.media.edges.map(edge => {
                     const detailPage = edge.node.type === 'ANIME' ? 'anime-detail.html' : 'manga-detail.html';
                     const score = edge.node.meanScore ? (edge.node.meanScore / 10).toFixed(1) + '★' : '?';
