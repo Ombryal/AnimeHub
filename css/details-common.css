@@ -261,40 +261,50 @@
 /* =========================================
    VOICE ACTORS (Horizontal Scroller)
    ========================================= */
+/* Voice Actors (horizontal scroller, rectangular cards) */
 .voice-actors-section {
     margin: 30px 0;
 }
-.voice-actors-list {
+.voice-actors-scroller {
     display: flex;
     overflow-x: auto;
-    gap: 20px;
+    gap: 16px;
     padding: 5px 0 15px;
     scrollbar-width: none;
 }
-.voice-actors-list::-webkit-scrollbar {
+.voice-actors-scroller::-webkit-scrollbar {
     display: none;
 }
 .voice-actor-card {
-    min-width: 100px;
+    min-width: 130px;
+    max-width: 130px;
     text-align: center;
     cursor: pointer;
     transition: transform 0.2s;
+    background: rgba(255,255,255,0.05);
+    border-radius: 12px;
+    padding: 12px 8px;
+    border: 1px solid var(--glass-border);
 }
 .voice-actor-card:hover {
     transform: translateY(-5px);
+    background: rgba(255,255,255,0.1);
 }
 .voice-actor-card img {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
+    width: 100px;
+    height: 100px;
     object-fit: cover;
+    border-radius: 12px;
     margin-bottom: 8px;
-    border: 2px solid var(--glass-border);
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
 }
 .voice-actor-name {
     font-weight: 600;
     font-size: 0.85rem;
     color: white;
+    margin: 8px 0 4px;
 }
 .voice-actor-lang {
     font-size: 0.7rem;
