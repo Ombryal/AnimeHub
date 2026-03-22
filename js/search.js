@@ -5,7 +5,6 @@
 const urlParams = new URLSearchParams(window.location.search);
 const searchType = urlParams.get('type') || 'ANIME';
 
-// Map type to API-friendly values and display names
 const typeMap = {
     'ANIME': { queryType: 'ANIME', title: 'Anime', mediaType: true },
     'MANGA': { queryType: 'MANGA', title: 'Manga', mediaType: true },
@@ -31,7 +30,7 @@ let yearMin = null;
 let yearMax = null;
 let selectedSources = [];
 
-// Load available genres and tags (only for media types)
+// Load available filter options (only for media types)
 async function loadFilterOptions() {
     if (!current.mediaType) return;
     const genreQuery = `{ GenreCollection }`;
@@ -39,20 +38,20 @@ async function loadFilterOptions() {
     const formatOptions = ['TV', 'TV_SHORT', 'MOVIE', 'OVA', 'ONA', 'SPECIAL', 'MUSIC'];
     const statusOptions = ['FINISHED', 'RELEASING', 'NOT_YET_RELEASED', 'CANCELLED'];
     const seasonOptions = ['WINTER', 'SPRING', 'SUMMER', 'FALL'];
-    const sourceOptions = ['ORIGINAL', 'MANGA', 'LIGHT_NOVEL', 'VISUAL_NOVEL', 'VIDEO_GAME', 'OTHER'];
+    const sourceOptions = ['ORIGINAL', 'MANGA', 'LIGHT_NOVEL', 'VISUAL_NOVEL', 'VIDEO_GAME', 'OTHER', 'NOVEL'];
 
     const genresData = await apiFetch(genreQuery);
     const tagsData = await apiFetch(tagQuery);
     if (genresData?.GenreCollection) {
-        renderFilterChips('genre-filters', genresData.GenreCollection, 'genre');
+        renderFilterChips('genre-options', genresData.GenreCollection, 'genre');
     }
     if (tagsData?.MediaTagCollection) {
-        renderFilterChips('tag-filters', tagsData.MediaTagCollection.map(t => t.name), 'tag');
+        renderFilterChips('tag-options', tagsData.MediaTagCollection.map(t => t.name), 'tag');
     }
-    renderFilterChips('format-filters', formatOptions, 'format');
-    renderFilterChips('status-filters', statusOptions, 'status');
-    renderFilterChips('season-filters', seasonOptions, 'season');
-    renderFilterChips('source-filters', sourceOptions, 'source');
+    renderFilterChips('format-options', formatOptions, 'format');
+    renderFilterChips('status-options', statusOptions, 'status');
+    renderFilterChips('season-options', seasonOptions, 'season');
+    renderFilterChips('source-options', sourceOptions, 'source');
 }
 
 function renderFilterChips(containerId, options, type) {
@@ -62,7 +61,7 @@ function renderFilterChips(containerId, options, type) {
         <div class="filter-chip" data-type="${type}" data-value="${opt}">${opt}</div>
     `).join('');
     // Attach click handlers
-    document.querySelectorAll(`#${containerId} .filter-chip`).forEach(chip => {
+    container.querySelectorAll('.filter-chip').forEach(chip => {
         chip.addEventListener('click', () => {
             chip.classList.toggle('selected');
             updateSelectedFilters();
@@ -77,8 +76,10 @@ function updateSelectedFilters() {
     selectedStatus = getSelectedValues('status');
     selectedSeasons = getSelectedValues('season');
     selectedSources = getSelectedValues('source');
-    yearMin = document.getElementById('year-min')?.value ? parseInt(document.getElementById('year-min').value) : null;
-    yearMax = document.getElementById('year-max')?.value ? parseInt(document.getElementById('year-max').value) : null;
+    const yearMinInput = document.getElementById('year-min');
+    const yearMaxInput = document.getElementById('year-max');
+    yearMin = yearMinInput?.value ? parseInt(yearMinInput.value) : null;
+    yearMax = yearMaxInput?.value ? parseInt(yearMaxInput.value) : null;
 }
 
 function getSelectedValues(type) {
@@ -269,17 +270,26 @@ searchInput.addEventListener('input', (e) => {
     debounceTimeout = setTimeout(() => performSearch(query), 500);
 });
 
-// Filter panel UI
+// Collapsible sections
+document.querySelectorAll('.filter-group-header').forEach(header => {
+    header.addEventListener('click', () => {
+        const targetId = header.getAttribute('data-target');
+        const target = document.getElementById(targetId);
+        if (target) {
+            const isVisible = target.style.display !== 'none';
+            target.style.display = isVisible ? 'none' : 'flex';
+            header.classList.toggle('active', !isVisible);
+        }
+    });
+});
+
+// Filter panel toggle
 document.addEventListener('DOMContentLoaded', () => {
     const filterToggle = document.getElementById('filter-toggle');
     const filterPanel = document.getElementById('filter-panel');
     if (filterToggle && filterPanel) {
         filterToggle.addEventListener('click', () => {
-            if (filterPanel.style.display === 'none') {
-                filterPanel.style.display = 'block';
-            } else {
-                filterPanel.style.display = 'none';
-            }
+            filterPanel.style.display = filterPanel.style.display === 'none' ? 'block' : 'none';
         });
     }
     const applyBtn = document.getElementById('apply-filters');
@@ -292,10 +302,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     if (clearBtn) {
         clearBtn.addEventListener('click', () => {
-            // Clear all selections
             document.querySelectorAll('.filter-chip.selected').forEach(chip => chip.classList.remove('selected'));
-            document.getElementById('year-min').value = '';
-            document.getElementById('year-max').value = '';
+            const yearMin = document.getElementById('year-min');
+            const yearMax = document.getElementById('year-max');
+            if (yearMin) yearMin.value = '';
+            if (yearMax) yearMax.value = '';
             updateSelectedFilters();
             if (searchInput.value.trim().length >= 2) performSearch(searchInput.value.trim());
         });
