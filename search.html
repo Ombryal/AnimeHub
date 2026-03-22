@@ -30,6 +30,16 @@
 
         <!-- Filter panel (collapsible) -->
         <div id="filter-panel" class="filter-panel" style="display: none;">
+            <!-- Source -->
+            <div class="filter-group collapsible">
+                <div class="filter-group-header" data-target="source-options">
+                    <h4>Source</h4>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div id="source-options" class="filter-options" style="display: none;">
+                    <!-- populated by JS -->
+                </div>
+            </div>
             <!-- Format -->
             <div class="filter-group collapsible">
                 <div class="filter-group-header" data-target="format-options">
@@ -71,17 +81,7 @@
                     <input type="number" id="year-max" placeholder="To" min="1900" max="2100">
                 </div>
             </div>
-            <!-- Source -->
-            <div class="filter-group collapsible">
-                <div class="filter-group-header" data-target="source-options">
-                    <h4>Source</h4>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div id="source-options" class="filter-options" style="display: none;">
-                    <!-- populated by JS -->
-                </div>
-            </div>
-            <!-- Genres (at the end) -->
+            <!-- Genres -->
             <div class="filter-group collapsible">
                 <div class="filter-group-header" data-target="genre-options">
                     <h4>Genres</h4>
@@ -91,7 +91,7 @@
                     <!-- populated by JS -->
                 </div>
             </div>
-            <!-- Tags (at the end) -->
+            <!-- Tags -->
             <div class="filter-group collapsible">
                 <div class="filter-group-header" data-target="tag-options">
                     <h4>Tags</h4>
@@ -108,7 +108,14 @@
             </div>
         </div>
 
-        <div id="search-results" class="search-results-grid"></div>
+        <!-- Trending results (shown when search is empty) -->
+        <div id="trending-section" class="trending-section">
+            <h3 class="section-title">Trending</h3>
+            <div id="trending-results" class="search-results-grid"></div>
+        </div>
+
+        <!-- Search results (hidden when empty) -->
+        <div id="search-results" class="search-results-grid" style="display: none;"></div>
     </div>
 
     <script src="js/auth.js"></script>
