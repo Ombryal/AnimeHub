@@ -80,37 +80,106 @@ function hideLoader() {
     }
 }
 
-/**
+ /**
  * Convert AniList markdown to HTML
- * Supports: bold **text**, italic *text*, underline __text__, strikethrough ~~text~~,
- * links [text](url), spoilers ~!text!~
+ * Supports: bold, italic, underline, strikethrough, links, spoilers, images,
+ *           headers, horizontal rules, lists, blockquotes, code, center alignment,
+ *           YouTube and WebM embeds.
  */
 function formatAnilistText(text) {
     if (!text) return '';
-    
+
     let formatted = text;
-    
-    // Spoiler tags: ~!...!~  (non-greedy)
+
+    // --- AniList-specific embeds (must be processed before generic markdown) ---
+    // YouTube embed: youtube(VIDEO_ID)
+    formatted = formatted.replace(/youtube\(([a-zA-Z0-9_-]+)\)/g, '<div class="video-embed"><iframe width="100%" height="315" src="https://www.youtube.com/embed/$1" frameborder="0" allowfullscreen></iframe></div>');
+
+    // WebM/video embed: webm(URL)
+    formatted = formatted.replace(/webm\(([^)]+)\)/g, '<div class="video-embed"><video controls autoplay loop muted><source src="$1" type="video/webm"></video></div>');
+
+    // AniList image: img###(url) or img100%(url)
+    formatted = formatted.replace(/img(\d+%?)?\(([^)]+)\)/g, function(match, size, url) {
+        let width = size ? size : 'auto';
+        return `<img src="${url}" style="max-width:100%; width:${width}; height:auto;" alt="image">`;
+    });
+
+    // --- Standard markdown features ---
+
+    // Spoiler tags: ~!...!~
     formatted = formatted.replace(/~!([\s\S]*?)!~/g, '<span class="spoiler">$1</span>');
-    
+
     // Links: [text](url)
     formatted = formatted.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
-    
-    // Bold: **text**
+
+    // Images (standard markdown): ![alt](url)
+    formatted = formatted.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" style="max-width:100%; height:auto;">');
+
+    // Bold: **text** or __text__
     formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-    
-    // Italic: *text* (not inside bold)
+    formatted = formatted.replace(/__(.*?)__/g, '<strong>$1</strong>');
+
+    // Italic: *text* or _text_
     formatted = formatted.replace(/\*([^*\n]+?)\*/g, '<em>$1</em>');
-    
-    // Underline: __text__
-    formatted = formatted.replace(/__(.*?)__/g, '<u>$1</u>');
-    
+    formatted = formatted.replace(/_([^_\n]+?)_/g, '<em>$1</em>');
+
+    // Underline: __text__ (already handled by bold, but some use <u>)
+    formatted = formatted.replace(/<u>(.*?)<\/u>/g, '<u>$1</u>');
+
     // Strikethrough: ~~text~~
     formatted = formatted.replace(/~~(.*?)~~/g, '<del>$1</del>');
-    
+
+    // Headers: # to #####, also == and -- underlines
+    formatted = formatted.replace(/^(#{1,5})\s+(.*)$/gm, function(match, hashes, content) {
+        const level = hashes.length;
+        return `<h${level}>${content}</h${level}>`;
+    });
+    // Underline style headers (with == or -- on next line)
+    formatted = formatted.replace(/^(.*?)\n={2,}$/gm, '<h1>$1</h1>');
+    formatted = formatted.replace(/^(.*?)\n-{2,}$/gm, '<h2>$1</h2>');
+
+    // Horizontal rule: --- or ***
+    formatted = formatted.replace(/^(\-{3,}|\*{3,})$/gm, '<hr>');
+
+    // Blockquotes: > text (and nested)
+    formatted = formatted.replace(/^>+\s+(.*)$/gm, function(match, content) {
+        const level = (match.match(/^>/g) || []).length;
+        return `<blockquote><p>${content}</p></blockquote>`.repeat(level); // simplified – nesting may need extra handling
+    });
+
+    // Lists: bullet and numbered (simplified – works for basic lists)
+    // Bullet: lines starting with - * or +
+    formatted = formatted.replace(/^(\s*)([-*+])\s+(.*)$/gm, function(match, indent, bullet, content) {
+        const margin = indent.length ? ' style="margin-left:20px"' : '';
+        return `<ul${margin}><li>${content}</li></ul>`;
+    });
+    // Numbered: lines starting with digit.
+    formatted = formatted.replace(/^(\s*)(\d+)\.\s+(.*)$/gm, function(match, indent, num, content) {
+        const margin = indent.length ? ' style="margin-left:20px"' : '';
+        return `<ol${margin}><li>${content}</li></ol>`;
+    });
+
+    // Inline code: `code`
+    formatted = formatted.replace(/`([^`]+)`/g, '<code>$1</code>');
+
+    // Code blocks: triple backticks or indented by 4 spaces
+    formatted = formatted.replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>');
+    formatted = formatted.replace(/^ {4}(.*)$/gm, '<pre><code>$1</code></pre>'); // simplified
+
+    // Center alignment: ˜˜˜...˜˜˜ (three tildes)
+    formatted = formatted.replace(/˜˜˜([\s\S]*?)˜˜˜/g, '<div style="text-align:center">$1</div>');
+    // Also support <center> tags (legacy)
+    formatted = formatted.replace(/<center>(.*?)<\/center>/gi, '<div style="text-align:center">$1</div>');
+
     // Line breaks
     formatted = formatted.replace(/\n/g, '<br>');
-    
+
+    // Clean up extra <br> tags inside block elements
+    formatted = formatted.replace(/<(h[1-6]|p|blockquote|pre)>(.*?)<\/\1>/g, function(match, tag, content) {
+        content = content.replace(/<br\s*\/?>/g, ' ');
+        return `<${tag}>${content}</${tag}>`;
+    });
+
     return formatted;
 }
 
