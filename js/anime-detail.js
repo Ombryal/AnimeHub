@@ -142,8 +142,8 @@ function renderMediaDetails(m, listEntry) {
         ${renderStat('fa-building', 'Studio', m.studios.nodes[0]?.name || 'N/A')}
     `;
 
-    // Synopsis
-    document.getElementById('det-desc').innerHTML = m.description;
+    // Synopsis (formatted)
+    document.getElementById('det-desc').innerHTML = formatAnilistText(m.description);
     document.getElementById('romaji-title').innerText = m.title.romaji;
     document.getElementById('synonyms-list').innerText = m.synonyms.length > 0 ? m.synonyms.join(', ') : 'None';
 
