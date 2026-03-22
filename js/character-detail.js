@@ -47,6 +47,7 @@ async function loadCharacter() {
 }
 
 function renderCharacterDetails(char) {
+    // Banner and avatar
     const banner = char.image?.large || '';
     document.getElementById('det-banner').style.backgroundImage = `url('${banner}')`;
     document.getElementById('det-cover').src = char.image?.large || '';
@@ -54,10 +55,6 @@ function renderCharacterDetails(char) {
     
     // Description
     document.getElementById('det-desc').innerHTML = char.description || 'No description available.';
-    
-    // Hide romaji/synonyms card (it's hidden by default in HTML, but ensure)
-    const romajiCard = document.getElementById('romaji-synonyms-card');
-    if (romajiCard) romajiCard.style.display = 'none';
     
     // Personal info stats
     const birthStr = char.dateOfBirth?.year ? 
@@ -75,7 +72,7 @@ function renderCharacterDetails(char) {
         ${renderStat('fa-tv', 'Appearances', char.media?.edges?.length || 0)}
     `;
 
-    // Voice actors: collect unique from all edges (Japanese and English)
+    // Voice Actors: collect unique from all edges
     const vaMap = new Map(); // key: id, value: { name, image, languages }
     if (char.media?.edges) {
         char.media.edges.forEach(edge => {
@@ -105,7 +102,7 @@ function renderCharacterDetails(char) {
             <h3 class="section-title">Voice Actors</h3>
             <div class="voice-actors-list">
                 ${vaList.map(va => `
-                    <div class="voice-actor-card">
+                    <div class="voice-actor-card" onclick="window.location.href='staff-detail.html?id=${va.id}'">
                         <img src="${va.image || 'placeholder.jpg'}" alt="${va.name}">
                         <div class="voice-actor-name">${va.name}</div>
                         <div class="voice-actor-lang">${Array.from(va.languages).join(', ')}</div>
@@ -115,19 +112,22 @@ function renderCharacterDetails(char) {
         </div>
     ` : '';
 
-    // Roles (media appearances)
+    // Roles (media appearances) – horizontal scroller using media-item style
     const rolesHtml = char.media?.edges?.length ? `
         <div class="roles-section">
             <h3 class="section-title">Roles</h3>
-            <div class="relation-scroller">
+            <div class="scroller" id="roles-scroll">
                 ${char.media.edges.map(edge => {
                     const detailPage = edge.node.type === 'ANIME' ? 'anime-detail.html' : 'manga-detail.html';
+                    const score = edge.node.meanScore ? (edge.node.meanScore / 10).toFixed(1) + '★' : '?';
                     return `
-                        <div class="relation-card" onclick="window.location.href='${detailPage}?id=${edge.node.id}'">
-                            <img src="${edge.node.coverImage.large}" loading="lazy">
-                            <div class="relation-name">${edge.node.title.romaji}</div>
-                            <div class="relation-badge">${edge.characterRole}</div>
-                            <div class="relation-score">${edge.node.meanScore ? (edge.node.meanScore/10).toFixed(1)+'★' : '?'}</div>
+                        <div class="media-item" onclick="window.location.href='${detailPage}?id=${edge.node.id}'">
+                            <div class="img-box">
+                                <img src="${edge.node.coverImage.large}" loading="lazy">
+                                <div class="purple-badge">${score}</div>
+                            </div>
+                            <div class="media-title">${edge.node.title.romaji}</div>
+                            <div class="media-role" style="font-size: 0.7rem; color: var(--accent); text-align: center; margin-top: 4px;">${edge.characterRole}</div>
                         </div>
                     `;
                 }).join('')}
@@ -135,15 +135,11 @@ function renderCharacterDetails(char) {
         </div>
     ` : '';
 
-    // Insert voice actors and roles
+    // Insert voice actors and roles into the page
     const vaContainer = document.getElementById('voice-actors-section');
     const relationsDiv = document.getElementById('relations-section');
     if (vaContainer) vaContainer.innerHTML = voiceActorsHtml;
     if (relationsDiv) relationsDiv.innerHTML = rolesHtml;
-
-    // Hide the recommendations section (already hidden in HTML, but ensure)
-    const recSection = document.getElementById('recommendations-section');
-    if (recSection) recSection.style.display = 'none';
 
     hideLoader();
 }
