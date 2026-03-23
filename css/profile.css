@@ -1,4 +1,4 @@
-/* profile.css - Styles for the profile page */
+/* profile.css */
 
 .profile-container {
     max-width: 1200px;
@@ -38,53 +38,107 @@
     box-shadow: 0 4px 10px rgba(0,0,0,0.2);
 }
 
-.profile-header h1 {
+.profile-info h1 {
     font-size: 2rem;
     margin: 0;
     color: white;
     text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
 }
 
-/* Stats Section */
-.stats-section {
-    background: rgba(255,255,255,0.05);
-    border-radius: 12px;
-    padding: 1.5rem;
+.profile-badge {
+    display: inline-block;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(5px);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    color: #ffd966;
+    margin-top: 8px;
+}
+
+/* Modern stats grid (11 items in 4 columns) */
+.stats-grid-modern {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
     margin-bottom: 2rem;
 }
-.stats-section h2 {
-    margin-top: 0;
-    margin-bottom: 1rem;
-    font-size: 1.5rem;
-    border-left: 4px solid #3498db;
-    padding-left: 12px;
-}
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
-}
-.stat-card {
-    background: rgba(0,0,0,0.3);
+.stat-card-modern {
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
     padding: 1rem;
-    border-radius: 8px;
     text-align: center;
     transition: transform 0.2s;
 }
-.stat-card:hover {
+.stat-card-modern:hover {
     transform: translateY(-3px);
+    background: rgba(255,255,255,0.1);
 }
-.stat-label {
-    display: block;
+.stat-card-modern .stat-label {
+    font-size: 0.75rem;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+}
+.stat-card-modern .stat-value {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: white;
+    line-height: 1;
+}
+.stat-card-modern .stat-sub {
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    margin-top: 4px;
+}
+
+/* Level & XP Section */
+.level-section {
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    text-align: center;
+}
+.level-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 8px;
+}
+.level-label {
     font-size: 0.9rem;
-    color: #aaa;
-    margin-bottom: 0.5rem;
+    color: var(--accent);
+    text-transform: uppercase;
 }
-.stat-value {
-    display: block;
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: #3498db;
+.level-number {
+    font-size: 2rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #ffd700, #ffb347);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+.xp-bar-container {
+    background: rgba(255,255,255,0.2);
+    border-radius: 10px;
+    height: 10px;
+    overflow: hidden;
+    margin: 10px 0;
+}
+.xp-bar {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #ffd700, #ffb347);
+    border-radius: 10px;
+    transition: width 0.5s ease;
+}
+.xp-text {
+    font-size: 0.8rem;
+    color: var(--text-dim);
 }
 
 /* About Section */
@@ -98,7 +152,7 @@
     margin-top: 0;
     margin-bottom: 1rem;
     font-size: 1.5rem;
-    border-left: 4px solid #3498db;
+    border-left: 4px solid var(--accent);
     padding-left: 12px;
 }
 .about-text {
@@ -106,7 +160,7 @@
     color: #ddd;
 }
 .about-text a {
-    color: #3498db;
+    color: var(--accent);
 }
 
 /* Favourites Section */
@@ -120,14 +174,14 @@
     margin-top: 1rem;
     margin-bottom: 1rem;
     font-size: 1.5rem;
-    border-left: 4px solid #3498db;
+    border-left: 4px solid var(--accent);
     padding-left: 12px;
 }
 .favourites-section h2:first-of-type {
     margin-top: 0;
 }
 
-/* Unified scroller and media-item styles */
+/* Scroller styles (same as before) */
 .scroller {
     display: flex;
     overflow-x: auto;
@@ -191,7 +245,6 @@
     line-height: 1.3;
 }
 
-/* Empty state messages */
 .empty-message {
     color: var(--text-dim);
     padding: 20px;
@@ -199,7 +252,6 @@
     font-size: 0.9rem;
 }
 
-/* Loading & Error */
 .loading-spinner {
     text-align: center;
     padding: 3rem;
@@ -214,57 +266,13 @@
     color: #e74c3c;
 }
 
-/* Gamified Stats */
-.gamified-stats {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 16px;
-    margin-bottom: 2rem;
-}
-.gamified-stats .stats-card {
-    background: rgba(255,255,255,0.05);
-    backdrop-filter: blur(10px);
-    border-radius: 20px;
-    padding: 1.2rem;
-    text-align: center;
-    transition: transform 0.2s;
-}
-.gamified-stats .stats-card:hover {
-    transform: translateY(-5px);
-}
-.gamified-stats .stat-label {
-    font-size: 0.8rem;
-    color: var(--accent);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 8px;
-}
-.gamified-stats .stat-value {
-    font-size: 2rem;
-    font-weight: 800;
-    color: white;
-    line-height: 1;
-}
-.gamified-stats .stat-sub {
-    font-size: 0.7rem;
-    color: var(--text-dim);
-    margin-top: 5px;
-}
-.level-card .stat-value {
-    font-size: 2.5rem;
-    background: linear-gradient(135deg, #ffd700, #ffb347);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-}
-
 @media (max-width: 768px) {
     .profile-header {
         flex-direction: column;
         align-items: center;
         text-align: center;
     }
-    .stats-grid {
+    .stats-grid-modern {
         grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
     }
     .media-item {
