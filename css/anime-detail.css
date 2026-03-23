@@ -1,4 +1,4 @@
-/* anime-detail.css - Styles specific to anime detail page */
+/* anime-detail.css - Enhanced styles for anime detail page */
 
 .detail-banner {
     height: 200px;
@@ -6,6 +6,7 @@
     background-size: cover;
     background-position: center;
     filter: brightness(0.6) blur(2px);
+    transition: filter 0.3s ease;
 }
 .detail-banner::after {
     content: '';
@@ -20,6 +21,7 @@
     z-index: 10;
     max-width: 800px;
     padding: 0 20px 120px;
+    animation: fadeInUp 0.5s ease-out;
 }
 
 .detail-header-new {
@@ -38,6 +40,11 @@
     object-fit: cover;
     border: 2px solid var(--glass-border);
     box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    transition: transform 0.2s ease, box-shadow 0.2s;
+}
+.detail-cover:hover {
+    transform: scale(1.02);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.6);
 }
 .detail-info {
     flex: 1;
@@ -68,11 +75,79 @@
     cursor: pointer;
     width: 100%;
     max-width: 200px;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.2s, box-shadow 0.3s;
+}
+.list-action-btn:not(.updated) {
+    box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+}
+.list-action-btn:not(.updated):hover {
+    box-shadow: 0 0 20px rgba(56, 189, 248, 0.8);
+}
+.list-action-btn::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255,255,255,0.3);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.4s, height 0.4s;
+}
+.list-action-btn:active::after {
+    width: 200%;
+    height: 200%;
 }
 .list-action-btn.updated {
     background: var(--glass-bg);
     color: var(--accent);
     border: 1px solid var(--accent);
+    box-shadow: none;
+}
+
+/* Statistics cards */
+.stat-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+}
+
+/* Character, staff, media, relation cards */
+.character-card, .staff-card, .media-item, .relation-card {
+    transition: transform 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1), box-shadow 0.3s;
+}
+.character-card:hover, .staff-card:hover, .media-item:hover, .relation-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.4);
+}
+
+/* Scroller smooth scroll */
+.scroller {
+    scroll-behavior: smooth;
+}
+
+/* Loading spinner enhancement */
+.spinner {
+    border-width: 3px;
+    border-top-color: var(--accent);
+    animation: spin 0.8s linear infinite;
+}
+
+/* Keyframes */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* List Editor Bottom Sheet */
@@ -97,6 +172,13 @@
     border-radius: 12px;
     padding: 10px;
     color: white;
+    transition: border-color 0.2s;
+}
+.list-editor-body .form-group select:focus,
+.list-editor-body .form-group input:focus,
+.list-editor-body .form-group textarea:focus {
+    outline: none;
+    border-color: var(--accent);
 }
 .list-editor-body .progress-input-group {
     display: flex;
@@ -110,6 +192,10 @@
     padding: 8px 12px;
     cursor: pointer;
     color: white;
+    transition: background 0.2s;
+}
+.list-editor-body .progress-input-group button:hover {
+    background: var(--glass-highlight);
 }
 .list-editor-body .progress-input-group input {
     width: 80px;
