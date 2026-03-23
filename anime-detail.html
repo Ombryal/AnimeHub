@@ -13,70 +13,129 @@
     <div id="loading-overlay"><div class="spinner"></div></div>
     <div class="bg-glow"></div>
 
-    <!-- Banner -->
-    <div id="det-banner"></div>
+    <!-- Banner (smaller, faded) -->
+    <div id="det-banner" class="detail-banner"></div>
 
     <!-- Back button -->
     <button class="back-btn" onclick="history.back()">
         <i class="fas fa-arrow-left"></i>
     </button>
 
-    <div class="container">
-        <div class="detail-header">
-            <img id="det-cover" alt="Cover">
-            <div>
+    <div class="container detail-container">
+        <div class="detail-header-new">
+            <div class="cover-wrapper">
+                <img id="det-cover" class="detail-cover" alt="Cover">
+            </div>
+            <div class="detail-info">
                 <h1 id="det-title"></h1>
+                <div id="det-status-badge" class="status-badge"></div>
+                <div class="list-action">
+                    <button id="list-action-btn" class="list-action-btn">ADD TO LIST</button>
+                </div>
             </div>
         </div>
 
-        <!-- List status (user's progress) -->
-        <div id="list-status" class="glass-card" style="display: none;">
-            <h3 id="list-status-title" class="section-label"></h3>
-            <div class="progress-container">
-                <div class="progress-bar" id="progress-bar"></div>
-                <div class="progress-text" id="progress-text"></div>
+        <!-- List Editor Modal -->
+        <div id="list-editor-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>List Editor</h3>
+                    <button class="close-modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>STATUS</label>
+                        <select id="list-status-select">
+                            <option value="CURRENT">Watching</option>
+                            <option value="PLANNING">Planning</option>
+                            <option value="COMPLETED">Completed</option>
+                            <option value="DROPPED">Dropped</option>
+                            <option value="PAUSED">Paused</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>PROGRESS</label>
+                        <div class="progress-input-group">
+                            <button id="progress-minus">-</button>
+                            <input type="number" id="list-progress" value="0" min="0">
+                            <button id="progress-plus">+</button>
+                            <span id="total-episodes"> / 0</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>SCORE</label>
+                        <select id="list-score">
+                            <option value="0">None</option>
+                            <option value="10">10 ★</option>
+                            <option value="9">9 ★</option>
+                            <option value="8">8 ★</option>
+                            <option value="7">7 ★</option>
+                            <option value="6">6 ★</option>
+                            <option value="5">5 ★</option>
+                            <option value="4">4 ★</option>
+                            <option value="3">3 ★</option>
+                            <option value="2">2 ★</option>
+                            <option value="1">1 ★</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>STARTED AT</label>
+                        <input type="date" id="list-start-date">
+                    </div>
+                    <div class="form-group">
+                        <label>COMPLETED AT</label>
+                        <input type="date" id="list-completed-date">
+                    </div>
+                    <div class="form-group">
+                        <label>NOTES</label>
+                        <textarea id="list-notes" rows="3"></textarea>
+                    </div>
+                    <div class="form-group checkbox">
+                        <input type="checkbox" id="list-private">
+                        <label for="list-private">Private</label>
+                    </div>
+                    <div class="form-group">
+                        <label>TOTAL REPEATS</label>
+                        <input type="number" id="list-repeat" value="0" min="0">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="delete-list-entry" class="delete-btn">Delete</button>
+                    <button id="save-list-entry" class="save-btn">Save</button>
+                </div>
             </div>
         </div>
 
-        <!-- Statistics grid -->
-        <div class="section-group">
-            <div class="row-header">
-                <h3>Statistics</h3>
-                <i class="fas fa-chart-bar"></i>
+        <!-- Existing content -->
+        <div class="detail-content">
+            <div class="section-group">
+                <div class="row-header">
+                    <h3>Statistics</h3>
+                    <i class="fas fa-chart-bar"></i>
+                </div>
+                <div id="det-stats-grid" class="stats-grid-container"></div>
             </div>
-            <div id="det-stats-grid" class="stats-grid-container"></div>
-        </div>
 
-        <!-- Synopsis -->
-        <div class="glass-card">
-            <h3 class="section-label">Synopsis</h3>
-            <p id="det-desc"></p>
-        </div>
+            <div class="glass-card">
+                <h3 class="section-label">Synopsis</h3>
+                <p id="det-desc"></p>
+            </div>
 
-        <!-- Romaji & Synonyms -->
-        <div class="glass-card">
-            <h3 class="section-label">Romaji Title</h3>
-            <p id="romaji-title"></p>
-            <h3 class="section-label">Synonyms</h3>
-            <p id="synonyms-list"></p>
-        </div>
+            <div class="glass-card">
+                <h3 class="section-label">Romaji Title</h3>
+                <p id="romaji-title"></p>
+                <h3 class="section-label">Synonyms</h3>
+                <p id="synonyms-list"></p>
+            </div>
 
-        <!-- Trailer -->
-        <div id="trailer-container"></div>
-
-        <!-- Relations -->
-        <div id="relations-section"></div>
-
-        <!-- Characters (horizontal scroller) -->
-        <div id="characters-section"></div>
-
-        <!-- Staff (horizontal scroller) -->
-        <div id="staff-section"></div>
-
-        <!-- Recommendations -->
-        <div id="recommendations-section">
-            <h3 class="section-title">Recommended</h3>
-            <div class="scroller" id="recommendations-scroll"></div>
+            <div id="trailer-container"></div>
+            <div id="relations-section"></div>
+            <div id="characters-section"></div>
+            <div id="staff-section"></div>
+            <div id="recommendations-section">
+                <h3 class="section-title">Recommended</h3>
+                <div class="scroller" id="recommendations-scroll"></div>
+            </div>
         </div>
     </div>
 
