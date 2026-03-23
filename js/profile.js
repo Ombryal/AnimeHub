@@ -89,7 +89,7 @@ function updateProfileUI(user) {
     const mangaStats = user.statistics.manga;
     const daysWatched = Math.floor(animeStats.minutesWatched / (60 * 24));
     
-    document.getElementById('followers').textContent = '?'; // We don't have follower count here
+    document.getElementById('followers').textContent = '?';
     document.getElementById('following').textContent = '?';
     document.getElementById('anime-count').textContent = animeStats.count || 0;
     document.getElementById('manga-count').textContent = mangaStats.count || 0;
@@ -99,6 +99,32 @@ function updateProfileUI(user) {
     document.getElementById('chapters-read').textContent = mangaStats.chaptersRead || 0;
     document.getElementById('volumes-read').textContent = mangaStats.volumesRead || 0;
     document.getElementById('manga-mean-score').textContent = mangaStats.meanScore ? (mangaStats.meanScore / 10).toFixed(1) + '★' : 'N/A';
+    
+    // ---- Gamified Stats ----
+    const episodes = animeStats.episodesWatched || 0;
+    const chapters = mangaStats.chaptersRead || 0;
+    const totalActivity = episodes + chapters;
+    
+    // Level: every 1000 activity points = 1 level
+    const level = Math.floor(totalActivity / 1000);
+    const nextLevelXP = (level + 1) * 1000;
+    const xpNeeded = nextLevelXP - totalActivity;
+    
+    const watchPower = episodes;
+    const days = daysWatched;
+    const chaptersRead = mangaStats.chaptersRead || 0;
+    const volumesRead = mangaStats.volumesRead || 0;
+    const animeScore = animeStats.meanScore ? (animeStats.meanScore / 10).toFixed(1) + '★' : 'N/A';
+    const mangaScore = mangaStats.meanScore ? (mangaStats.meanScore / 10).toFixed(1) + '★' : 'N/A';
+    
+    document.getElementById('user-level').textContent = level;
+    document.getElementById('next-rank-xp').textContent = `${xpNeeded} XP to next rank`;
+    document.getElementById('watchpower').textContent = watchPower.toLocaleString();
+    document.getElementById('days-watched-gamified').textContent = days;
+    document.getElementById('chapters-read-gamified').textContent = chaptersRead.toLocaleString();
+    document.getElementById('volumes-read-gamified').textContent = volumesRead.toLocaleString();
+    document.getElementById('anime-mean-score-gamified').textContent = animeScore;
+    document.getElementById('manga-mean-score-gamified').textContent = mangaScore;
     
     // About
     const aboutDiv = document.getElementById('about-text');
@@ -128,7 +154,7 @@ function updateProfileUI(user) {
         } else if (type === 'CHARACTER') {
             title = item.name.userPreferred;
             img = item.image?.large;
-            score = ''; // no score for characters
+            score = '';
             detailPage = `character-detail.html?id=${item.id}`;
         }
         
