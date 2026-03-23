@@ -35,14 +35,13 @@
             </div>
         </div>
 
-        <!-- List Editor Modal -->
-        <div id="list-editor-modal" class="modal">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h3>List Editor</h3>
-                    <button class="close-modal">&times;</button>
-                </div>
-                <div class="modal-body">
+        <!-- List Editor Bottom Sheet -->
+        <div id="list-editor-sheet" class="bottom-sheet">
+            <div class="sheet-overlay" id="close-list-editor"></div>
+            <div class="sheet-content">
+                <div class="sheet-handle"></div>
+                <h4>List Editor</h4>
+                <div class="list-editor-body">
                     <div class="form-group">
                         <label>STATUS</label>
                         <select id="list-status-select">
@@ -99,9 +98,9 @@
                         <input type="number" id="list-repeat" value="0" min="0">
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button id="delete-list-entry" class="delete-btn">Delete</button>
-                    <button id="save-list-entry" class="save-btn">Save</button>
+                <div class="filter-actions">
+                    <button id="delete-list-entry" class="btn-secondary">Delete</button>
+                    <button id="save-list-entry" class="btn-primary">Save</button>
                 </div>
             </div>
         </div>
