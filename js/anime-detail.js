@@ -1,5 +1,5 @@
 /**
- * anime-detail.js - Handles anime detail page with user list status, characters, staff
+ * anime-detail.js - Handles anime detail page with user list status, characters, staff, and list editor
  */
 
 const params = new URLSearchParams(window.location.search);
@@ -9,7 +9,11 @@ if (!id) {
     window.location.href = 'index.html';
 }
 
-// Media query with staff
+let mediaData = null;
+let listEntry = null;
+let userId = null;
+
+// Media query with start/end dates
 const mediaQuery = `
 query ($id: Int) {
   Media (id: $id, type: ANIME) {
@@ -17,6 +21,8 @@ query ($id: Int) {
     synonyms coverImage { extraLarge } bannerImage
     description format status episodes averageScore
     season seasonYear genres popularity duration
+    startDate { year month day }
+    endDate { year month day }
     trailer { id site }
     studios(isMain: true) { nodes { name } }
     relations {
@@ -48,16 +54,17 @@ query ($id: Int) {
 const listQuery = `
 query ($userId: Int, $mediaId: Int) {
   MediaList(userId: $userId, mediaId: $mediaId) {
+    id
     status
     progress
     score
     repeat
     startedAt { year month day }
     completedAt { year month day }
+    notes
+    private
   }
 }`;
-
-let userId = null;
 
 async function getUserId() {
     const viewerQuery = `query { Viewer { id } }`;
@@ -67,54 +74,62 @@ async function getUserId() {
 }
 
 async function loadAnime() {
-    const mediaData = await apiFetch(mediaQuery, { id: parseInt(id) });
-    if (!mediaData || !mediaData.Media) {
+    const mediaDataRes = await apiFetch(mediaQuery, { id: parseInt(id) });
+    if (!mediaDataRes || !mediaDataRes.Media) {
         showError("Anime not found");
         return;
     }
+    mediaData = mediaDataRes.Media;
 
     userId = await getUserId();
-    let listEntry = null;
     if (userId) {
         const listData = await apiFetch(listQuery, { userId: userId, mediaId: parseInt(id) });
         if (listData && listData.MediaList) listEntry = listData.MediaList;
     }
 
-    renderMediaDetails(mediaData.Media, listEntry);
+    renderMediaDetails(mediaData, listEntry);
+    initEditor(); // set up modal event listeners after DOM is ready
 }
 
-function renderMediaDetails(m, listEntry) {
-    // Banner and cover
+function renderMediaDetails(m, list) {
+    // Banner (smaller, faded)
     const banner = m.bannerImage || m.coverImage.extraLarge;
-    document.getElementById('det-banner').style.backgroundImage = `url('${banner}')`;
+    const bannerDiv = document.getElementById('det-banner');
+    bannerDiv.style.backgroundImage = `url('${banner}')`;
+    bannerDiv.classList.add('detail-banner');
+
+    // Cover
     document.getElementById('det-cover').src = m.coverImage.extraLarge;
+
+    // Title
     document.getElementById('det-title').innerText = m.title.english || m.title.romaji;
 
-    // List status section
-    const listStatusDiv = document.getElementById('list-status');
-    if (listEntry && m.episodes) {
-        const status = listEntry.status;
-        const progress = listEntry.progress || 0;
-        const total = m.episodes;
-        const percent = (progress / total) * 100;
+    // Status badge (media status)
+    const statusBadge = document.getElementById('det-status-badge');
+    statusBadge.innerText = m.status;
 
-        let statusText = '';
-        if (status === 'CURRENT') statusText = 'WATCHING';
-        else if (status === 'PLANNING') statusText = 'PLANNING TO WATCH';
-        else if (status === 'COMPLETED') statusText = 'COMPLETED';
-        else if (status === 'PAUSED') statusText = 'PAUSED';
-        else if (status === 'DROPPED') statusText = 'DROPPED';
-        else statusText = status;
-
-        document.getElementById('list-status-title').innerText = statusText;
-        document.getElementById('progress-bar').style.width = `${percent}%`;
-        document.getElementById('progress-text').innerHTML = `Episode ${progress} of ${total}<br>${percent.toFixed(2)}%`;
-        listStatusDiv.style.display = 'block';
+    // List button
+    const listBtn = document.getElementById('list-action-btn');
+    if (list && list.status) {
+        let btnText = '';
+        switch (list.status) {
+            case 'CURRENT': btnText = 'WATCHING'; break;
+            case 'PLANNING': btnText = 'PLANNING'; break;
+            case 'COMPLETED': btnText = 'COMPLETED'; break;
+            case 'DROPPED': btnText = 'DROPPED'; break;
+            case 'PAUSED': btnText = 'PAUSED'; break;
+            default: btnText = 'ADD TO LIST';
+        }
+        listBtn.innerText = btnText;
+        listBtn.classList.add('updated');
     } else {
-        listStatusDiv.style.display = 'none';
+        listBtn.innerText = 'ADD TO LIST';
+        listBtn.classList.remove('updated');
     }
 
-    // Stats
+    // Statistics grid (modified to match new design)
+    const statsGrid = document.getElementById('det-stats-grid');
+    const rating = m.averageScore ? (m.averageScore / 10).toFixed(1) + '/10' : '??';
     let displayDuration = "N/A";
     if (m.duration) {
         if (m.format === 'MOVIE') {
@@ -125,24 +140,20 @@ function renderMediaDetails(m, listEntry) {
             displayDuration = `${m.duration}m`;
         }
     }
-
-    const statsGrid = document.getElementById('det-stats-grid');
-    const rating = m.averageScore ? (m.averageScore / 10).toFixed(1) + '/10' : '??';
-
     statsGrid.innerHTML = `
-        ${renderStat('fa-play-circle', 'Type', m.type)}
-        ${renderStat('fa-star', 'Rating', rating)}
-        ${renderStat('fa-tv', 'Format', m.format)}
+        ${renderStat('fa-star', 'Mean Score', rating)}
         ${renderStat('fa-info-circle', 'Status', m.status)}
-        ${renderStat('fa-chart-line', 'Popularity', m.popularity.toLocaleString())}
-        ${renderStat('fa-film', 'Episodes', m.episodes || '??')}
+        ${renderStat('fa-film', 'Total Episodes', m.episodes || '??')}
+        ${renderStat('fa-clock', 'Average Duration', displayDuration)}
+        ${renderStat('fa-tv', 'Format', m.format)}
+        ${renderStat('fa-book-open', 'Source', m.studios.nodes[0]?.name || 'N/A')}
         ${renderStat('fa-calendar-alt', 'Season', m.season || 'N/A')}
-        ${renderStat('fa-clock', 'Duration', displayDuration)}
-        ${renderStat('fa-calendar-check', 'Premiered', m.season ? `${m.season} ${m.seasonYear}` : 'N/A')}
-        ${renderStat('fa-building', 'Studio', m.studios.nodes[0]?.name || 'N/A')}
+        ${renderStat('fa-calendar-check', 'Start Date', formatDate(m.startDate))}
+        ${renderStat('fa-calendar-check', 'End Date', formatDate(m.endDate))}
+        ${renderStat('fa-chart-line', 'Popularity', m.popularity?.toLocaleString() || '?')}
     `;
 
-    // Synopsis (formatted)
+    // Synopsis
     document.getElementById('det-desc').innerHTML = formatAnilistText(m.description);
     document.getElementById('romaji-title').innerText = m.title.romaji;
     document.getElementById('synonyms-list').innerText = m.synonyms.length > 0 ? m.synonyms.join(', ') : 'None';
@@ -168,60 +179,48 @@ function renderMediaDetails(m, listEntry) {
         </div>`;
     }
 
-    // Characters (horizontal scroller)
+    // Characters
     const charactersSection = document.getElementById('characters-section');
     if (m.characters.edges.length > 0) {
-        const charactersHtml = `
+        charactersSection.innerHTML = `
             <h3 class="section-title">Characters & Cast</h3>
-            <div class="scroller" id="characters-scroll">
+            <div class="scroller">
                 ${m.characters.edges.map(edge => {
                     const char = edge.node;
-                    const role = edge.role;
                     const va = edge.voiceActors[0];
                     return `
                         <div class="character-card" onclick="window.location.href='character-detail.html?id=${char.id}'">
-                            <div class="character-image">
-                                <img src="${char.image.large}" loading="lazy">
-                            </div>
+                            <div class="character-image"><img src="${char.image.large}" loading="lazy"></div>
                             <div class="character-name">${char.name.full}</div>
-                            <div class="character-role">${role}</div>
-                            ${va ? `
-                                <div class="voice-actor" onclick="event.stopPropagation(); window.location.href='staff-detail.html?id=${va.id}'">
-                                    🎙️ ${va.name.full}
-                                </div>
-                            ` : ''}
+                            <div class="character-role">${edge.role}</div>
+                            ${va ? `<div class="voice-actor" onclick="event.stopPropagation(); window.location.href='staff-detail.html?id=${va.id}'">🎙️ ${va.name.full}</div>` : ''}
                         </div>
                     `;
                 }).join('')}
             </div>
         `;
-        charactersSection.innerHTML = charactersHtml;
     } else {
         charactersSection.innerHTML = '';
     }
 
-    // Staff (horizontal scroller)
+    // Staff
     const staffSection = document.getElementById('staff-section');
-    if (m.staff && m.staff.edges.length > 0) {
-        const staffHtml = `
+    if (m.staff?.edges?.length > 0) {
+        staffSection.innerHTML = `
             <h3 class="section-title">Staff</h3>
-            <div class="scroller" id="staff-scroll">
+            <div class="scroller">
                 ${m.staff.edges.map(edge => {
                     const staff = edge.node;
-                    const role = edge.role;
                     return `
                         <div class="staff-card" onclick="window.location.href='staff-detail.html?id=${staff.id}'">
-                            <div class="staff-image">
-                                <img src="${staff.image?.large || 'placeholder.jpg'}" loading="lazy">
-                            </div>
+                            <div class="staff-image"><img src="${staff.image?.large || 'placeholder.jpg'}" loading="lazy"></div>
                             <div class="staff-name">${staff.name.full}</div>
-                            <div class="staff-role">${role}</div>
+                            <div class="staff-role">${edge.role}</div>
                         </div>
                     `;
                 }).join('')}
             </div>
         `;
-        staffSection.innerHTML = staffHtml;
     } else {
         staffSection.innerHTML = '';
     }
@@ -237,6 +236,169 @@ function renderStat(icon, label, val) {
         <div class="stat-header"><i class="fas ${icon}"></i> <span>${label}</span></div>
         <div class="stat-value">${val || 'N/A'}</div>
     </div>`;
+}
+
+function formatDate(dateObj) {
+    if (!dateObj || (!dateObj.year && !dateObj.month && !dateObj.day)) return 'N/A';
+    return `${dateObj.year || '?'}-${dateObj.month || '?'}-${dateObj.day || '?'}`;
+}
+
+// ---- List Editor Modal ----
+function openListEditor() {
+    const modal = document.getElementById('list-editor-modal');
+    modal.classList.add('active');
+
+    // Populate form with existing list data
+    const statusSelect = document.getElementById('list-status-select');
+    const progressInput = document.getElementById('list-progress');
+    const scoreSelect = document.getElementById('list-score');
+    const startDate = document.getElementById('list-start-date');
+    const endDate = document.getElementById('list-completed-date');
+    const notesText = document.getElementById('list-notes');
+    const privateCheck = document.getElementById('list-private');
+    const repeatInput = document.getElementById('list-repeat');
+    const totalEpSpan = document.getElementById('total-episodes');
+
+    totalEpSpan.innerText = ` / ${mediaData.episodes || '?'}`;
+
+    if (listEntry) {
+        statusSelect.value = listEntry.status || 'PLANNING';
+        progressInput.value = listEntry.progress || 0;
+        scoreSelect.value = listEntry.score || 0;
+        if (listEntry.startedAt?.year) {
+            startDate.value = `${listEntry.startedAt.year}-${(listEntry.startedAt.month || 1).toString().padStart(2,'0')}-${(listEntry.startedAt.day || 1).toString().padStart(2,'0')}`;
+        } else {
+            startDate.value = '';
+        }
+        if (listEntry.completedAt?.year) {
+            endDate.value = `${listEntry.completedAt.year}-${(listEntry.completedAt.month || 1).toString().padStart(2,'0')}-${(listEntry.completedAt.day || 1).toString().padStart(2,'0')}`;
+        } else {
+            endDate.value = '';
+        }
+        notesText.value = listEntry.notes || '';
+        privateCheck.checked = listEntry.private || false;
+        repeatInput.value = listEntry.repeat || 0;
+    } else {
+        statusSelect.value = 'PLANNING';
+        progressInput.value = 0;
+        scoreSelect.value = 0;
+        startDate.value = '';
+        endDate.value = '';
+        notesText.value = '';
+        privateCheck.checked = false;
+        repeatInput.value = 0;
+    }
+}
+
+async function saveListEntry() {
+    const status = document.getElementById('list-status-select').value;
+    let progress = parseInt(document.getElementById('list-progress').value) || 0;
+    const score = parseInt(document.getElementById('list-score').value);
+    const startDateStr = document.getElementById('list-start-date').value;
+    const endDateStr = document.getElementById('list-completed-date').value;
+    const notes = document.getElementById('list-notes').value;
+    const privateFlag = document.getElementById('list-private').checked;
+    const repeat = parseInt(document.getElementById('list-repeat').value) || 0;
+
+    // Ensure progress doesn't exceed total episodes
+    if (mediaData.episodes && progress > mediaData.episodes) progress = mediaData.episodes;
+
+    const startedAt = startDateStr ? {
+        year: parseInt(startDateStr.split('-')[0]),
+        month: parseInt(startDateStr.split('-')[1]),
+        day: parseInt(startDateStr.split('-')[2])
+    } : null;
+    const completedAt = endDateStr ? {
+        year: parseInt(endDateStr.split('-')[0]),
+        month: parseInt(endDateStr.split('-')[1]),
+        day: parseInt(endDateStr.split('-')[2])
+    } : null;
+
+    const mutation = `
+    mutation ($mediaId: Int, $status: MediaListStatus, $progress: Int, $score: Int, $startedAt: FuzzyDateInput, $completedAt: FuzzyDateInput, $notes: String, $private: Boolean, $repeat: Int) {
+        SaveMediaListEntry(mediaId: $mediaId, status: $status, progress: $progress, score: $score, startedAt: $startedAt, completedAt: $completedAt, notes: $notes, private: $private, repeat: $repeat) {
+            id
+            status
+            progress
+            score
+            startedAt { year month day }
+            completedAt { year month day }
+            notes
+            private
+            repeat
+        }
+    }`;
+    const variables = {
+        mediaId: parseInt(id),
+        status,
+        progress,
+        score,
+        startedAt,
+        completedAt,
+        notes,
+        private: privateFlag,
+        repeat
+    };
+    const result = await apiFetch(mutation, variables);
+    if (result?.SaveMediaListEntry) {
+        listEntry = result.SaveMediaListEntry;
+        // Update button text
+        const listBtn = document.getElementById('list-action-btn');
+        let btnText = '';
+        switch (status) {
+            case 'CURRENT': btnText = 'WATCHING'; break;
+            case 'PLANNING': btnText = 'PLANNING'; break;
+            case 'COMPLETED': btnText = 'COMPLETED'; break;
+            case 'DROPPED': btnText = 'DROPPED'; break;
+            case 'PAUSED': btnText = 'PAUSED'; break;
+        }
+        listBtn.innerText = btnText;
+        listBtn.classList.add('updated');
+        closeModal();
+    } else {
+        alert('Failed to save list entry.');
+    }
+}
+
+async function deleteListEntry() {
+    if (!listEntry) return;
+    const mutation = `mutation ($id: Int) { DeleteMediaListEntry(id: $id) { deleted } }`;
+    const result = await apiFetch(mutation, { id: listEntry.id });
+    if (result?.DeleteMediaListEntry?.deleted) {
+        listEntry = null;
+        const listBtn = document.getElementById('list-action-btn');
+        listBtn.innerText = 'ADD TO LIST';
+        listBtn.classList.remove('updated');
+        closeModal();
+    } else {
+        alert('Failed to delete list entry.');
+    }
+}
+
+function closeModal() {
+    const modal = document.getElementById('list-editor-modal');
+    modal.classList.remove('active');
+}
+
+function initEditor() {
+    const btn = document.getElementById('list-action-btn');
+    if (btn) btn.onclick = openListEditor;
+    document.getElementById('save-list-entry')?.addEventListener('click', saveListEntry);
+    document.getElementById('delete-list-entry')?.addEventListener('click', deleteListEntry);
+    document.querySelector('.close-modal')?.addEventListener('click', closeModal);
+    // Progress buttons
+    const progressInput = document.getElementById('list-progress');
+    const minus = document.getElementById('progress-minus');
+    const plus = document.getElementById('progress-plus');
+    if (minus) minus.onclick = () => {
+        let val = parseInt(progressInput.value) || 0;
+        if (val > 0) progressInput.value = val - 1;
+    };
+    if (plus) plus.onclick = () => {
+        let val = parseInt(progressInput.value) || 0;
+        if (mediaData.episodes && val < mediaData.episodes) progressInput.value = val + 1;
+        else if (!mediaData.episodes) progressInput.value = val + 1;
+    };
 }
 
 function showError(message) {
