@@ -334,6 +334,97 @@ async function saveListEntry() {
             repeat
         }
     }`;
+// ---- List Editor Bottom Sheet ----
+function openListEditor() {
+    const sheet = document.getElementById('list-editor-sheet');
+    sheet.classList.add('active');
+    document.body.classList.add('filter-sheet-open');
+
+    // Populate form with existing list data
+    const statusSelect = document.getElementById('list-status-select');
+    const progressInput = document.getElementById('list-progress');
+    const scoreSelect = document.getElementById('list-score');
+    const startDate = document.getElementById('list-start-date');
+    const endDate = document.getElementById('list-completed-date');
+    const notesText = document.getElementById('list-notes');
+    const privateCheck = document.getElementById('list-private');
+    const repeatInput = document.getElementById('list-repeat');
+    const totalEpSpan = document.getElementById('total-episodes');
+
+    totalEpSpan.innerText = ` / ${mediaData.episodes || '?'}`;
+
+    if (listEntry) {
+        statusSelect.value = listEntry.status || 'PLANNING';
+        progressInput.value = listEntry.progress || 0;
+        scoreSelect.value = listEntry.score || 0;
+        if (listEntry.startedAt?.year) {
+            startDate.value = `${listEntry.startedAt.year}-${(listEntry.startedAt.month || 1).toString().padStart(2,'0')}-${(listEntry.startedAt.day || 1).toString().padStart(2,'0')}`;
+        } else {
+            startDate.value = '';
+        }
+        if (listEntry.completedAt?.year) {
+            endDate.value = `${listEntry.completedAt.year}-${(listEntry.completedAt.month || 1).toString().padStart(2,'0')}-${(listEntry.completedAt.day || 1).toString().padStart(2,'0')}`;
+        } else {
+            endDate.value = '';
+        }
+        notesText.value = listEntry.notes || '';
+        privateCheck.checked = listEntry.private || false;
+        repeatInput.value = listEntry.repeat || 0;
+    } else {
+        statusSelect.value = 'PLANNING';
+        progressInput.value = 0;
+        scoreSelect.value = 0;
+        startDate.value = '';
+        endDate.value = '';
+        notesText.value = '';
+        privateCheck.checked = false;
+        repeatInput.value = 0;
+    }
+}
+
+function closeListEditor() {
+    const sheet = document.getElementById('list-editor-sheet');
+    sheet.classList.remove('active');
+    document.body.classList.remove('filter-sheet-open');
+}
+
+async function saveListEntry() {
+    const status = document.getElementById('list-status-select').value;
+    let progress = parseInt(document.getElementById('list-progress').value) || 0;
+    const score = parseInt(document.getElementById('list-score').value);
+    const startDateStr = document.getElementById('list-start-date').value;
+    const endDateStr = document.getElementById('list-completed-date').value;
+    const notes = document.getElementById('list-notes').value;
+    const privateFlag = document.getElementById('list-private').checked;
+    const repeat = parseInt(document.getElementById('list-repeat').value) || 0;
+
+    if (mediaData.episodes && progress > mediaData.episodes) progress = mediaData.episodes;
+
+    const startedAt = startDateStr ? {
+        year: parseInt(startDateStr.split('-')[0]),
+        month: parseInt(startDateStr.split('-')[1]),
+        day: parseInt(startDateStr.split('-')[2])
+    } : null;
+    const completedAt = endDateStr ? {
+        year: parseInt(endDateStr.split('-')[0]),
+        month: parseInt(endDateStr.split('-')[1]),
+        day: parseInt(endDateStr.split('-')[2])
+    } : null;
+
+    const mutation = `
+    mutation ($mediaId: Int, $status: MediaListStatus, $progress: Int, $score: Int, $startedAt: FuzzyDateInput, $completedAt: FuzzyDateInput, $notes: String, $private: Boolean, $repeat: Int) {
+        SaveMediaListEntry(mediaId: $mediaId, status: $status, progress: $progress, score: $score, startedAt: $startedAt, completedAt: $completedAt, notes: $notes, private: $private, repeat: $repeat) {
+            id
+            status
+            progress
+            score
+            startedAt { year month day }
+            completedAt { year month day }
+            notes
+            private
+            repeat
+        }
+    }`;
     const variables = {
         mediaId: parseInt(id),
         status,
@@ -359,6 +450,7 @@ async function saveListEntry() {
                 case 'COMPLETED': btnText = 'COMPLETED'; break;
                 case 'DROPPED': btnText = 'DROPPED'; break;
                 case 'PAUSED': btnText = 'PAUSED'; break;
+                default: btnText = 'ADD TO LIST';
             }
             listBtn.innerText = btnText;
             listBtn.classList.add('updated');
