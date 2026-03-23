@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>My Profile - AniList</title>
+    <title>My Profile - AniStats Pro</title>
     <link rel="stylesheet" href="css/global.css">
     <link rel="stylesheet" href="css/profile.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -20,58 +20,71 @@
             <!-- Avatar & Name -->
             <div class="profile-header">
                 <img id="profile-avatar" class="profile-avatar" src="" alt="Avatar">
-                <h1 id="profile-name"></h1>
-            </div>
-
-            <!-- Stats Grid (original) -->
-            <div class="stats-section">
-                <h2>Stats</h2>
-                <div class="stats-grid">
-                    <div class="stat-card"><span class="stat-label">Followers</span><span id="followers" class="stat-value">-</span></div>
-                    <div class="stat-card"><span class="stat-label">Following</span><span id="following" class="stat-value">-</span></div>
-                    <div class="stat-card"><span class="stat-label">Anime</span><span id="anime-count" class="stat-value">-</span></div>
-                    <div class="stat-card"><span class="stat-label">Manga</span><span id="manga-count" class="stat-value">-</span></div>
-                    <div class="stat-card"><span class="stat-label">Episodes Watched</span><span id="episodes-watched" class="stat-value">-</span></div>
-                    <div class="stat-card"><span class="stat-label">Days watched</span><span id="days-watched" class="stat-value">-</span></div>
-                    <div class="stat-card"><span class="stat-label">Anime Mean Score</span><span id="anime-mean-score" class="stat-value">-</span></div>
-                    <div class="stat-card"><span class="stat-label">Chapters Read</span><span id="chapters-read" class="stat-value">-</span></div>
-                    <div class="stat-card"><span class="stat-label">Volume read</span><span id="volumes-read" class="stat-value">-</span></div>
-                    <div class="stat-card"><span class="stat-label">Manga Mean Score</span><span id="manga-mean-score" class="stat-value">-</span></div>
+                <div class="profile-info">
+                    <h1 id="profile-name"></h1>
+                    <div class="profile-badge" id="profile-badge">BRONZE</div>
                 </div>
             </div>
 
-            <!-- Gamified Stats -->
-            <div class="gamified-stats">
-                <div class="stats-card level-card">
-                    <div class="stat-label">LEVEL</div>
-                    <div class="stat-value" id="user-level">0</div>
-                    <div class="stat-sub" id="next-rank-xp">0 XP to next rank</div>
+            <!-- Main Stats Grid (like the image) -->
+            <div class="stats-grid-modern">
+                <div class="stat-card-modern">
+                    <div class="stat-label">Followers</div>
+                    <div class="stat-value" id="followers-modern">0</div>
                 </div>
-                <div class="stats-card watchpower-card">
-                    <div class="stat-label">WATCHPOWER</div>
-                    <div class="stat-value" id="watchpower">0</div>
+                <div class="stat-card-modern">
+                    <div class="stat-label">Following</div>
+                    <div class="stat-value" id="following-modern">0</div>
                 </div>
-                <div class="stats-card time-card">
-                    <div class="stat-label">TIME INVESTED</div>
-                    <div class="stat-value" id="days-watched-gamified">0</div>
+                <div class="stat-card-modern">
+                    <div class="stat-label">Series Completed</div>
+                    <div class="stat-value" id="series-completed">0</div>
+                </div>
+                <div class="stat-card-modern">
+                    <div class="stat-label">Anime</div>
+                    <div class="stat-value" id="anime-count-modern">0</div>
+                </div>
+                <div class="stat-card-modern">
+                    <div class="stat-label">Manga</div>
+                    <div class="stat-value" id="manga-count-modern">0</div>
+                </div>
+                <div class="stat-card-modern">
+                    <div class="stat-label">WatchPower</div>
+                    <div class="stat-value" id="watchpower-modern">0</div>
+                </div>
+                <div class="stat-card-modern">
+                    <div class="stat-label">Time Invested</div>
+                    <div class="stat-value" id="days-watched-modern">0</div>
                     <div class="stat-sub">Days</div>
                 </div>
-                <div class="stats-card chapters-card">
-                    <div class="stat-label">CHAPTERS READ</div>
-                    <div class="stat-value" id="chapters-read-gamified">0</div>
+                <div class="stat-card-modern">
+                    <div class="stat-label">Chapters Read</div>
+                    <div class="stat-value" id="chapters-read-modern">0</div>
                 </div>
-                <div class="stats-card volumes-card">
-                    <div class="stat-label">VOLUMES READ</div>
-                    <div class="stat-value" id="volumes-read-gamified">0</div>
+                <div class="stat-card-modern">
+                    <div class="stat-label">Volumes Read</div>
+                    <div class="stat-value" id="volumes-read-modern">0</div>
                 </div>
-                <div class="stats-card anime-score-card">
-                    <div class="stat-label">ANIME MEAN SCORE</div>
-                    <div class="stat-value" id="anime-mean-score-gamified">0★</div>
+                <div class="stat-card-modern">
+                    <div class="stat-label">Anime Mean Score</div>
+                    <div class="stat-value" id="anime-mean-score-modern">0★</div>
                 </div>
-                <div class="stats-card manga-score-card">
-                    <div class="stat-label">MANGA MEAN SCORE</div>
-                    <div class="stat-value" id="manga-mean-score-gamified">0★</div>
+                <div class="stat-card-modern">
+                    <div class="stat-label">Manga Mean Score</div>
+                    <div class="stat-value" id="manga-mean-score-modern">0★</div>
                 </div>
+            </div>
+
+            <!-- Level & XP Section -->
+            <div class="level-section">
+                <div class="level-header">
+                    <span class="level-label">LEVEL</span>
+                    <span class="level-number" id="user-level-modern">0</span>
+                </div>
+                <div class="xp-bar-container">
+                    <div class="xp-bar" id="xp-bar" style="width: 0%;"></div>
+                </div>
+                <div class="xp-text" id="next-rank-xp-modern">0 XP to next rank</div>
             </div>
 
             <!-- About Me -->
@@ -80,7 +93,7 @@
                 <div id="about-text" class="about-text"></div>
             </div>
 
-            <!-- Favourites (all horizontal scrollers) -->
+            <!-- Favourites (horizontal scrollers) -->
             <div class="favourites-section">
                 <h2>Favourite Anime</h2>
                 <div class="scroller" id="favourite-anime"></div>
