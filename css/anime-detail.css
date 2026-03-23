@@ -186,3 +186,52 @@
     border-radius: 20px;
     cursor: pointer;
   }
+
+/* List Editor Bottom Sheet */
+.list-editor-body {
+    margin: 0 0 20px 0;
+}
+.list-editor-body .form-group {
+    margin-bottom: 16px;
+}
+.list-editor-body .form-group label {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--accent);
+    margin-bottom: 5px;
+}
+.list-editor-body .form-group select,
+.list-editor-body .form-group input,
+.list-editor-body .form-group textarea {
+    width: 100%;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 10px;
+    color: white;
+}
+.list-editor-body .progress-input-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.list-editor-body .progress-input-group button {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    cursor: pointer;
+    color: white;
+}
+.list-editor-body .progress-input-group input {
+    width: 80px;
+    text-align: center;
+}
+.list-editor-body .checkbox {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.list-editor-body .checkbox input {
+    width: auto;
+}
