@@ -214,6 +214,50 @@
     color: #e74c3c;
 }
 
+/* Gamified Stats */
+.gamified-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 2rem;
+}
+.gamified-stats .stats-card {
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 1.2rem;
+    text-align: center;
+    transition: transform 0.2s;
+}
+.gamified-stats .stats-card:hover {
+    transform: translateY(-5px);
+}
+.gamified-stats .stat-label {
+    font-size: 0.8rem;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+}
+.gamified-stats .stat-value {
+    font-size: 2rem;
+    font-weight: 800;
+    color: white;
+    line-height: 1;
+}
+.gamified-stats .stat-sub {
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    margin-top: 5px;
+}
+.level-card .stat-value {
+    font-size: 2.5rem;
+    background: linear-gradient(135deg, #ffd700, #ffb347);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
 @media (max-width: 768px) {
     .profile-header {
         flex-direction: column;
