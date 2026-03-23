@@ -243,10 +243,11 @@ function formatDate(dateObj) {
     return `${dateObj.year || '?'}-${dateObj.month || '?'}-${dateObj.day || '?'}`;
 }
 
-// ---- List Editor Modal ----
+// ---- List Editor Bottom Sheet ----
 function openListEditor() {
-    const modal = document.getElementById('list-editor-modal');
-    modal.classList.add('active');
+    const sheet = document.getElementById('list-editor-sheet');
+    sheet.classList.add('active');
+    document.body.classList.add('filter-sheet-open');
 
     // Populate form with existing list data
     const statusSelect = document.getElementById('list-status-select');
@@ -290,6 +291,12 @@ function openListEditor() {
     }
 }
 
+function closeListEditor() {
+    const sheet = document.getElementById('list-editor-sheet');
+    sheet.classList.remove('active');
+    document.body.classList.remove('filter-sheet-open');
+}
+
 async function saveListEntry() {
     const status = document.getElementById('list-status-select').value;
     let progress = parseInt(document.getElementById('list-progress').value) || 0;
@@ -300,7 +307,6 @@ async function saveListEntry() {
     const privateFlag = document.getElementById('list-private').checked;
     const repeat = parseInt(document.getElementById('list-repeat').value) || 0;
 
-    // Ensure progress doesn't exceed total episodes
     if (mediaData.episodes && progress > mediaData.episodes) progress = mediaData.episodes;
 
     const startedAt = startDateStr ? {
@@ -339,53 +345,63 @@ async function saveListEntry() {
         private: privateFlag,
         repeat
     };
-    const result = await apiFetch(mutation, variables);
-    if (result?.SaveMediaListEntry) {
-        listEntry = result.SaveMediaListEntry;
-        // Update button text
-        const listBtn = document.getElementById('list-action-btn');
-        let btnText = '';
-        switch (status) {
-            case 'CURRENT': btnText = 'WATCHING'; break;
-            case 'PLANNING': btnText = 'PLANNING'; break;
-            case 'COMPLETED': btnText = 'COMPLETED'; break;
-            case 'DROPPED': btnText = 'DROPPED'; break;
-            case 'PAUSED': btnText = 'PAUSED'; break;
+
+    try {
+        const result = await apiFetch(mutation, variables);
+        if (result?.SaveMediaListEntry) {
+            listEntry = result.SaveMediaListEntry;
+            // Update button text
+            const listBtn = document.getElementById('list-action-btn');
+            let btnText = '';
+            switch (status) {
+                case 'CURRENT': btnText = 'WATCHING'; break;
+                case 'PLANNING': btnText = 'PLANNING'; break;
+                case 'COMPLETED': btnText = 'COMPLETED'; break;
+                case 'DROPPED': btnText = 'DROPPED'; break;
+                case 'PAUSED': btnText = 'PAUSED'; break;
+            }
+            listBtn.innerText = btnText;
+            listBtn.classList.add('updated');
+            closeListEditor();
+        } else {
+            console.error('Save failed, response:', result);
+            alert('Failed to save list entry. Check console for details.');
         }
-        listBtn.innerText = btnText;
-        listBtn.classList.add('updated');
-        closeModal();
-    } else {
-        alert('Failed to save list entry.');
+    } catch (error) {
+        console.error('API error:', error);
+        alert('API error: ' + error.message);
     }
 }
 
 async function deleteListEntry() {
     if (!listEntry) return;
     const mutation = `mutation ($id: Int) { DeleteMediaListEntry(id: $id) { deleted } }`;
-    const result = await apiFetch(mutation, { id: listEntry.id });
-    if (result?.DeleteMediaListEntry?.deleted) {
-        listEntry = null;
-        const listBtn = document.getElementById('list-action-btn');
-        listBtn.innerText = 'ADD TO LIST';
-        listBtn.classList.remove('updated');
-        closeModal();
-    } else {
-        alert('Failed to delete list entry.');
+    try {
+        const result = await apiFetch(mutation, { id: listEntry.id });
+        if (result?.DeleteMediaListEntry?.deleted) {
+            listEntry = null;
+            const listBtn = document.getElementById('list-action-btn');
+            listBtn.innerText = 'ADD TO LIST';
+            listBtn.classList.remove('updated');
+            closeListEditor();
+        } else {
+            alert('Failed to delete list entry.');
+        }
+    } catch (error) {
+        console.error('Delete error:', error);
+        alert('API error: ' + error.message);
     }
-}
-
-function closeModal() {
-    const modal = document.getElementById('list-editor-modal');
-    modal.classList.remove('active');
 }
 
 function initEditor() {
     const btn = document.getElementById('list-action-btn');
     if (btn) btn.onclick = openListEditor;
-    document.getElementById('save-list-entry')?.addEventListener('click', saveListEntry);
-    document.getElementById('delete-list-entry')?.addEventListener('click', deleteListEntry);
-    document.querySelector('.close-modal')?.addEventListener('click', closeModal);
+    const saveBtn = document.getElementById('save-list-entry');
+    const deleteBtn = document.getElementById('delete-list-entry');
+    const closeOverlay = document.getElementById('close-list-editor');
+    if (saveBtn) saveBtn.addEventListener('click', saveListEntry);
+    if (deleteBtn) deleteBtn.addEventListener('click', deleteListEntry);
+    if (closeOverlay) closeOverlay.addEventListener('click', closeListEditor);
     // Progress buttons
     const progressInput = document.getElementById('list-progress');
     const minus = document.getElementById('progress-minus');
