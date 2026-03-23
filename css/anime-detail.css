@@ -150,10 +150,27 @@
     }
 }
 
-/* List Editor Bottom Sheet */
-.list-editor-body {
-    margin-bottom: 20px;
+/* List Editor Bottom Sheet – scrollable form, buttons always visible */
+#list-editor-sheet .sheet-content {
+    display: flex;
+    flex-direction: column;
+    max-height: 85vh;
+    overflow: hidden;
 }
+#list-editor-sheet .list-editor-body {
+    flex: 1;
+    overflow-y: auto;
+    margin-bottom: 0;
+    padding-right: 4px;
+}
+#list-editor-sheet .filter-actions {
+    flex-shrink: 0;
+    margin-top: 16px;
+    padding-top: 12px;
+    border-top: 1px solid var(--glass-border);
+}
+
+/* Form styling inside list editor */
 .list-editor-body .form-group {
     margin-bottom: 16px;
 }
