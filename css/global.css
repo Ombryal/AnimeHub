@@ -667,3 +667,8 @@ body {
         max-width: 490px;      /* 3 cards + peek */
     }
 }
+
+/* Prevent body scroll when a bottom sheet is open */
+body.filter-sheet-open {
+    overflow: hidden;
+}
