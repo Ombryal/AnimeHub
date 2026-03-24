@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Reader - AniStats Pro</title>
+    <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="css/reader.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div id="loading-overlay"><div class="spinner"></div></div>
+    <div class="bg-glow"></div>
+
+    <div class="reader-container">
+        <header class="reader-header">
+            <button class="back-btn" onclick="history.back()">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <h1 id="manga-title">Loading...</h1>
+        </header>
+
+        <div class="chapters-list" id="chapters-list"></div>
+
+        <div class="reader-content" id="reader-content" style="display: none;">
+            <div class="chapter-nav">
+                <button id="prev-chapter" disabled>Previous</button>
+                <span id="chapter-number"></span>
+                <button id="next-chapter" disabled>Next</button>
+            </div>
+            <div id="chapter-images" class="chapter-images"></div>
+            <button id="back-to-list" class="back-to-list-btn">Back to Chapters</button>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/reader.js"></script>
+</body>
+</html>
