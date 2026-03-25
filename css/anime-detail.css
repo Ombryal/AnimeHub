@@ -226,3 +226,41 @@
 .list-editor-body .checkbox input {
     width: auto;
 }
+
+/* Fixed bottom bar */
+.detail-bottom-bar {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 280px;
+    height: 55px;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    border: 1px solid var(--glass-highlight);
+    border-radius: 35px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    z-index: 1000;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+}
+.detail-bottom-bar .bottom-bar-btn {
+    color: #475569;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: var(--transition-smooth);
+    padding: 8px 20px;
+    border-radius: 25px;
+}
+.detail-bottom-bar .bottom-bar-btn.active {
+    background: linear-gradient(135deg, var(--accent), #0284c7);
+    color: var(--bg-base);
+    box-shadow: 0 4px 15px rgba(56, 189, 248, 0.4);
+}
+.detail-bottom-bar .bottom-bar-btn:not(.active):hover {
+    color: var(--text-dim);
+    background: rgba(255,255,255,0.1);
+}
