@@ -112,7 +112,7 @@ function renderMediaDetails(m, list) {
         listBtn.classList.remove('updated');
     }
 
-    // READ button link
+    // READ button link (under cover)
     const readBtn = document.getElementById('read-btn');
     readBtn.href = `reader.html?mangaId=${m.id}`;
 
@@ -153,6 +153,25 @@ function renderMediaDetails(m, list) {
     // Recommendations
     const recs = m.recommendations.nodes.map(n => n.mediaRecommendation);
     renderScrollerItems('recommendations-scroll', recs, 'MANGA', false);
+
+    // Bottom bar buttons
+    const infoBtn = document.getElementById('info-bottom-btn');
+    const readBtnBottom = document.getElementById('read-bottom-btn');
+    const commentsBtnBottom = document.getElementById('comments-bottom-btn');
+
+    if (infoBtn) infoBtn.classList.add('active');
+
+    if (readBtnBottom) {
+        readBtnBottom.href = `reader.html?mangaId=${m.id}`;
+    }
+
+    if (commentsBtnBottom) {
+        commentsBtnBottom.onclick = (e) => {
+            e.preventDefault();
+            alert('Comments feature coming soon!');
+        };
+    }
+
     hideLoader();
 }
 
